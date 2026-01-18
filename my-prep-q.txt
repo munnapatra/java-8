@@ -1,9 +1,84 @@
-Spring
-------
-dependency inversion principle vs Dependency Injection
-@component vs @service vs @repository
-What will happen if you will use @service over a DAO?
-Explain spring Bean Lifecycle
+🌐 SPRING / SPRING BOOT (Must for Backend Devs)
+-------------------------------------------------------------
+🔹 Q1. Dependency inversion principle vs Dependency Injection
+-------------------------------------------------------------
+🔑 Dependency Inversion Principle (DIP) is a design principle. 
+	✔Part of SOLID principles.
+	✔High-level modules should not depend on low-level modules. Both should depend on abstractions.
+🔑 Dependency Injection (DI) is a design pattern / technique to implement that principle.
+	✔Provides dependencies from outside instead of creating them
+	✔Achieve loose coupling, Enable DIP, Improve testability
+	
+-------------------------------------------------------------
+🔹 Q2. @Component vs @Service vs @Repository vs @RestController vs @Controller
+-------------------------------------------------------------
+All five are Spring stereotype annotations used for component scanning, 
+but each represents a different layer and responsibility in a Spring application.
+🔑 @Component — Generic Spring Bean 
+	✔What is it: Base stereotype annotation, Parent of all other stereotypes.
+	✔When to use: Utility classes, Helpers, Shared components, When no specific layer fits
+	
+🔑 @Service — Business Logic Layer
+	✔ What it is: Specialization of @Component, Represents service layer
+	✔ When to use: Business rules, Orchestration logic, Transaction boundaries
+	✔ Enables clean application of cross-cutting concerns
+
+🔑 @Repository — Persistence / DAO Layer (Special behavior Exception translation)
+	✔ What it is: Specialization of @Component, Represents data access layer
+	✔ Exception translation: Converts SQLException, HibernateException Into DataAccessException (unchecked)
+	✔ Using @Service instead of @Repository works, but you lose exception translation.
+	
+🔑 @Controller — MVC Web Controller
+	✔ What it is: Specialization of @Component, Used in Spring MVC (server-side rendering)
+	✔ Default behavior: Returns view names, Used with JSP, Thymeleaf, etc., Needs @ResponseBody for REST
+
+🔑 @RestController — REST API Controller
+	✔ What it is: Combination of: @Controller + @ResponseBody
+	✔ When to use: REST APIs, Microservices, JSON / XML responses
+
+-------------------------------------------------------------
+🔹 Q3. Explain spring Bean Lifecycle ?
+-------------------------------------------------------------
+🔁 What is the Spring Bean Lifecycle: It is the sequence of steps Spring follows to create, initialize, use, and destroy a bean inside the IoC container.
+🪜 Step-by-Step Lifecycle
+1️⃣ Bean Definition Loaded
+	✔ Spring reads configuration (XML / Java Config / Annotations).
+	✔ Creates BeanDefinition (scope, dependencies, init/destroy methods).
+
+2️⃣ Bean Instantiation: 
+	✔ Spring creates the bean instance using the constructor.
+	✔ Object exists, but dependencies are not injected yet.
+
+3️⃣ Dependency Injection (Populate Properties)
+	✔ Injects dependencies via: Constructor / Setter / Field (@Autowired)
+	
+4️⃣ Aware Interfaces (Optional)
+	✔ If implemented, Spring injects container context: BeanNameAware, BeanFactoryAware, ApplicationContextAware
+	
+5️⃣ BeanPostProcessor — Before Initialization [postProcessBeforeInitialization(bean, beanName)]
+	✔ Used for: Validation, Pre-init customization, Framework logic
+
+6️⃣ Initialization Phase (IMPORTANT) : Spring runs any/all of the following in order:
+	✔ a) @PostConstruct (Recommended)
+	✔ b) InitializingBean.afterPropertiesSet()
+	✔ c) Custom init-method : @Bean(initMethod = "customInit")
+
+7️⃣ BeanPostProcessor — After Initialization [postProcessAfterInitialization(bean, beanName)]
+	✔ AOP proxies (@Transactional, @Async) are created here.
+
+8️⃣ Bean is READY to Use 🎉: 
+	✔ Fully initialized, Dependencies injected, Proxies applied (if any), Available from ApplicationContext
+
+8️⃣  Destruction Phase (Shutdown) 
+	✔ Triggered when: Application stops, Context is closed
+	🧹 Destruction callbacks (order):
+		✔a) @PreDestroy
+		✔b) DisposableBean.destroy()
+		✔c) Custom destroy-method
+⚠️ Called only for singleton beans
+⚠️ Prototype beans are not destroyed by Spring
+
+
 how you will call the @Predestory marked methods in the standalone application.
 Explain the helper class that initializes and destroys the web application context.
 What are the RestClients you have used in your project?
