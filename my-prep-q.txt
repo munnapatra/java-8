@@ -39,7 +39,8 @@ but each represents a different layer and responsibility in a Spring application
 -------------------------------------------------------------
 🔹 Q3. Explain spring Bean Lifecycle ?
 -------------------------------------------------------------
-🔁 What is the Spring Bean Lifecycle: It is the sequence of steps Spring follows to create, initialize, use, and destroy a bean inside the IoC container.
+🔁 What is the Spring Bean Lifecycle: It is the sequence of steps Spring follows to create,
+   initialize, use, and destroy a bean inside the IoC container.
 🪜 Step-by-Step Lifecycle
 1️⃣ Bean Definition Loaded
 	✔ Spring reads configuration (XML / Java Config / Annotations).
@@ -72,27 +73,270 @@ but each represents a different layer and responsibility in a Spring application
 8️⃣  Destruction Phase (Shutdown) 
 	✔ Triggered when: Application stops, Context is closed
 	🧹 Destruction callbacks (order):
-		✔a) @PreDestroy
-		✔b) DisposableBean.destroy()
-		✔c) Custom destroy-method
+		✔ a) @PreDestroy
+		✔ b) DisposableBean.destroy()
+		✔ c) Custom destroy-method
 ⚠️ Called only for singleton beans
 ⚠️ Prototype beans are not destroyed by Spring
 
+-------------------------------------------------------------
+🔹 Q4. How you will call the @Predestory marked methods in the standalone application.
+-------------------------------------------------------------
+🔑 Key rule: @PreDestroy methods are called only when the Spring container is closed.
+✔ In a standalone (non-web) application, you must explicitly close the ApplicationContext.
+	🧹context.close(); 
+	✅ Using try-with-resources
+	✅ Alternative (Register shutdown hook): context.registerShutdownHook();
+🔑 Why @PreDestroy does NOT work for prototype scope:
+	✅Spring manages the entire lifecycle of singleton beans, but only the creation phase of prototype beans.
+🔑 Then who should destroy prototype beans?
+	👉 Developer. TempBean bean = context.getBean(TempBean.class); bean.cleanup();
+	👉 Or implement AutoCloseable:
+		public class TempBean implements AutoCloseable {
+			@Override
+			public void close() {
+				// cleanup
+			}
+		}
+🔑 What happens in a Web Application?
+	👉 The Servlet container (Tomcat / Jetty / Undertow) controls the lifecycle.
+	👉 @PreDestroy methods are called automatically when the web application is shutting down.
+✅ Who triggers it internally?
+	✔Classic Spring MVC (WAR) : ContextLoaderListener, Listens to servlet lifecycle, Calls contextDestroyed(), Closes Spring context
+	✔Spring Boot: Embedded server, Spring Boot auto-registers shutdown hooks, Calls ApplicationContext.close()
 
-how you will call the @Predestory marked methods in the standalone application.
-Explain the helper class that initializes and destroys the web application context.
-What are the RestClients you have used in your project?
-getForEntity() vs postForEntity()
-What are the uses of ResponseEntity?
-What should be the delete API method status code?
-Why should you handle response timeout while calling any API?
-Explain the differences between Server timeout and Read timeout.
-What is versioning in Rest? what are the ways that you can use to implement versioning? 
-How does Basic Authentication work in Rest API?
-Should you use JWT or Session-based authentication in the microservices environment? 
-What is content negotiation?
-What are the cross-cutting concerns in spring? how do you implement it in microservices architecture?
-How to create custom validators in spring?
+-------------------------------------------------------------
+🔹 Q5. Explain the helper class that initializes and destroys the web application context.
+-------------------------------------------------------------
+🔑 ContextLoaderListener is a Spring-provided ServletContext listener that bridges the servlet container lifecycle with the Spring IoC container.It initialize the root WebApplicationContext when the web app starts and destroy (close) the WebApplicationContext when the web app stops.
+
+🔑 Why is this helper class needed?: In a web application, the lifecycle is controlled by the Servlet container (Tomcat, Jetty, etc.), not by Spring. Spring needs a hook to Start the IoC container at application startup and Cleanly shut it down during application shutdown. ➡️ ContextLoaderListener provides exactly this hook.
+
+🔑 What happens during Application Startup?
+Web Container starts ↓ ServletContext initialized ↓ ContextLoaderListener.contextInitialized()
+↓ Spring creates Root WebApplicationContext ↓ Beans are instantiated & initialized
+
+Internally: Reads contextConfigLocation, Creates the root application context, Stores it in ServletContext
+
+🔑 What happens during Application Shutdown?
+Server stops / App undeployed ↓ ServletContext destroyed ↓ ContextLoaderListener.contextDestroyed() 
+↓ Spring closes ApplicationContext ↓ @PreDestroy / destroy() methods called
+
+✔ Proper cleanup, Resource release, Graceful shutdown
+
+🔑 Configuration (Classic Spring MVC – WAR)
+	web.xml
+	<listener>
+		<listener-class>
+			org.springframework.web.context.ContextLoaderListener
+		</listener-class>
+	</listener>
+
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>/WEB-INF/applicationContext.xml</param-value>
+	</context-param>
+
+🔑 Root vs Servlet WebApplicationContext (IMPORTANT)
+Spring web apps have two contexts: 
+| Context                           | Created by              | Contains                            |
+| --------------------------------- | ----------------------- | ----------------------------------- |
+| **Root WebApplicationContext**    | `ContextLoaderListener` | Services, Repositories, DataSources |
+| **Servlet WebApplicationContext** | `DispatcherServlet`     | Controllers, ViewResolvers          |
+
+
+🔑 Relationship with DispatcherServlet
+	✔ ContextLoaderListener → initializes shared beans
+	✔ DispatcherServlet → handles web layer only
+	✔ This separation: Improves modularity, Keeps web concerns isolated
+
+🔑 What about Spring Boot?
+	✔ You do not explicitly configure ContextLoaderListener
+	✔ Boot auto-configures it internally
+	✔ Lifecycle behavior remains the same
+
+-------------------------------------------------------------
+🔹 Q5. What are all RestClients in spring?
+-------------------------------------------------------------
+🔑 RestTemplate (Legacy – synchronous)
+	✔ Where: Older Spring Boot (2.x) projects, Simple internal REST calls
+	✔ Why: Easy to use, Blocking & synchronous
+
+🔑 WebClient (Reactive & non-blocking)
+	✔ Where: Microservices, High-throughput systems, Parallel API calls
+	✔ Why: Non-blocking I/O, Better scalability, Supports reactive streams
+	
+🔑 Spring RestClient (Spring 6+) ⭐ Preferred now
+	✔ Where: New Spring Boot 3 projects
+	✔ Why: Modern replacement for RestTemplate, Fluent, clean API, Still synchronous (easy to reason about)
+
+🔑 Feign Client (Declarative REST client)
+	✔ Where: Microservices (Spring Cloud), Service-to-service communication
+	✔ Why: Interface-based, Less boilerplate, Integrates well with load balancing & resilience
+	
+🔑 Apache HttpClient (Low-level control)
+	✔ Where: Legacy systems, Custom SSL / proxy / timeout requirements
+	✔ Why: Full control over HTTP, Fine-grained configuration
+
+-------------------------------------------------------------
+🔹 Q6. getForEntity() vs postForEntity()
+-------------------------------------------------------------
+| Aspect         | `getForEntity()` | `postForEntity()` |
+| -------------- | ---------------- | ----------------- |
+| HTTP Method    | GET              | POST              |
+| Purpose        | Fetch data       | Create/send data  |
+| Request Body   | ❌ No            | ✅ Yes           |
+| Idempotent     | ✅ Yes           | ❌ No            |
+| Cacheable      | ✅ Yes           | ❌ No            |
+| Typical Status | 200 OK           | 201 Created       |
+| Use case       | Read operations  | Create operations |
+
+-------------------------------------------------------------
+🔹 Q7. What are the uses of ResponseEntity?
+-------------------------------------------------------------
+ResponseEntity<T> represents the entire HTTP response — status code, headers, and body.
+1️⃣ Control HTTP Status Codes : ✅ return ResponseEntity.status(HttpStatus.CREATED).body(user);
+	✔ Instead of always returning 200 OK, you can return meaningful REST status codes.
+2️⃣ Add / Modify HTTP Headers : ✅ return new ResponseEntity<>(user, headers, HttpStatus.OK);
+	✔ Used for: Authentication tokens, Location header, Caching, CORS, Custom metadata
+3️⃣ Return Response Body Conditionally
+4️⃣ Build RESTful Responses (Best Practice)
+5️⃣ Support Content Negotiation : ✅ return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)body(user);
+	✔ ResponseEntity works with: Accept header, Message converters
+6️⃣ Handle Empty Responses Properly
+7️⃣ Centralized Error Handling Integration
+8️⃣ Generic & Type-safe Responses
+9️⃣ Avoid Using void or Raw Objects ❌
+
+-------------------------------------------------------------
+🔹 Q7. Why should you handle response timeout while calling any API?
+-------------------------------------------------------------
+🔑 We handle response timeouts to avoid thread blocking, prevent cascading failures,
+ protect system resources, and maintain predictable latency and SLAs.
+1️⃣ Prevent thread blocking & resource exhaustion
+	✔ Without a timeout, a client thread can wait forever.
+	✔ Under load, blocked threads exhaust pools → system slowdown or crash.
+	✔ Timeout = fail fast and free resources.
+	
+2️⃣ Avoid cascading failures
+	✔ One slow/downstream service can stall callers.
+	✔ Without timeouts, failures propagate across services.
+	✔ Timeouts isolate failures and keep the rest of the system responsive.
+
+3️⃣ Maintain predictable latency & SLAs
+	✔ APIs must respond within defined SLAs (e.g., 300–500 ms).
+	✔ Timeouts enforce upper bounds on waiting, keeping latency predictable.
+
+4️⃣ Enable resilience patterns
+	✔ Timeouts are prerequisites for:Retries, Circuit breakers, Fallbacks, Bulkheads
+	✔ No timeout → these patterns can’t trigger effectively.
+
+5️⃣ Protect against unreliable external dependencies
+	✔ Third-party APIs can hang, slow down, or partially fail.
+	✔ Timeouts protect your system from vendor/network issues.
+
+6️⃣ Improve user experience
+	✔ Users prefer quick failure with a clear error over infinite loading.
+	✔ Enables graceful degradation (cached data, partial responses).
+
+7️⃣ Security & abuse protection
+	✔ Prevents slow-response attacks (e.g., keeping connections open).
+	✔ Limits how long a malicious or buggy endpoint can tie up resources.
+
+-------------------------------------------------------------
+🔹 Q8. Explain the differences between Server timeout and Read timeout.
+-------------------------------------------------------------
+🔑 Server timeout limits how long the server is allowed to process a request,
+while Read timeout limits how long the client waits to receive a response after sending the request.
+1️⃣ Server Timeout (Server-side)
+	✔ What: 
+		🔹Configured on the server / gateway / load balancer
+		🔹Maximum time allowed for request processing
+		🔹Includes business logic, DB calls, downstream calls
+	✔ What happens when it expires: Server stops processing, Returns an error response
+	✔ Common responses: 504 Gateway Timeout, 503 Service Unavailable, 500 Internal Server Error (implementation-specific)
+	✔ Typical places configured: API Gateway (Nginx, Kong), Load balancer, Application server (Tomcat, Undertow)
+
+2️⃣ Read Timeout (Client-side)
+	✔	What:
+		🔹Configured on the client
+		🔹Maximum time client waits for response data
+		🔹Starts after request is sent and connection is established
+	✔	What happens when it expires: Client throws a timeout exception, Connection is closed by the client
+	✔	Common exceptions: SocketTimeoutException, ReadTimeoutException, WebClientRequestException
+
+Case 1: Read timeout < Server timeout => Client times out first, Server may still process request (wasted work)
+Case 2: Server timeout < Read timeout => Server fails fast, Client receives error response
+👉 Best practice: Server timeout ≤ Client read timeout
+
+-------------------------------------------------------------
+🔹 Q9. What is versioning in Rest? what are the ways that you can use to implement versioning? 
+-------------------------------------------------------------
+🔑 REST API versioning is the practice of managing breaking changes to an API so that existing clients continue to work while newer clients adopt updated behavior.
+	🔹Why:
+		✔ Clients depend on a stable contract
+		✔ Mobile apps can’t upgrade instantly
+		✔ Third-party integrations must not break
+		✔ APIs evolve over time (fields change, behavior changes)
+
+1️⃣ URI (Path) Versioning ⭐ Most Common : GET /api/v2/users
+2️⃣ Query Parameter Versioning : GET /api/users?version=1
+3️⃣ Header Versioning (Custom Header): @GetMapping(value = "/users", headers = "X-API-VERSION=1")
+4️⃣ Media Type Versioning (Content Negotiation) ⭐ Most RESTful :
+	@GetMapping(
+	  value = "/users",
+	  produces = "application/vnd.company.users-v1+json"
+	)
+
+-------------------------------------------------------------
+🔹 Q10. How does Basic Authentication work in Rest API?
+-------------------------------------------------------------
+🔑 Basic Authentication is an HTTP authentication scheme where the client sends username and password (Base64-encoded) with every request via the Authorization header.
+1️⃣ Client requests a protected resources : GET /api/users
+2️⃣ Server challenges the client
+	✔ If no credentials are sent: 401 Unauthorized WWW-Authenticate: Basic realm="users"
+
+3️⃣ Client sends credentials: 
+	✔ Combines username:password, Encodes with Base64, Sends in header
+	✔ Authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ= (username:password → Base64)
+
+4️⃣ Server validates credentials
+	✔ Decodes Base64, Extracts username & password, Validates against DB / LDAP / IdP
+5️⃣ Server responds
+	✅ 200 OK → valid credentials
+	❌ 401 Unauthorized → invalid credentials
+
+-------------------------------------------------------------
+🔹 Q11. Should you use JWT or Session-based authentication in the microservices environment? 
+-------------------------------------------------------------
+| Aspect               | Session-based | JWT         |
+| -------------------- | ------------- | ----------- |
+| State                | Stateful      | Stateless   |
+| Scalability          | ❌ Poor      | ✅ Excellent|
+| Microservices fit    | ❌ No        | ✅ Yes      |
+| Cross-service calls  | Hard          | Easy        |
+| Infrastructure       | Session store | None        |
+| Cloud / K8s friendly | ❌            | ✅         |
+| Architecture         | Monolithic    | Microservice|
+
+-------------------------------------------------------------
+🔹 Q12. What is content negotiation?
+-------------------------------------------------------------
+🔑 Content negotiation allows a REST API to return different representations of the 
+   same resource based on the client’s Accept header.
+Why Content Negotiation is needed
+	✔ Different clients prefer different formats
+	  🔹Browsers → HTML
+	  🔹Mobile apps → JSON
+	  🔹Legacy systems → XML
+	✔ One API serves multiple consumers
+	✔ Keeps URIs stable and resource-oriented
+
+-------------------------------------------------------------
+🔹 Q13. What are the cross-cutting concerns in spring? how do you implement it in microservices architecture?
+-------------------------------------------------------------
+🔹 Q14. How to create custom validators in spring?
+-------------------------------------------------------------
 Give me a code walkthrough on the spring security internal workflow
 Explain the Signleton design pattern. How spring's singleton scope is different then GOF signleton?
 Tell me 5 Spring Exceptions that you came across.
