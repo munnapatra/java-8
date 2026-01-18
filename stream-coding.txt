@@ -1,0 +1,59 @@
+1. Given a list of integers, filter the even numbers.
+2. Find the maximum number from a list of integers.
+3. Sort a list of integers in descending order.
+4. Count strings starting with a specific prefix, e.g., “A”.
+5. Find the first non-repeated character in a string.
+6. Convert all strings in a list to uppercase.
+7. Calculate the sum of all numbers in a list.
+8. Check if any string in a list contains “API”.
+9. Identify duplicate elements in a list.
+10. Group a list of strings based on their length.
+11. Given a list of lists, flatten it into a single list.
+12. Concatenate all strings in a list into a single string.
+13. Find the longest string in a list.
+14. Count the frequency of each character in a string.
+15. Use parallel streams to compute the sum of numbers.
+16. Create a custom collector to join strings with a delimiter.
+17. Remove null values from a list using filter.
+18. Calculate the average of a list of integers.
+19. Convert a list of strings into a map with the string as the key and its length as the value.
+20. Partition a list of numbers into even and odd.
+21. Find the nth largest element in a list. ex n=3
+22. Find all strings that are palindromes in a list.
+23. Reverse each string in a list.
+24. Given a map, filter entries with values greater than 10 and collect keys into a list.
+25. Remove duplicates from a list using distinct().
+26. Find the most frequent character in a string.
+27. Find common elements between two lists.
+28. Calculate the sum of squares of all even numbers in a list.
+29. Partition strings into palindromes and non-palindromes.
+30. Skip the first 3 elements and limit the result to the next 2.
+31. Find the longest word in a sentence using Streams.
+32. Compute the Cartesian product of two lists of integers.
+33. From a list of students, find the top 3 by score.
+34. Group a list of strings by their first character.
+35. Concatenate strings in reverse order using reduce.
+36. Find the median of a list of integers.
+37. Group employees by department and then by age.
+38. Detect cycles in a list of parent-child relationships.
+39. Find the word with the most vowels in a list.
+40. Compute the running sum of a list of integers.
+41. Generate the first N numbers in the Fibonacci sequence.
+42. From a list of employees, find the highest-paid employee in each department.
+43. Group words by their length and sort each group alphabetically.
+44. Calculate the product of all numbers in a list using reduce.
+45. Create a sliding window of size 3 for a list of integers.
+46. Detect all anagrams in a list of strings.
+47. Generate a pyramid of numbers using Streams.
+48. Given a triangle of numbers, find the maximum path sum using Streams.
+49. Find all non-repeating characters in a string.
+50. Generate all subsequences of a string.
+51. Convert Map to List of Key-Value Pairs
+52. Verify if a list is sorted in ascending order.
+53. Generate all contiguous subarrays of a list.
+54. Combine two lists into a map where one is keys and the other values.
+55. Find all pairs of numbers from a list that add up to a given sum.
+56. Generate a list of random numbers using Stream.
+56. Find the longest increasing subsequence in a list.
+57. Sort a list based on the frequency of elements in descending order.
+58. Convert a list of strings to sentence case.

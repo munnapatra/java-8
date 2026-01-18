@@ -1,0 +1,109 @@
+🔥 CORE JAVA (Very High Priority)
+How does HashMap work internally? What happens during rehashing?
+Difference between HashMap vs ConcurrentHashMap vs SynchronizedMap (real use cases).
+What happens if you override hashCode() but not equals()?
+What happens if hashCode() always returns the same value?
+Explain immutability. How do you make a class immutable?
+Difference between String, StringBuilder, StringBuffer (internals).
+How does equals() and == differ? Where have you faced bugs?
+Explain fail-fast vs fail-safe iterators.
+What is cloning? Why is Cloneable considered broken?
+How does serialization work internally?
+Difference between Comparable vs Comparator.
+What are marker interfaces? Examples.
+Explain Optional – when to use and when NOT to use.
+What is autoboxing/unboxing and its performance impact?
+How does ClassLoader work? Types of ClassLoaders.
+
+🚀 JAVA 8+ (Streams, Lambda, Functional)
+Difference between map vs flatMap with real examples.
+How does Stream API work internally?
+Why streams are not suitable for all problems?
+Difference between findFirst() vs findAny().
+When does parallelStream() break correctness?
+What is Function.identity()?
+Difference between reduce() vs collect().
+Why should reduce() not mutate objects?
+Explain lazy evaluation in streams.
+How does short-circuiting work in streams?
+What are functional interfaces? Can we create custom ones?
+What happens if a lambda throws checked exception?
+Why streams should not have side effects?
+
+🧵 MULTITHREADING & CONCURRENCY (Very Critical)
+What happens inside JVM when a Thread is created?
+Difference between Runnable vs Callable.
+Explain synchronized vs ReentrantLock.
+What is volatile? Where exactly did you use it?
+What is happens-before relationship?
+Difference between sleep(), wait(), join(), yield().
+Explain ThreadLocal with real use case.
+How does ExecutorService work internally?
+What is ForkJoinPool?
+Difference between CountDownLatch vs CyclicBarrier.
+What is Deadlock? How do you detect and prevent it?
+Explain CAS (Compare And Swap).
+What is false sharing?
+
+🧠 JVM & PERFORMANCE (Senior-Level Favorite)
+Explain JVM memory model.
+Difference between Stack vs Heap.
+What is Metaspace?
+How does Garbage Collection work?
+Difference between Serial, Parallel, CMS, G1 GC.
+What causes OutOfMemoryError?
+What causes Memory Leak in Java?
+How do you profile a Java application?
+What is JIT compiler?
+How does escape analysis work?
+
+🌐 SPRING / SPRING BOOT (Must for Backend Devs)
+Difference between @Component, @Service, @Repository.
+How does Spring Boot auto-configuration work?
+What happens internally when you use @Autowired?
+Difference between @Bean vs @Component.
+Explain @Transactional (rollback rules).
+What is propagation in transactions?
+How does Spring handle exceptions?
+Difference between RestTemplate vs WebClient.
+How do you secure REST APIs without Spring Security?
+What is Bean lifecycle?
+How does AOP work internally?
+
+🗄️ DATABASE / JPA / HIBERNATE
+Difference between lazy vs eager loading.
+What is N+1 problem and how to fix it?
+Difference between save(), persist(), merge().
+What is first-level vs second-level cache?
+Explain dirty checking.
+How does @Transactional interact with Hibernate?
+What is optimistic vs pessimistic locking?
+How does pagination work internally?
+
+🌍 MICROSERVICES / SYSTEM DESIGN (Very Important)
+How do you design a rate-limiting system?
+How do you handle distributed transactions?
+What is circuit breaker?
+How do you ensure idempotency?
+What is eventual consistency?
+Difference between synchronous vs asynchronous communication.
+How do you handle API versioning?
+How do you design highly available systems?
+What is CAP theorem?
+How do you secure microservices?
+
+🧪 TESTING
+Difference between JUnit vs Mockito.
+What is mock vs spy?
+How do you test private methods?
+How do you test exception scenarios?
+What is integration testing?
+
+💡 BEHAVIORAL + EXPERIENCE QUESTIONS (Very Common)
+Biggest production issue you faced and how you fixed it.
+A time when you improved performance.
+A design decision you took and its trade-offs.
+How do you handle code reviews?
+How do you mentor junior developers?
+How do you handle legacy code?
+A situation where you disagreed with architect.

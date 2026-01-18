@@ -1,0 +1,286 @@
+Spring
+------
+dependency inversion principle vs Dependency Injection
+@component vs @service vs @repository
+What will happen if you will use @service over a DAO?
+Explain spring Bean Lifecycle
+how you will call the @Predestory marked methods in the standalone application.
+Explain the helper class that initializes and destroys the web application context.
+What are the RestClients you have used in your project?
+getForEntity() vs postForEntity()
+What are the uses of ResponseEntity?
+What should be the delete API method status code?
+Why should you handle response timeout while calling any API?
+Explain the differences between Server timeout and Read timeout.
+What is versioning in Rest? what are the ways that you can use to implement versioning? 
+How does Basic Authentication work in Rest API?
+Should you use JWT or Session-based authentication in the microservices environment? 
+What is content negotiation?
+What are the cross-cutting concerns in spring? how do you implement it in microservices architecture?
+How to create custom validators in spring?
+Give me a code walkthrough on the spring security internal workflow
+Explain the Signleton design pattern. How spring's singleton scope is different then GOF signleton?
+Tell me 5 Spring Exceptions that you came across.
+Tell me 5 spring Annotations that you have used ? (Excluding the stereotype annotations)
+Is it required to write @Repository annotations in spring data JPA?
+Explain the Spring Data Project and the hierarchy ? 
+Use of  @NoRepositoryBean in spring boot ? Can we write @NoRepositoryBean on top of our Repositories interfaces ?
+What is a  java config file  and What is it' s limitations?
+How a CGLIB Proxy works with @Bean?
+@Component vs @Bean . What is the difference between creating a bean with @Bean and creating a bean with @Component ? 
+What is a BeanFactoryPostProcessor?
+Bean Factory Post Processor Code walkthrough
+What do you mean by a @Transactional Annotation and explain the Transactional Propagation in spring? 
+Transactional Propagation Explained ! 
+application.properties vs application.yaml , Which will load first ?
+How the dispatcher servlet is set up in a spring boot project?
+how the dispatcher servlet in spring boot gets auto-configured?
+How will you handle exceptions in spring?
+Explain the need of a global exception handler in spring boot ?
+Difference between @ControllerAdvice and @RestControllerAdvice?
+How will you handle a Bad gateway exception when thrown from a rest client ?
+Spring SecurityContext scope explained !
+@Controller Vs @RestController
+How a spring boot application bootstraps ?
+REST API Best practices
+Monolithic Architecture Vs Microservices Architecture
+How to manage ip’s and servers in a microservices architecture
+How Service Discovery and Registration works ? ( A problem Scenario )
+How Client side load balancing different then the Server Side load balancing ?
+Is server side load balancing causes a single point of failure?
+How to handle failure in a microservices environment ?
+How the retry pattern works ?
+How a block thread causes issue in a microservices environment ?
+How to protect your microservices from random load?
+Circuit Breaker design pattern - Quick KT
+Explain the Half open state of a  circuit breaker in spring boot
+How to track a slower Microservice which causes performance issue?
+How to track exceptions in a microservices environment ?
+How did you handle security in your Spring boot based application ?
+What are the differences between SOAP and REST Webservices?
+What is Spring Boot Actuator ?
+How did you optimize your application ?
+Explain API Gateway responsibilities in microservices architecture.
+Explain how microservices communicate in your project — sync vs async, message brokers, retry mechanisms.
+How do you secure REST APIs without using Spring Security? (Filters, interceptors, gateway rules, custom tokens, etc.)
+Without Spring Security, I secure REST APIs using custom filters or interceptors for authentication, typically with JWT or API keys. Authorization is enforced manually using roles from tokens, combined with HTTPS, rate limiting, and infrastructure-level security.
+Custom Servlet Filter
+Register Filter
+API Key Authentication
+
+Explain internal working of REST Template & WebClient and which one you prefer.
+🔹 Step-by-Step Execution Flow
+1️⃣ Your code calls:
+restTemplate.getForObject(url, Response.class);
+2️⃣ RestTemplate: Creates a ClientHttpRequest, Serializes request body using HttpMessageConverters
+3️⃣ ClientHttpRequestFactory: Uses underlying HTTP client:
+SimpleClientHttpRequestFactory → JDK HttpURLConnection
+HttpComponentsClientHttpRequestFactory → Apache HttpClient
+4️⃣ Thread blocks until: Response is received, Response body is deserialized
+5️⃣ Control returns to calling thread
+
+🔹 Step-by-Step Execution Flow
+1️⃣ Your code calls:
+webClient.get()
+    .uri(url)
+    .retrieve()
+    .bodyToMono(Response.class);
+
+2️⃣ WebClient:Builds request using fluent API, Does NOT block the thread
+3️⃣ Request handled by Reactor Netty: Uses event-loop threads, No thread per request
+4️⃣ Response arrives: Callback (Mono / Flux) is triggered, Data flows downstream
+5️⃣ Thread is released immediately after request initiation
+
+How does Circuit Breaker work? Explain with Resilience4j/Spring Cloud example.
+What happens inside JVM when a thread is created?
+When a thread is created, 
+JVM creates a Java Thread object, 
+start() -> requests the OS to create a native thread,
+allocates a thread stack and PC register(RUNNABLE), and hands execution to the OS scheduler, which eventually executes the run() method.
+
+How will you design rate-limiting for an API?
+🔹 1. Fixed Window: How it works: Count requests in a fixed time window
+🔹 2. Sliding Window (Improved Fixed Window): Tracks requests more accurately using timestamps.
+
+Explain @Transactional — how it works internally and rollback rules.
+@Transactional works via Spring AOP proxies. It starts a transaction before method execution and commits or rolls back afterward. By default, it rolls back only on unchecked exceptions, but this can be customized using rollbackFor.
+
+27. What is batch size in SQL ?
+Batch size defines how many records are processed in one database call.
+It reduces round trips to the database and improves performance during bulk operations.
+Q9. What is Monolithic Architecture?
+Ans:
+A monolithic application is built as a single, unified unit. All the components—like UI, business logic, data access layer—are combined and run as a single application.
+Example:A large e-commerce application where all features like product catalog, user management, payment, and order processing are tightly integrated and deployed together in one WAR/JAR file.
+
+Q10. What is Microservices Architecture?
+Ans:
+A microservices architecture structures an application as a collection of small, loosely coupled services, each responsible for a specific business function and running independently.
+Each service:
+Has its own codebase
+Can use a different technology stack
+Communicates via APIs (REST, gRPC, messaging)
+Can be developed, deployed, and scaled independently
+Example:An e-commerce system with:
+User-Service
+Product-Service
+Payment-Service
+Order-Service — each deployed separately and communicating via REST APIs or events.
+
+Q12. What is a Circuit Breaker? Why do we use it in microservices? 
+Ans: A Circuit Breaker is a design pattern used in microservices architecture to prevent repeated failures in a distributed system by gracefully handling service outages.
+
+
+Why do we use it in microservice?Microservices are distributed systems that talk to each other over a network. If Service A depends on Service B, and Service B is down or slow, Service A’s performance will degrade too — possibly leading to a cascade failure across the system.
+
+Q13. How do you ensure fault tolerance in microservices? 
+Ans:
+Ensuring fault tolerance in microservices means designing your system so that it continues to function properly even if some of its components fail. In distributed systems, failures are inevitable — network issues, service crashes, timeouts, etc. Fault-tolerant microservices absorb these failures and fail gracefully instead of bringing the entire system down.
+Key Concepts to Ensure Fault Tolerance in Microservices
+Circuit Breaker Pattern
+Retry Mechanism
+Timeouts
+Fallback Methods
+Bulkhead Pattern
+Load Balancing
+Service Discovery and Self-Healing
+Health Checks
+Asynchronous Communication
+Graceful Degradation
+
+java
+------------------------
+How hashmap works internally?
+List vs Set
+java interview questions coding
+ArrayList Internal coding hands-on questions 
+Collection coding interview questions java
+defining the constructor capacity in Arraylist increases performance?
+How Arraylist works internally?
+Difference between fail fast/fail safe collections 
+Which types of collections consume more memory; fail-fast or fail-safe?
+core java coding questions in collection iterator.
+Can you modify the collection return by Arrays.asList()?
+Questions on ConcurrentModificationException and CopyOnWriteArrayList.
+What is a Marker interface in java ?
+CompileTime Vs RunTime Exceptions . Checked vs Unchecked Exceptions in Java 
+How to create custom Java Exceptions?
+What is ThreadLocal in Java? Tell me a real time scenario if you have used it ever.
+what is solid principles in java ?
+single responsibility principle
+what is string constant pool in java ?
+string object creation interview questions
+hashmap internal working
+why multiple inheritance is not supported in java
+java interface interview questions
+java 8 function vs bifunction
+method hiding in java vs method Overriding
+@Override retention policy 
+what is memory leak in java ?
+How do you protect your code from memory leak ?
+what is try with resources in java ?
+how thread communication happens in java ?
+what is serialization in java ?
+Can you please provide real world example of OOPS Concepts ?
+Are Singleton classes threa-safe in Java?
+How to create a immutable class in Java ?
+What is Parallel stream in Java?
+How to debug high CPU usage in a Java application in production?
+What happens if two threads try to update the same record? (Race condition, pessimistic/optimistic locking)
+Difference between CompletableFuture & Parallel Streams and which one is better.
+How does garbage collection work in Java 11?
+Difference between HashMap, ConcurrentHashMap, SynchronizedMap and real-time scenarios where you used them.
+| Feature     | HashMap   | SynchronizedMap    | ConcurrentHashMap |
+| ----------- | --------- | ------------------ | ----------------- |
+| Thread-safe | ❌       | ✅                  | ✅               |
+| Locking     | None      | Entire map         | Bucket-level      |
+| Performance | High      | Low                | High              |
+| Null key    | ✅        | ✅                | ❌                 |
+| Null value  | ✅        | ✅                | ❌                 |
+| Iteration   | Fail-fast | Must sync manually | Weakly consistent |
+
+Q1. What are the main features introduced in Java 8 ?
+Ans:
+1.Lambda Expressions
+2. Functional Interfaces
+3. Stream API
+4. Default and Static methods in Interfaces
+5. java.time API (Date and Time)
+6. Optional class
+7. CompletableFuture and Parallel Streams
+8. Method references
+
+Q2. What is a Lambda Expression?
+Ans:
+lambda expression is a short block of code which takes in parameters and returns a value. Lambda expressions are used primarily to define the implementation of a functional interface (an interface with only one abstract method).Syntax of Lambda Expression:(parameters) -expressionor(parameters) - {
+    // statements
+    return value;
+}
+
+Q3. Why Lambda Expressions Were Introduced?
+Ans:
+Lambda expressions were introduced to:
+ Simplify code by enabling functional programming features
+ Removing boilerplate
+ Improving readability
+Providing a better way to work with functional interfaces and collections.
+
+Q4. What is a Functional Interface?
+Ans:
+An interface with exactly one abstract method.Examples: Runnable, Callable, Comparator, Function, Predicate, etc.
+You can use @FunctionalInterface annotation for clarity.
+
+Benefit
+Explanation
+Enables lambda expressions
+Foundation for functional programming in Java
+Simplifies code
+Less boilerplate (no anonymous inner classes)
+Stream API integration
+Used with map, filter, forEach, etc.
+Enables behavior as data
+You can pass behavior (methods) as parameters
+Works with built-in interfaces
+Like Function, Predicate, etc.
+
+Q5. What is difference between map and flatMap?
+Ans:
+ The map() method in Java Stream API is used to transform each element of a stream into another object, applying a function to each element in the stream.Purpose of map():
+Used to transform or convert data.
+Does not modify the original stream but creates a new stream.
+The flatMap() method is used to transform and flatten complex or nested data structures—especially when each element of a stream contains a collection (e.g., List, Set, Stream).Purpose of flatMap:
+Use flatMap() when each element in the original stream needs to be converted to a stream, and then flattened into a single stream.
+
+
+Hibernate
+----------------------
+Difference between Hibernate and Jdbc (hibernate vs JDBC)
+Session VS Session factory (Differences)
+Can you create multiple session factory objects? Justify your answer!
+What is the equivalent object of the session in JPA?
+What is persistence context in JPA / Hibernate?
+Explain the first level of caching in Hibernate.
+Justify the difference between get() and load() in Hibernate.
+get method Vs load method [Coding Challenge]
+Explain the transient state in JPA/ Hibernate.
+What is a detached state in hibernate? 
+How to detach an entity object from the persistence state without closing the session?
+Coding challenge on Hibernate states.
+Why do we need a connection pool? 
+How will you implement connection pooling in your project?
+What are the fetch types available in hibernate? Explain how will you use it in real-time.
+Eagar Vs Lazy code practice 
+What is a @Generated value annotation? Explain the different generation types available in JPA / hibernate.
+Code Practice [Auto Vs Identity Vs Table generation type]
+Explain the advantages of Named queries in hibernate/JPA? 
+What is Criteria API in Hiberante? Explain the advantages.
+@NamedQuery/@NamedQueries quick KT
+Criteria API In Hibernate quick KT[Query/Restrictions /Pagination/Filter demo]
+Update vs Merge | Difference between update and merge method in JPA / Hibernate?
+Entity Object Vs Value Object - When to use what ?
+What is an one to one mapping and how to set up it with JPA/Hibernate ?
+
+
+ 
+
+

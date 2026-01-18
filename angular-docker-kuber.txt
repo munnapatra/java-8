@@ -1,0 +1,109 @@
+🔥 ANGULAR INTERVIEW QUESTIONS (7+ YEARS)
+Core Angular (Very High Priority)
+Explain Angular architecture (Modules, Components, Services).
+Difference between AngularJS vs Angular (2+).
+What is change detection? How does it work internally?
+Default change detection vs OnPush – when did you use it?
+What are zones (Zone.js) and why Angular needs them?
+Explain AOT vs JIT compilation.
+What is dependency injection in Angular?
+How does Angular lifecycle hooks work? Real use cases.
+Difference between ngOnInit vs constructor.
+How does Angular handle memory leaks?
+Angular Forms & RxJS (Frequently Asked)
+Reactive forms vs Template-driven forms.
+How does form validation work internally?
+What is RxJS and why Angular uses it?
+Difference between Observable vs Promise.
+What is Subject, BehaviorSubject, ReplaySubject?
+Difference between switchMap, mergeMap, concatMap.
+How do you unsubscribe properly?
+How does async pipe work?
+How do you handle multiple API calls together?
+What are cold vs hot observables?
+Angular Performance & Real Use
+Lazy loading modules – how & why?
+TrackBy – why is it important?
+How do you optimize large lists?
+How do you handle role-based access?
+How do you secure Angular apps?
+How do you handle global error handling?
+How do you manage environment configs?
+
+🔥 KAFKA INTERVIEW QUESTIONS (VERY HOT 🔥)
+Core Kafka
+What is Kafka and why is it fast?
+Difference between Kafka vs RabbitMQ.
+Explain Topic, Partition, Offset.
+How does Kafka guarantee ordering?
+What is ISR (In-Sync Replica)?
+What happens if a broker goes down?
+Explain leader vs follower.
+Producer & Consumer
+How does a Kafka producer work internally?
+What is acks=0,1,all?
+What is idempotent producer?
+How does Kafka ensure exactly-once semantics?
+How does a consumer group work?
+How is offset committed?
+Auto commit vs manual commit.
+What happens if a consumer crashes?
+Advanced Kafka (Senior Level)
+What is Kafka rebalancing?
+How do you handle duplicate messages?
+What is log compaction?
+Difference between log retention vs compaction.
+Kafka throughput tuning techniques.
+How do you monitor Kafka?
+What is Schema Registry?
+How do you version Kafka messages?
+
+🔥 DOCKER INTERVIEW QUESTIONS
+Docker Basics (But Asked Deeply)
+What is Docker?
+Difference between Docker image vs container.
+What is a Dockerfile?
+Difference between CMD vs ENTRYPOINT.
+COPY vs ADD.
+What is Docker layer caching?
+Why containers are lightweight?
+Docker Internals & Best Practices
+How does Docker networking work?
+What is bridge vs host vs overlay network?
+How do volumes work?
+Bind mount vs volume.
+How do you reduce Docker image size?
+Multi-stage Docker builds.
+How do you secure Docker containers?
+Docker vs Virtual Machines.
+
+🔥 KUBERNETES INTERVIEW QUESTIONS (VERY CRITICAL)
+Kubernetes Basics
+What is Kubernetes and why do we need it?
+Explain Pod, Node, Cluster.
+What is kube-apiserver?
+What is etcd?
+Explain scheduler.
+Core Objects (Must Know)
+Pod vs Deployment.
+ReplicaSet vs Deployment.
+Service types: ClusterIP, NodePort, LoadBalancer.
+ConfigMap vs Secret.
+Ingress – how it works?
+Namespace – why use it?
+Kubernetes Advanced (Senior Level)
+What is HPA (Horizontal Pod Autoscaler)?
+How does Kubernetes handle self-healing?
+Liveness vs Readiness probes.
+Rolling updates vs Blue-Green deployment.
+How do you do zero-downtime deployment?
+How do you scale applications?
+How do you debug a crashing pod?
+What is taint and toleration?
+What is node affinity?
+Kubernetes + Real World
+How do you secure Kubernetes?
+How do you store secrets securely?
+How do you monitor Kubernetes?
+How do you handle config changes?
+How do you manage logs in Kubernetes?
