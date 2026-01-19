@@ -1,0 +1,26 @@
+🧪 TESTING
+Difference between JUnit vs Mockito.
+What is mock vs spy?
+How do you test private methods?
+How do you test exception scenarios?
+What is integration testing?
+
+💡 BEHAVIORAL + EXPERIENCE QUESTIONS (Very Common)
+Biggest production issue you faced and how you fixed it.
+A time when you improved performance.
+A design decision you took and its trade-offs.
+How do you handle code reviews?
+How do you mentor junior developers?
+How do you handle legacy code?
+A situation where you disagreed with architect.
+
+🔥 Mock Interviews & Behavioral Questions
+Topics
+Design decisions & trade-offs
+Production issues
+Performance improvements
+Mentoring juniors
+Code review handling
+Practice
+Explain one real system end-to-end
+Whiteboard a simple system

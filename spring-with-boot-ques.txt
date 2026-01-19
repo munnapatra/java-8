@@ -29,12 +29,15 @@ but each represents a different layer and responsibility in a Spring application
 	✔ Using @Service instead of @Repository works, but you lose exception translation.
 	
 🔑 @Controller — MVC Web Controller
-	✔ What it is: Specialization of @Component, Used in Spring MVC (server-side rendering)
+	✔ What it is: Specialization of @Component, Used in Spring MVC (server-side rendering), Methods typically return view names
+	✔ When to use: Building MVC apps, Rendering HTML, Using JSP / Thymeleaf
 	✔ Default behavior: Returns view names, Used with JSP, Thymeleaf, etc., Needs @ResponseBody for REST
+	✔ Key points: Uses ViewResolver, Needs @ResponseBody to return JSON
 
 🔑 @RestController — REST API Controller
 	✔ What it is: Combination of: @Controller + @ResponseBody
 	✔ When to use: REST APIs, Microservices, JSON / XML responses
+	✔ Key points: Returns JSON/XML by default, Uses HttpMessageConverter, No ViewResolver involved
 
 -------------------------------------------------------------
 🔹 Q3. Explain spring Bean Lifecycle ?
@@ -577,327 +580,687 @@ No implementation written by developer, Proxy created at runtime, Queries derive
 		@Scope("websocket")
 		@Component
 		public class WebSocketSessionBean {}
-
-   
    
 -------------------------------------------------------------
 🔹 Q22. What is limitations of java config file?
 -------------------------------------------------------------
-1️⃣ Tight Coupling Between Configuration & Code
-	What: Configuration is written in Java
-	Any config change requires: Code change, Recompile, Redeploy, 
-	Example
-		@Bean
-		public DataSource dataSource() {
-			return new HikariDataSource();
-		}
-
-		➡️ Changing pool type = code change
-
-	Why it’s a limitation: Ops/DevOps cannot change config easily, Not ideal for runtime-only configuration
-
-2️⃣ Less Runtime Flexibility Compared to XML / Properties
-	XML / properties allow
-	datasource.pool.size=20
-
-	Java config requires
-	dataSource.setMaximumPoolSize(20);
-
-	➡️ Harder to externalize complex configurations
-
-3️⃣ Harder for Non-Java Users
-	XML / YAML can be edited by: Ops, Support teams, 
-	Java config requires: Java knowledge, IDE, Build process, 👉 Not business-friendly
-
-4️⃣ Verbosity for Large Configurations 
-	Example: Large security / integration config
-	Java config: Long, Hard to scan visually, Mixed with logic
-	XML/YAML: More declarative, Easier to review
-
-5️⃣ Harder to Enable/Disable Config Dynamically
-	Java config: Conditional logic must be coded
-	@ConditionalOnProperty(name = "feature.enabled", havingValue = "true")
-	Compared to XML
-	<beans profile="prod">
-👉 XML / profiles can feel simpler for environment-based switching
-
-6️⃣ Accidental Business Logic in Configuration 
-	Java config is Turing complete.
-		@Bean
-		public ObjectMapper mapper() {
-			if (env.acceptsProfiles("prod")) {
-				return prodMapper();
+	1️⃣ Tight Coupling Between Configuration & Code
+		What: Configuration is written in Java
+		Any config change requires: Code change, Recompile, Redeploy, 
+		Example
+			@Bean
+			public DataSource dataSource() {
+				return new HikariDataSource();
 			}
-			return devMapper();
-		}
-	⚠️ Risk: Logic-heavy config, Hard to test, Violates separation of concerns
 
-7️⃣ Startup Time Slightly Higher (Edge Case)
-	Java config: Class loading, Reflection
-	XML: Simple parsing
-	📌 Usually negligible, but relevant in very large apps
+			➡️ Changing pool type = code change
 
-8️⃣ Not Ideal for Pure Configuration Data
-	Example: Feature flags, Routing rules, Large static mappings
-	Better stored in: YAML / properties, External config servers, Databases
-	
-	
+		Why it’s a limitation: Ops/DevOps cannot change config easily, Not ideal for runtime-only configuration
+
+	2️⃣ Less Runtime Flexibility Compared to XML / Properties
+		XML / properties allow
+		datasource.pool.size=20
+
+		Java config requires
+		dataSource.setMaximumPoolSize(20);
+
+		➡️ Harder to externalize complex configurations
+
+	3️⃣ Harder for Non-Java Users
+		XML / YAML can be edited by: Ops, Support teams, 
+		Java config requires: Java knowledge, IDE, Build process, 👉 Not business-friendly
+
+	4️⃣ Verbosity for Large Configurations 
+		Example: Large security / integration config
+		Java config: Long, Hard to scan visually, Mixed with logic
+		XML/YAML: More declarative, Easier to review
+
+	5️⃣ Harder to Enable/Disable Config Dynamically
+		Java config: Conditional logic must be coded
+		@ConditionalOnProperty(name = "feature.enabled", havingValue = "true")
+		Compared to XML
+		<beans profile="prod">
+	👉 XML / profiles can feel simpler for environment-based switching
+
+	6️⃣ Accidental Business Logic in Configuration 
+		Java config is Turing complete.
+			@Bean
+			public ObjectMapper mapper() {
+				if (env.acceptsProfiles("prod")) {
+					return prodMapper();
+				}
+				return devMapper();
+			}
+		⚠️ Risk: Logic-heavy config, Hard to test, Violates separation of concerns
+
+	7️⃣ Startup Time Slightly Higher (Edge Case)
+		Java config: Class loading, Reflection
+		XML: Simple parsing
+		 Usually negligible, but relevant in very large apps
+
+	8️⃣ Not Ideal for Pure Configuration Data
+		Example: Feature flags, Routing rules, Large static mappings
+		Better stored in: YAML / properties, External config servers, Databases
+		
+		
 -------------------------------------------------------------
 🔹 Q23. How a CGLIB Proxy works with @Bean?
 -------------------------------------------------------------
+🔑 Spring uses a CGLIB-generated subclass for @Configuration classes to 
+	intercept @Bean method calls and ensure that the container returns the same 
+	managed bean instance instead of creating new objects.
+
+	✔ When Spring sees @Configuration, internally creates something like AppConfig$$EnhancerBySpringCGLIB$$123
+	✔ A subclass of AppConfig, Generated at runtime using CGLIB
+	✔ @Configuration Uses CGLIB proxy to Ensures full singleton semantics
+	✔ @Configuration(proxyBeanMethods = false) : ❌ No CGLIB proxy, ✔ Faster startup, ✔ Less memory
+	⚠️ BUT: Calling one @Bean from another creates a new instance, Safe only when @Bean methods are independent
+
 -------------------------------------------------------------
-@Component vs @Bean . What is the difference between creating a bean with @Bean and creating a bean with @Component ? 
-What is a BeanFactoryPostProcessor?
-Bean Factory Post Processor Code walkthrough
-What do you mean by a @Transactional Annotation and explain the Transactional Propagation in spring? 
-Transactional Propagation Explained ! 
-application.properties vs application.yaml , Which will load first ?
-How the dispatcher servlet is set up in a spring boot project?
-how the dispatcher servlet in spring boot gets auto-configured?
-How will you handle exceptions in spring?
-Explain the need of a global exception handler in spring boot ?
-Difference between @ControllerAdvice and @RestControllerAdvice?
-How will you handle a Bad gateway exception when thrown from a rest client ?
-Spring SecurityContext scope explained !
-@Controller Vs @RestController
-How a spring boot application bootstraps ?
-REST API Best practices
-Monolithic Architecture Vs Microservices Architecture
-How to manage ip’s and servers in a microservices architecture
-How Service Discovery and Registration works ? ( A problem Scenario )
-How Client side load balancing different then the Server Side load balancing ?
-Is server side load balancing causes a single point of failure?
-How to handle failure in a microservices environment ?
-How the retry pattern works ?
-How a block thread causes issue in a microservices environment ?
-How to protect your microservices from random load?
-Circuit Breaker design pattern - Quick KT
-Explain the Half open state of a  circuit breaker in spring boot
-How to track a slower Microservice which causes performance issue?
-How to track exceptions in a microservices environment ?
+🔹 Q24. Difference between creating a bean with @Bean and @Component ? 
+-------------------------------------------------------------
+🔑 @Component creates beans through classpath scanning for application classes
+	✔ Bean lifecycle managed normally, Created during component scan
+	
+🔑 @Bean explicitly defines beans in configuration classes and is mainly used for third-party or complex bean creation.
+	✔ Lifecycle depends on @Configuration, Uses CGLIB proxying to preserve singleton semantics
+	
+❓ Can @Bean be used without @Configuration?
+	✔ Yes, but: Singleton behavior may break, CGLIB proxying won’t apply
+	
+-------------------------------------------------------------
+🔹 Q25. What is a BeanFactoryPostProcessor?
+-------------------------------------------------------------
+🔑 BeanFactoryPostProcessor is a Spring extension point that allows 
+   you to modify bean definitions (metadata) before any beans are instantiated.
+	✔ Runs after bean definitions are loaded
+	✔ Runs before any bean objects are created
+	✔ Can change how beans will be created, not the bean instances themselves
+	👉 It works on BeanDefinition, not on actual beans.
+
+❓ Why do we need it?
+	✔ Change property values dynamically
+	✔ Register beans programmatically
+	✔ Enable environment-specific configuration
+	✔ Apply framework-level customization
+	
+📌 Simple example
+		@Component
+		public class MyBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
+
+			@Override
+			public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
+				BeanDefinition bd = beanFactory.getBeanDefinition("dataSource");
+				bd.getPropertyValues().add("maximumPoolSize", 50);
+			}
+		}
+
+📌 Built-in examples: PropertySourcesPlaceholderConfigurer, ConfigurationClassPostProcessor
+
+| Aspect         | BeanFactoryPostProcessor | BeanPostProcessor   |
+| -------------- | ------------------------ | ------------------- |
+| Operates on    | Bean definitions         | Bean instances      |
+| Execution time | Before instantiation     | After instantiation |
+| Access to bean | ❌ No                    | ✅ Yes             |
+| Typical usage  | Config, metadata         | AOP, proxies        |
+
+-------------------------------------------------------------
+🔹 Q26. What do you mean by a @Transactional Annotation and explain the Transactional Propagation in spring?
+-------------------------------------------------------------
+🔑 @Transactional is a declarative transaction management annotation in Spring that
+   ensures a group of database operations execute as one atomic unit.
+	✔ All operations succeed → COMMIT
+	✔ Any failure → ROLLBACK
+	✔ Spring implements @Transactional using AOP proxies, so transaction logic is applied without polluting business code.
+
+🔹 Key properties of @Transactional
+	@Transactional(
+		propagation = Propagation.REQUIRED,
+		isolation = Isolation.READ_COMMITTED,
+		rollbackFor = Exception.class,
+		timeout = 5
+	)
+| Property      | Purpose                         |
+| ------------- | ------------------------------- |
+| `propagation` | How transactions interact       |
+| `isolation`   | DB isolation level              |
+| `rollbackFor` | Which exceptions cause rollback |
+| `timeout`     | Max execution time              |
+| `readOnly`    | Optimization for read queries   |
+
+🔑 Transaction propagation defines how a transactional method behaves when it is called by another transactional method.
+	✔ In simple terms: Should it join an existing transaction or create a new one?
+	1️⃣ REQUIRED (Default & Most Used) ⭐⭐⭐⭐⭐ @Transactional(propagation = Propagation.REQUIRED)
+		✔ Behavior: Join existing transaction, Create new if none exists
+		✔ Use case: Service layer business logic, ✔ Safe default, ✔ Most common
+	
+	2️⃣ REQUIRES_NEW : @Transactional(propagation = Propagation.REQUIRES_NEW)
+		✔ Behavior: Always creates a new transaction, Suspends existing one
+		✔ Use case: Audit logging, Notifications, Independent commits
+		⚠️ Outer transaction rollback does NOT affect this one
+	
+	3️⃣ SUPPORTS : @Transactional(propagation = Propagation.SUPPORTS)
+		✔ Behavior: Uses existing transaction if present, Executes without transaction otherwise
+		✔ Use case: Read-only operations
+	
+	4️⃣ NOT_SUPPORTED: @Transactional(propagation = Propagation.NOT_SUPPORTED)
+		✔ Behavior: Suspends existing transaction, Always executes non-transactionally
+		✔ Use case: Logging, Monitoring, External calls
+	
+	5️⃣ MANDATORY : @Transactional(propagation = Propagation.MANDATORY)
+		✔ Behavior: Must run inside an existing transaction, Throws exception if none exists
+		✔ Use case: Critical internal methods, Enforce transaction boundary
+	
+	6️⃣ NEVER : @Transactional(propagation = Propagation.NEVER)
+		✔ Behavior: Must NOT run inside a transaction, Throws exception if transaction exists
+		✔ Use case: Explicitly non-transactional logic
+	
+	7️⃣ NESTED (Advanced) : @Transactional(propagation = Propagation.NESTED)
+		✔ Behavior: Creates a nested transaction, Uses savepoints
+		✔ Use case: Partial rollback scenarios
+		⚠️ Requires DB support (savepoints)
+
+	❓ Default rollback behavior? : ✔ Rollback on unchecked exceptions only
+
+🔑 Isolation defines how visible the data changes of one transaction are to other concurrent transactions.
+	Spring delegates isolation handling to the database, and you control it
+	using:@Transactional(isolation = Isolation.READ_COMMITTED)
+	
+	1️⃣ READ_UNCOMMITTED (Lowest isolation)
+		✔ What it allows: ❌ Dirty reads, ❌ Non-repeatable reads, ❌ Phantom reads
+		✔ Use case: Almost never used, Rare reporting scenarios
+	
+	2️⃣ READ_COMMITTED (Most common default)
+		✔ What it prevents: ✅ Dirty reads
+		✔ What it allows: ❌ Non-repeatable reads, ❌ Phantom reads
+		✔ Use case: Default for Oracle, PostgreSQL, Most CRUD applications
+	
+	3️⃣ REPEATABLE_READ
+		✔ What it prevents: ✅ Dirty reads, ✅ Non-repeatable reads
+		✔ What it allows: ❌ Phantom reads
+		✔ Use case: Financial calculations, Consistent reads within a transaction
+	
+	4️⃣ SERIALIZABLE (Highest isolation)
+		✔ What it prevents: ✅ Dirty reads, ✅ Non-repeatable reads, ✅ Phantom reads
+		✔ Use case: Critical financial systems, Strong consistency requirements
+		⚠️ Performance cost is high
+	
+	👉 Spring isolation works only if DB supports it.
+
+-------------------------------------------------------------	
+🔹 Q27. Explain optimistic vs pessimistic locking ?
+-------------------------------------------------------------
+	1️⃣ Optimistic Locking
+	🔸 Core idea: Assume conflicts are rare. Don’t lock data while reading; check for conflicts at update time.
+		✔ How it works: 
+			Add a version field to the entity, Every update checks the version, If version changed → fail the update
+			
+			@Entity
+			public class Product {
+				@Id
+				private Long id;
+				private int quantity;
+
+				@Version
+				private int version;
+			}
+			
+		✔ Pros : High performance, No database locks, Scales well, Ideal for read-heavy systems
+		✔ Cons : ❌ Update may fail, ❌ Requires retry logic
+		✔ Best use cases: High-read, low-write systems, Web apps, REST APIs, Microservices, User-driven updates
+		
+	2️⃣ Pessimistic Locking
+	🔸 Core idea: Assume conflicts are likely. Lock data upfront so no one else can modify it.
+		✔ How it works:
+			DB acquires a lock when data is read, Other transactions must wait.
+			
+			@Lock(LockModeType.PESSIMISTIC_WRITE)
+			@Query("select p from Product p where p.id = :id")
+			Product findForUpdate(@Param("id") Long id);
+		
+		✔ Pros : Strong consistency, No update conflicts, Predictable behavior
+		✔ Cons : ❌ Lower concurrency, ❌ Risk of deadlocks, ❌ Slower under load
+		✔ Best use cases: High-contention updates, Financial transactions, Inventory reservations, Critical sections
+		
+-------------------------------------------------------------	
+🔹 Q28. How the dispatcher servlet is set up in a spring boot project gets auto-configured?
+-------------------------------------------------------------
+🔑 In Spring Boot, DispatcherServlet is auto-configured through Spring Boot Auto-Configuration (spring-boot-autoconfigure)
+   using DispatcherServletAutoConfiguration, so developers don’t need to define it manually in web.xml or Java config.
+   
+   1️⃣ What happens in traditional Spring MVC (before Boot): You had to manually configure:
+		<servlet>
+		  <servlet-name>dispatcher</servlet-name>
+		  <servlet-class> org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		</servlet>
+		<servlet-mapping>
+		  <servlet-name>dispatcher</servlet-name>
+		  <url-pattern>/</url-pattern>
+		</servlet-mapping>
+	
+	2️⃣ What Spring Boot does instead (High level)
+	Spring Boot automatically: 
+		Detects a web environment, Creates a DispatcherServlet bean,
+		Registers it with the embedded servlet container, Maps it to / , Wires all MVC infrastructure beans
+		➡️ Zero manual configuration
+	
+	3️⃣ The key auto-configuration classes (Interview Gold)
+		Spring Boot uses: DispatcherServletAutoConfiguration, WebMvcAutoConfiguration
+		These classes live inside spring-boot-autoconfigure.
+	
+	4️⃣ Step-by-step auto-configuration flow
+	✅ Step 1: Application startup: Boot creates ApplicationContext, Detects Servlet Web Application
+	✅ Step 2: Auto-configuration kicks in @SpringBootApplication includes: @EnableAutoConfiguration
+		This tells Spring Boot to: Load auto-config classes from META-INF/spring.factories (or AutoConfiguration.imports in newer versions)
+	✅ Step 3: DispatcherServlet bean creation: Inside DispatcherServletAutoConfiguration:
+				@Bean
+				@ConditionalOnMissingBean
+				public DispatcherServlet dispatcherServlet() {
+					return new DispatcherServlet();
+				}
+		✔ Created only if you didn’t define one
+		✔ Prevents duplication
+	✅ Step 4: Servlet registration : Spring Boot registers the servlet using:
+		ServletRegistrationBean<DispatcherServlet>, Default mapping: / , Name: dispatcherServlet
+	✅ Step 5: MVC infrastructure wiring: WebMvcAutoConfiguration configures:
+		HandlerMapping, HandlerAdapter, ViewResolver, HttpMessageConverters, Exception resolvers
+		So your controllers just work:
+
+		@RestController
+		public class UserController {
+
+		  @GetMapping("/users")
+		  public List<User> users() {
+			return List.of();
+		  }
+		}
+
+	5️⃣ Why no web.xml in Spring Boot?
+		Because: Boot uses embedded servlet containers (Tomcat/Jetty/Undertow)
+		Programmatic servlet registration replaces web.xml
+		👉 This is why Spring Boot apps are standalone & executable
+
+	6️⃣ Default DispatcherServlet configuration in Boot
+	| Setting         | Default                       |
+	| --------------- | ----------------------------- |
+	| Servlet name    | `dispatcherServlet`           |
+	| URL mapping     | `/`                           |
+	| Load on startup | 1                             |
+	| Context         | Servlet WebApplicationContext |
+
+	7️⃣ Can you customize DispatcherServlet? (Yes)
+		Example: Change mapping : spring.mvc.servlet.path=/api
+
+		Example: Custom DispatcherServlet bean
+		@Bean
+		public DispatcherServlet dispatcherServlet() {
+			DispatcherServlet ds = new DispatcherServlet();
+			ds.setThrowExceptionIfNoHandlerFound(true);
+			return ds;
+		}
+		Boot backs off automatically.
+
+❓ What enables this auto-configuration?: 👉 @EnableAutoConfiguration
+❓ What if I add @EnableWebMvc?: 👉 ❌ Boot MVC auto-configuration is disabled
+
+-------------------------------------------------------------
+🔹 Q29. How will you handle exceptions in spring?
+-------------------------------------------------------------
+🔑 In Spring, exceptions are handled using local handlers, global handlers with
+   @ControllerAdvice, ResponseEntityExceptionHandler, and custom exceptions, 
+   ensuring consistent HTTP responses and clean separation of error logic from business code.
+   
+   1️⃣ Local Exception Handling (@ExceptionHandler): Scope: One controller
+   
+		@ExceptionHandler(UserNotFoundException.class)
+		public ResponseEntity<String> handle(UserNotFoundException ex) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+		}
+		
+		✔ Pros: Simple, Good for controller-specific errors
+		✔ Cons: Not reusable, Leads to duplication
+	
+	2️⃣ Global Exception Handling (@ControllerAdvice / @RestControllerAdvice) ⭐⭐⭐⭐⭐ Scope: Entire application
+	
+		@RestControllerAdvice
+		public class GlobalExceptionHandler {
+		
+			@ExceptionHandler(UserNotFoundException.class)
+			public ResponseEntity<ApiError> handleNotFound(UserNotFoundException ex) {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiError(404, ex.getMessage()));
+			}
+		}
+		
+		✔ Why it’s preferred: Centralized, Consistent responses, Clean controllers
+	
+	3️⃣ Extend ResponseEntityExceptionHandler (Validation & MVC errors) : Useful for overriding built-in Spring MVC exceptions.
+	
+		@RestControllerAdvice
+		public class ValidationHandler extends ResponseEntityExceptionHandler {
+
+			@Override
+			protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+					HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+				return ResponseEntity.badRequest().body("Validation failed");
+			}
+		}
+		
+		✔ Handles: MethodArgumentNotValidException, HttpMessageNotReadableException, HttpRequestMethodNotSupportedException
+
+-------------------------------------------------------------
+🔹 Q30. Difference between @ControllerAdvice and @RestControllerAdvice?
+-------------------------------------------------------------
+🔑 @ControllerAdvice is a global advice for MVC controllers that typically returns views or responses
+   @RestControllerAdvice is specialized for REST APIs and automatically returns JSON/XML responses using @ResponseBody.
+   
+   1️⃣ @ControllerAdvice : 
+	✔ A specialization of @Component. Applies globally to all @Controller classes, Used in Spring MVC (server-side rendering)
+	✔ Default behavior: Methods return => View names, ModelAndView, Or response with @ResponseBody (if specified)
+
+		@ControllerAdvice
+		public class GlobalExceptionHandler {
+
+			@ExceptionHandler(Exception.class)
+			public String handleError(Exception ex, Model model) {
+				model.addAttribute("error", ex.getMessage());
+				return "error"; // view name
+			}
+		}
+
+	✔ When to use : JSP / Thymeleaf apps, Mixed MVC + REST apps
+
+	2️⃣ @RestControllerAdvice:
+	✔ Combination of: @ControllerAdvice + @ResponseBody
+	✔ Default behavior: Return value is written directly to HTTP response body, Automatically serialized (JSON/XML)
+
+		@RestControllerAdvice
+		public class GlobalExceptionHandler {
+
+			@ExceptionHandler(UserNotFoundException.class)
+			public ResponseEntity<ApiError> handle(UserNotFoundException ex) {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND)
+									 .body(new ApiError(404, ex.getMessage()));
+			}
+		}
+
+	✔ When to use: REST APIs, Microservices, JSON/XML responses only
+
+	❓ Can @ControllerAdvice return JSON? ✔ Yes, but only if: @ResponseBody is used on method
+	❓ Should we use @RestControllerAdvice for REST apps? ✔ Yes — best practice
+	❓ Can both exist in the same app? ✔ Yes — Spring will apply both as needed
+
+-------------------------------------------------------------
+🔹 Q31. What happens internally when you use @Autowired?
+-------------------------------------------------------------
+🔑 When @Autowired is used, Spring performs dependency injection at runtime
+ by resolving a matching bean from the ApplicationContext and injecting it using reflection,
+ during the BeanPostProcessor phase of the bean lifecycle.
+
+	👉 @Autowired happens after object creation but before initialization.
+	✔ Spring uses a special BeanPostProcessor called: AutowiredAnnotationBeanPostProcessor
+		🔹Class responsible: Detecting @Autowired, Resolving dependencies, Injecting them into fields/constructors/methods
+		🔹Dependency resolution order: By type => @Qualifier => @Primary => By bean name
+		🔹Spring uses Java Reflection: field.setAccessible(true); field.set(orderService, paymentServiceBean);
+	✔ Constructor vs Field vs Setter injection (Internal behavior)
+		🔹Constructor injection (Preferred): Injection happens at creation time, Ensures immutability, No reflection hacks
+		🔹Field injection: ❌ Uses reflection, ❌ Harder to test
+		🔹Setter injection: Optional dependencies
+
+-------------------------------------------------------------
+🔹 Q32. Compare @Autowired vs @Inject vs @Resource
+-------------------------------------------------------------
+| Feature               | `@Autowired`                 | `@Inject`  | `@Resource` |
+| --------------------- | ---------------------------- | ---------- | ----------- |
+| Standard              | Spring                       | JSR-330    | JSR-250     |
+| Injection default     | By type                      | By type    | By name     |
+| Qualifier support     | `@Qualifier`                 | `@Named`   | ❌          |
+| Optional injection    | `required=false`, `Optional` | `Optional` | ❌          |
+| Primary support       | ✅                           | ❌        | ❌          |
+| Static fields         | ❌                           | ❌        | ❌          |
+| Constructor injection | ✅                           | ✅        | ❌          |
+| Spring features       | Full                         | Limited    | Limited     |
+
+-------------------------------------------------------------
+🔹 Q33. How will you handle a Bad gateway exception when thrown from a rest client ?
+-------------------------------------------------------------
+🔑 A 502 means: Your service (gateway / client) received an invalid or no response from an upstream service.
+  Typical causes: Downstream service is down, Timeout/connection reset, Load balancer issues, DNS/network problems
+
+🔑 Handle a 502 from a REST client by catching client exceptions, mapping them to meaningful responses,
+ adding retries with backoff, timeouts, and fallbacks, and logging with correlation IDs.
+ 
+ 1️⃣ Handling 502 with RestTemplate: HttpServerErrorException.BadGateway
+ 2️⃣ Add Retries with Backoff (Production-grade)
+		@Retryable(
+		  value = DownstreamServiceException.class,
+		  maxAttempts = 3,
+		  backoff = @Backoff(delay = 1000, multiplier = 2)
+		)
+		public Order getOrder(Long id) {
+			return callOrderService(id);
+		}
+	⚠️ Retry only for: GET, Idempotent calls
+ 3️⃣ Timeouts (Must-have)
+		HttpComponentsClientHttpRequestFactory factory =
+        new HttpComponentsClientHttpRequestFactory();
+		factory.setConnectTimeout(3000);
+		factory.setReadTimeout(3000);
+
+		RestTemplate restTemplate = new RestTemplate(factory);
+ 4️⃣ Circuit Breaker (Microservices best practice)
+		@CircuitBreaker(name = "orderService", fallbackMethod = "fallback")
+		public Order getOrder(Long id) {
+			return callOrderService(id);
+		}
+
+		public Order fallback(Long id, Throwable ex) {
+			return Order.empty();
+		}
+
+-------------------------------------------------------------
+🔹 Q34. How a spring boot application bootstraps ?
+-------------------------------------------------------------
+1️⃣ Entry point: main() → SpringApplication.run() : This single call triggers the entire startup lifecycle.
+2️⃣ What @SpringBootApplication really does
+	It’s a meta-annotation: @SpringBootApplication = @Configuration + @EnableAutoConfiguration + @ComponentScan
+	✔ @Configuration → Java config class
+	✔ @ComponentScan → finds beans
+	✔ @EnableAutoConfiguration → magic of Boot
+
+3️⃣ Startup lifecycle (inside SpringApplication.run()): 
+	✔ 1: Create SpringApplication: 
+			🔹Determines application type: SERVLET (Tomcat), REACTIVE (Netty), NONE (CLI)
+			🔹Loads SpringApplicationRunListeners
+
+	✔ 2: Prepare Environment:
+			🔹Reads configuration from: application.properties/yaml, OS env variables, JVM system properties, Command-line args
+			🔹Resolves profiles (dev, prod, etc.)
+
+	✔ 3: Create ApplicationContext:
+			🔹Chooses context based on app type:
+				AnnotationConfigServletWebServerApplicationContext
+				AnnotationConfigReactiveWebServerApplicationContext
+
+	✔ 4: Load Auto-Configuration ⭐⭐⭐⭐⭐:
+			🔹Triggered by @EnableAutoConfiguration
+			🔹Boot scans auto-config classes declared in:
+				META-INF/spring.factories (Boot ≤ 2.x)
+				META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports (Boot 3.x)
+			
+			🔹Each auto-config is guarded by conditions: 
+				@ConditionalOnClass, @ConditionalOnMissingBean, @ConditionalOnProperty
+			
+			👉 Classpath + properties decide what gets configured
+
+	✔ 5: Component Scanning & Bean Definitions
+			🔹Scans packages starting from main class
+			🔹Registers: @Component, @Service, @Repository, @Controller, @Configuration
+
+	✔ 6: BeanFactory & Bean lifecycle
+			🔹Bean definitions finalized
+			🔹Executes: BeanFactoryPostProcessor, Bean instantiation, @Autowired injection, BeanPostProcessor, @PostConstruct
+
+	✔ 7: Start Embedded Web Server (if web app)
+			🔹Boot creates and starts: Tomcat / Jetty / Undertow
+			🔹Registers: DispatcherServlet, Filters, Controllers, No web.xml needed.
+
+	✔ 8: Application Ready
+			🔹Publishes lifecycle events: ApplicationStartedEvent, ApplicationReadyEvent
+
+	App is now ready to handle requests.
+	
+
+-------------------------------------------------------------
+🔹 Q39. What is Spring Boot Actuator and how it works ?
+-------------------------------------------------------------
+🔑 Spring Boot Actuator is a Spring Boot module that provides production-ready features
+   to monitor, manage, and observe your application at runtime.
+   In simple words: Actuator exposes internal application information through HTTP/JMX endpoints.
+
+1️⃣ Why do we need Actuator? (The Problem)
+	In production, teams need answers to:
+		✔ Is the application up or down?
+		✔ Is the database connected?
+		✔ How many requests are coming?
+		✔ What is the memory/CPU usage?
+		✔ Are threads blocked or leaking?
+
+2️⃣ How to enable Actuator : add dependency
+		<dependency>
+		  <groupId>org.springframework.boot</groupId>
+		  <artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
+3️⃣ How Actuator works internally (Step-by-step)
+	1️⃣ Auto-configuration
+		✔ Spring Boot auto-configures: Health indicators, Metrics collectors, Endpoint handlers
+		✔ Using: @ConditionalOnClass, @ConditionalOnProperty
+
+	2️⃣ Endpoint registration
+		✔ Each actuator endpoint is registered as: HTTP endpoint (REST), JMX bean (optional)
+		✔ Example: /actuator/health, /actuator/metrics
+	
+	3️⃣ Data collection
+		✔ Actuator gathers data from: JVM, Spring context, DataSource, Thread pools, Custom indicators
+
+	4️⃣ Exposure & security
+		✔ Endpoints are: Disabled by default (except health), Exposed explicitly via configuration, Protected by Spring Security
+
+	4️⃣ Common Actuator Endpoints (VERY IMPORTANT)
+	| Endpoint               | Purpose                |
+	| ---------------------- | ---------------------- |
+	| `/actuator/health`     | Application health     |
+	| `/actuator/info`       | App info               |
+	| `/actuator/metrics`    | JVM & app metrics      |
+	| `/actuator/env`        | Environment properties |
+	| `/actuator/beans`      | Spring beans           |
+	| `/actuator/mappings`   | Request mappings       |
+	| `/actuator/loggers`    | Change log levels      |
+	| `/actuator/threaddump` | Thread dump            |
+	| `/actuator/heapdump`   | Heap dump              |
+
+	5️⃣ Health Endpoint (Deep dive – Interview Gold)
+		✔ GET /actuator/health
+		✔ Aggregates multiple health checks
+		✔ Used by load balancers & Kubernetes
+
+	6️⃣ Metrics Endpoint (Micrometer integration)
+		✔ GET /actuator/metrics/jvm.memory.used
+		✔ Metrics include: JVM memory, GC, HTTP request count, Response time, Thread count
+		✔ Actuator uses Micrometer internally and can export metrics to: Prometheus, Grafana, CloudWatch
+
+	7️⃣ Securing Actuator (VERY IMPORTANT)
+		❌ Exposing everything publicly is dangerous
+		✔ Best practice
+				management.endpoints.web.exposure.include=health,info,metrics
+				management.endpoint.health.show-details=when_authorized
+		✔ Limit exposure, Secure with roles, Never expose sensitive endpoints publicly
+
+	8️⃣ Custom Actuator Endpoints
+		✔ Custom Health Indicator
+				@Component
+				public class PaymentHealthIndicator implements HealthIndicator {
+
+					@Override
+					public Health health() {
+						if (paymentServiceUp()) {
+							return Health.up().build();
+						}
+						return Health.down().withDetail("error", "Payment down").build();
+					}
+				}
+
+		✔ Automatically added to: /actuator/health
+
+	9️⃣ Actuator in Microservices (Real-world usage)
+		✔ Used for:, Kubernetes liveness/readiness probes, Auto-scaling decisions, Centralized monitoring, Alerting
+		✔ /actuator/health/liveness, /actuator/health/readiness
+
+-------------------------------------------------------------
+How does AOP work internally?
+-------------------------------------------------------------
+✔ SOAP is a strict XML-based protocol with built-in standards for security and transactions
+✔ REST is a lightweight architectural style that leverages HTTP semantics for scalable and flexible APIs.
+
+| Aspect         | SOAP                  | REST                       |
+| -------------- | --------------------- | -------------------------- |
+| Type           | Protocol              | Architectural style        |
+| Data format    | XML only              | JSON, XML, Text, etc.      |
+| Transport      | HTTP, SMTP, JMS       | HTTP                       |
+| Contract       | WSDL (mandatory)      | Optional (OpenAPI/Swagger) |
+| State          | Can be stateful       | Stateless                  |
+| Performance    | Slower (XML overhead) | Faster (lightweight)       |
+| Ease of use    | Complex               | Simple                     |
+| Error handling | SOAP Fault            | HTTP status codes          |
+
+-------------------------------------------------------------
 How did you handle security in your Spring boot based application ?
+-------------------------------------------------------------
+-------------------------------------------------------------
 What are the differences between SOAP and REST Webservices?
-What is Spring Boot Actuator ?
+-------------------------------------------------------------
+
+-------------------------------------------------------------
 How did you optimize your application ?
-Explain API Gateway responsibilities in microservices architecture.
-Explain how microservices communicate in your project — sync vs async, message brokers, retry mechanisms.
+-------------------------------------------------------------
+
+
+-------------------------------------------------------------
 How do you secure REST APIs without using Spring Security? (Filters, interceptors, gateway rules, custom tokens, etc.)
+-------------------------------------------------------------
 Without Spring Security, I secure REST APIs using custom filters or interceptors for authentication, typically with JWT or API keys. Authorization is enforced manually using roles from tokens, combined with HTTPS, rate limiting, and infrastructure-level security.
 Custom Servlet Filter
 Register Filter
 API Key Authentication
 
+-------------------------------------------------------------
 Explain internal working of REST Template & WebClient and which one you prefer.
+-------------------------------------------------------------
 🔹 Step-by-Step Execution Flow
-1️⃣ Your code calls:
-restTemplate.getForObject(url, Response.class);
+1️⃣ Your code calls: restTemplate.getForObject(url, Response.class);
 2️⃣ RestTemplate: Creates a ClientHttpRequest, Serializes request body using HttpMessageConverters
-3️⃣ ClientHttpRequestFactory: Uses underlying HTTP client:
-SimpleClientHttpRequestFactory → JDK HttpURLConnection
-HttpComponentsClientHttpRequestFactory → Apache HttpClient
+3️⃣ ClientHttpRequestFactory: Uses underlying HTTP client
+	✔ SimpleClientHttpRequestFactory → JDK HttpURLConnection
+	✔ HttpComponentsClientHttpRequestFactory → Apache HttpClient
 4️⃣ Thread blocks until: Response is received, Response body is deserialized
 5️⃣ Control returns to calling thread
 
 🔹 Step-by-Step Execution Flow
 1️⃣ Your code calls:
-webClient.get()
-    .uri(url)
-    .retrieve()
-    .bodyToMono(Response.class);
+		webClient.get()
+			.uri(url)
+			.retrieve()
+			.bodyToMono(Response.class);
 
-2️⃣ WebClient:Builds request using fluent API, Does NOT block the thread
+2️⃣ WebClient: Builds request using fluent API, Does NOT block the thread
 3️⃣ Request handled by Reactor Netty: Uses event-loop threads, No thread per request
 4️⃣ Response arrives: Callback (Mono / Flux) is triggered, Data flows downstream
 5️⃣ Thread is released immediately after request initiation
 
-How does Circuit Breaker work? Explain with Resilience4j/Spring Cloud example.
-What happens inside JVM when a thread is created?
-When a thread is created, 
-JVM creates a Java Thread object, 
-start() -> requests the OS to create a native thread,
-allocates a thread stack and PC register(RUNNABLE), and hands execution to the OS scheduler, which eventually executes the run() method.
-
-How will you design rate-limiting for an API?
-🔹 1. Fixed Window: How it works: Count requests in a fixed time window
-🔹 2. Sliding Window (Improved Fixed Window): Tracks requests more accurately using timestamps.
-
-Explain @Transactional — how it works internally and rollback rules.
-@Transactional works via Spring AOP proxies. It starts a transaction before method execution and commits or rolls back afterward. By default, it rolls back only on unchecked exceptions, but this can be customized using rollbackFor.
-
-27. What is batch size in SQL ?
-Batch size defines how many records are processed in one database call.
-It reduces round trips to the database and improves performance during bulk operations.
-Q9. What is Monolithic Architecture?
-Ans:
-A monolithic application is built as a single, unified unit. All the components—like UI, business logic, data access layer—are combined and run as a single application.
-Example:A large e-commerce application where all features like product catalog, user management, payment, and order processing are tightly integrated and deployed together in one WAR/JAR file.
-
-Q10. What is Microservices Architecture?
-Ans:
-A microservices architecture structures an application as a collection of small, loosely coupled services, each responsible for a specific business function and running independently.
-Each service:
-Has its own codebase
-Can use a different technology stack
-Communicates via APIs (REST, gRPC, messaging)
-Can be developed, deployed, and scaled independently
-Example:An e-commerce system with:
-User-Service
-Product-Service
-Payment-Service
-Order-Service — each deployed separately and communicating via REST APIs or events.
-
-Q12. What is a Circuit Breaker? Why do we use it in microservices? 
-Ans: A Circuit Breaker is a design pattern used in microservices architecture to prevent repeated failures in a distributed system by gracefully handling service outages.
 
 
-Why do we use it in microservice?Microservices are distributed systems that talk to each other over a network. If Service A depends on Service B, and Service B is down or slow, Service A’s performance will degrade too — possibly leading to a cascade failure across the system.
-
-Q13. How do you ensure fault tolerance in microservices? 
-Ans:
-Ensuring fault tolerance in microservices means designing your system so that it continues to function properly even if some of its components fail. In distributed systems, failures are inevitable — network issues, service crashes, timeouts, etc. Fault-tolerant microservices absorb these failures and fail gracefully instead of bringing the entire system down.
-Key Concepts to Ensure Fault Tolerance in Microservices
-Circuit Breaker Pattern
-Retry Mechanism
-Timeouts
-Fallback Methods
-Bulkhead Pattern
-Load Balancing
-Service Discovery and Self-Healing
-Health Checks
-Asynchronous Communication
-Graceful Degradation
-
-java
-------------------------
-How hashmap works internally?
-List vs Set
-java interview questions coding
-ArrayList Internal coding hands-on questions 
-Collection coding interview questions java
-defining the constructor capacity in Arraylist increases performance?
-How Arraylist works internally?
-Difference between fail fast/fail safe collections 
-Which types of collections consume more memory; fail-fast or fail-safe?
-core java coding questions in collection iterator.
-Can you modify the collection return by Arrays.asList()?
-Questions on ConcurrentModificationException and CopyOnWriteArrayList.
-What is a Marker interface in java ?
-CompileTime Vs RunTime Exceptions . Checked vs Unchecked Exceptions in Java 
-How to create custom Java Exceptions?
-What is ThreadLocal in Java? Tell me a real time scenario if you have used it ever.
-what is solid principles in java ?
-single responsibility principle
-what is string constant pool in java ?
-string object creation interview questions
-hashmap internal working
-why multiple inheritance is not supported in java
-java interface interview questions
-java 8 function vs bifunction
-method hiding in java vs method Overriding
-@Override retention policy 
-what is memory leak in java ?
-How do you protect your code from memory leak ?
-what is try with resources in java ?
-how thread communication happens in java ?
-what is serialization in java ?
-Can you please provide real world example of OOPS Concepts ?
-Are Singleton classes threa-safe in Java?
-How to create a immutable class in Java ?
-What is Parallel stream in Java?
-How to debug high CPU usage in a Java application in production?
-What happens if two threads try to update the same record? (Race condition, pessimistic/optimistic locking)
-Difference between CompletableFuture & Parallel Streams and which one is better.
-How does garbage collection work in Java 11?
-Difference between HashMap, ConcurrentHashMap, SynchronizedMap and real-time scenarios where you used them.
-| Feature     | HashMap   | SynchronizedMap    | ConcurrentHashMap |
-| ----------- | --------- | ------------------ | ----------------- |
-| Thread-safe | ❌       | ✅                  | ✅               |
-| Locking     | None      | Entire map         | Bucket-level      |
-| Performance | High      | Low                | High              |
-| Null key    | ✅        | ✅                | ❌                 |
-| Null value  | ✅        | ✅                | ❌                 |
-| Iteration   | Fail-fast | Must sync manually | Weakly consistent |
-
-Q1. What are the main features introduced in Java 8 ?
-Ans:
-1.Lambda Expressions
-2. Functional Interfaces
-3. Stream API
-4. Default and Static methods in Interfaces
-5. java.time API (Date and Time)
-6. Optional class
-7. CompletableFuture and Parallel Streams
-8. Method references
-
-Q2. What is a Lambda Expression?
-Ans:
-lambda expression is a short block of code which takes in parameters and returns a value. Lambda expressions are used primarily to define the implementation of a functional interface (an interface with only one abstract method).Syntax of Lambda Expression:(parameters) -expressionor(parameters) - {
-    // statements
-    return value;
-}
-
-Q3. Why Lambda Expressions Were Introduced?
-Ans:
-Lambda expressions were introduced to:
- Simplify code by enabling functional programming features
- Removing boilerplate
- Improving readability
-Providing a better way to work with functional interfaces and collections.
-
-Q4. What is a Functional Interface?
-Ans:
-An interface with exactly one abstract method.Examples: Runnable, Callable, Comparator, Function, Predicate, etc.
-You can use @FunctionalInterface annotation for clarity.
-
-Benefit
-Explanation
-Enables lambda expressions
-Foundation for functional programming in Java
-Simplifies code
-Less boilerplate (no anonymous inner classes)
-Stream API integration
-Used with map, filter, forEach, etc.
-Enables behavior as data
-You can pass behavior (methods) as parameters
-Works with built-in interfaces
-Like Function, Predicate, etc.
-
-Q5. What is difference between map and flatMap?
-Ans:
- The map() method in Java Stream API is used to transform each element of a stream into another object, applying a function to each element in the stream.Purpose of map():
-Used to transform or convert data.
-Does not modify the original stream but creates a new stream.
-The flatMap() method is used to transform and flatten complex or nested data structures—especially when each element of a stream contains a collection (e.g., List, Set, Stream).Purpose of flatMap:
-Use flatMap() when each element in the original stream needs to be converted to a stream, and then flattened into a single stream.
-
-
-Hibernate
-----------------------
-Difference between Hibernate and Jdbc (hibernate vs JDBC)
-Session VS Session factory (Differences)
-Can you create multiple session factory objects? Justify your answer!
-What is the equivalent object of the session in JPA?
-What is persistence context in JPA / Hibernate?
-Explain the first level of caching in Hibernate.
-Justify the difference between get() and load() in Hibernate.
-get method Vs load method [Coding Challenge]
-Explain the transient state in JPA/ Hibernate.
-What is a detached state in hibernate? 
-How to detach an entity object from the persistence state without closing the session?
-Coding challenge on Hibernate states.
-Why do we need a connection pool? 
-How will you implement connection pooling in your project?
-What are the fetch types available in hibernate? Explain how will you use it in real-time.
-Eagar Vs Lazy code practice 
-What is a @Generated value annotation? Explain the different generation types available in JPA / hibernate.
-Code Practice [Auto Vs Identity Vs Table generation type]
-Explain the advantages of Named queries in hibernate/JPA? 
-What is Criteria API in Hiberante? Explain the advantages.
-@NamedQuery/@NamedQueries quick KT
-Criteria API In Hibernate quick KT[Query/Restrictions /Pagination/Filter demo]
-Update vs Merge | Difference between update and merge method in JPA / Hibernate?
-Entity Object Vs Value Object - When to use what ?
-What is an one to one mapping and how to set up it with JPA/Hibernate ?
+Must Practice: Why @Transactional fails sometimes
+Self-invocation problem
 
 
  

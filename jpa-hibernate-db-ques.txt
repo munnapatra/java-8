@@ -1,0 +1,45 @@
+🗄️ DATABASE / JPA / HIBERNATE
+Difference between lazy vs eager loading.
+What is N+1 problem and how to fix it?
+Difference between save(), persist(), merge().
+What is first-level vs second-level cache?
+Explain dirty checking.
+How does @Transactional interact with Hibernate?
+What is optimistic vs pessimistic locking?
+How does pagination work internally?
+Difference between Hibernate and Jdbc (hibernate vs JDBC)
+Session VS Session factory (Differences)
+Can you create multiple session factory objects? Justify your answer!
+What is the equivalent object of the session in JPA?
+What is persistence context in JPA / Hibernate?
+Explain the first level of caching in Hibernate.
+Justify the difference between get() and load() in Hibernate.
+get method Vs load method [Coding Challenge]
+Explain the transient state in JPA/ Hibernate.
+What is a detached state in hibernate? 
+How to detach an entity object from the persistence state without closing the session?
+Coding challenge on Hibernate states.
+Why do we need a connection pool? 
+How will you implement connection pooling in your project?
+What are the fetch types available in hibernate? Explain how will you use it in real-time.
+Eagar Vs Lazy code practice 
+What is a @Generated value annotation? Explain the different generation types available in JPA / hibernate.
+Code Practice [Auto Vs Identity Vs Table generation type]
+Explain the advantages of Named queries in hibernate/JPA? 
+What is Criteria API in Hiberante? Explain the advantages.
+@NamedQuery/@NamedQueries quick KT
+Criteria API In Hibernate quick KT[Query/Restrictions /Pagination/Filter demo]
+Update vs Merge | Difference between update and merge method in JPA / Hibernate?
+Entity Object Vs Value Object - When to use what ?
+What is an one to one mapping and how to set up it with JPA/Hibernate ?
+Lazy vs Eager loading
+N+1 problem
+save vs persist vs merge
+Dirty checking
+Pagination
+
+-------------------------------------------------------------
+27. What is batch size in SQL ?
+-------------------------------------------------------------
+Batch size defines how many records are processed in one database call.
+It reduces round trips to the database and improves performance during bulk operations.

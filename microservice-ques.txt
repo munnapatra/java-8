@@ -1,0 +1,277 @@
+🌍 MICROSERVICES / SYSTEM DESIGN (Very Important)
+
+-------------------------------------------------------------
+🔹 Q35. REST API Best practices
+-------------------------------------------------------------
+1️⃣ Resource-oriented URLs (Nouns, not verbs)
+	❌ Bad : /getUsers, /createOrder
+	✅ Good: /users, /order ✔ Use plural nouns, ✔ Use hierarchy only when needed
+
+2️⃣ Use correct HTTP methods
+	| Method | Purpose        |
+	| ------ | -------------- |
+	| GET    | Read           |
+	| POST   | Create         |
+	| PUT    | Full update    |
+	| PATCH  | Partial update |
+	| DELETE | Delete         |
+
+3️⃣ Proper HTTP Status Codes ⭐⭐⭐⭐⭐
+	| Scenario         | Status          |
+	| ---------------- | --------------- |
+	| Success GET      | 200 OK          |
+	| Resource created | 201 Created     |
+	| No content       | 204 No Content  |
+	| Bad request      | 400 Bad Request |
+	| Unauthorized     | 401             |
+	| Forbidden        | 403             |
+	| Not found        | 404             |
+	| Conflict         | 409             |
+	| Server error     | 500             |
+	| Bad gateway      | 502             |
+
+4️⃣ Consistent Response Structure
+5️⃣ Validation & Meaningful Errors
+	✔ Validate inputs at boundaries
+	✔ Return clear validation messages
+	✔ Use: @Valid, Global exception handler
+	
+6️⃣ Versioning the API (Must-have)
+	✔ Common approaches: /api/v1/users OR Accept: application/vnd.myapp.v1+json
+	✔ Avoid breaking existing clients
+
+7️⃣ Pagination, Sorting & Filtering
+	❌ Returning 10k records
+	✅ Use: GET /users?page=0&size=20&sort=name,asc
+
+8️⃣ Security Best Practices ⭐⭐⭐⭐⭐
+	✔ Always use HTTPS
+	✔ Use JWT / OAuth2
+	✔ Do not expose internal errors
+	✔ Validate tokens on every request
+	❌ Never rely on client-side validation
+
+9️⃣ Idempotency (Important for retries)
+	| Method | Idempotent  |
+	| ------ | ----------- |
+	| GET    | ✅          |
+	| PUT    | ✅          |
+	| DELETE | ✅          |
+	| POST   | ❌ (usually)| For POST: Use Idempotency-Key header
+
+🔟 Timeout, Retry & Resilience : Avoid cascading failures in microservices.
+	✔ Set client timeouts
+	✔ Retry only idempotent calls
+	✔ Use circuit breakers
+
+1️⃣1️⃣ Caching & Performance
+	✔ Use HTTP caching headers: ETag, Cache-Control
+	✔ Enable server-side caching where applicable
+
+1️⃣2️⃣ Content Negotiation : Avoid format-based URLs.
+	✔ Support: Accept: application/json
+	✔ Return: Content-Type: application/json
+
+1️⃣3️⃣ Logging & Observability
+	✔ Log: Request ID / correlation ID, Errors with context
+	✔ Expose: Health checks, Metrics, Traces
+
+1️⃣4️⃣ Documentation (Non-negotiable)
+	✔ Use OpenAPI / Swagger
+	✔ Keep examples updated
+	✔ Document error responses
+
+-------------------------------------------------------------
+🔹 Q36. Monolithic Architecture Vs Microservices Architecture
+-------------------------------------------------------------
+🔑 Monolithic Architecture: 
+	A single, unified application where all modules (UI, business logic, data access) 
+	are built, deployed, and scaled together.
+
+🔑 Microservices Architecture: 
+	An architectural style where the application is split into small, independent services, 
+	each responsible for a specific business capability, deployed and scaled independently.
+
+2️⃣ Key Differences (Interview Gold)
+	| Aspect         | Monolithic  | Microservices  |
+	| -------------- | ----------- | -------------- |
+	| Codebase       | Single      | Multiple small |
+	| Deployment     | Single unit | Independent    |
+	| Scalability    | Whole app   | Per service    |
+	| Technology     | One stack   | Polyglot       |
+	| Database       | Usually one | DB per service |
+	| Failure impact | Entire app  | Isolated       |
+	| Testing        | Simpler     | Complex        |
+	| Ops complexity | Low         | High           |
+
+4️⃣ Scalability
+	✔Monolithic: Scale vertically or replicate whole app, Inefficient resource usage
+	✔Microservices: Scale only hot services, Horizontal scaling is natural
+
+9️⃣ When to use which? (Real-world decision)
+	✔Monolithic: Small to medium application, Small team, Simple domain, Fast initial development
+	✔Microservices: Large, complex domain, Independent scaling needed, Multiple teams, High availability required
+
+-------------------------------------------------------------
+🔹 Q37. How to manage ip’s and servers in a microservices architecture
+-------------------------------------------------------------
+🔑 Core problem In microservices: 
+		✔Services are dynamic
+		✔IPs change due to: Auto-scaling, Container restarts, Node failures, Hardcoding IPs ❌ does not work
+		✔So we need dynamic service discovery + routing.
+		
+1️⃣ Why hardcoding IPs fails ❌
+	Problems: 
+		✔Pod restarts → IP changes
+		✔Scaling → multiple instances
+		✔Failures → stale IPs
+		✔Environment differences (dev/qa/prod)
+		👉 Hardcoding = brittle system
+
+2️⃣ Service Discovery (MOST IMPORTANT) ⭐⭐⭐⭐⭐
+	✔A mechanism where Services register themselves Other services discover them dynamically
+	✔Types of Service Discovery
+		🔹Client-side discovery : Client → Service Registry → Target Service
+			Examples: Eureka, Consul, Zookeeper
+		🔹Server-side discovery (More common today) : Client → Load Balancer → Service
+			Examples: Kubernetes, AWS ALB/NLB, Cloud load balancers
+			
+4️⃣ API Gateway (External traffic management)
+	✔Responsibilities: Single entry point, Routing to services, Authentication, Rate limiting, SSL termination
+	✔Gateway routes using: Service names, Logical routes, Not IPs
+
+5️⃣ Load Balancers (Internal & External)
+	✔External Load Balancer: Handles internet traffic, Routes to gateway or services
+	✔Internal Load Balancer: Balances traffic between service instances
+	✔Benefits: No IP awareness in clients, Fault tolerance, Scalability
+
+6️⃣ DNS-based service resolution
+	✔Instead of: http://10.0.1.12:8080 Use: http://order-service:8080
+	✔DNS resolves: Service name → current healthy instances
+	✔DNS is often backed by: Kubernetes DNS, Cloud DNS, Service mesh
+
+7️⃣ Service Mesh (Advanced / Large scale)
+	✔Examples: Istio, Linkerd
+	✔What it adds: Sidecar proxies, mTLS, Traffic routing, Observability
+	
+-------------------------------------------------------------
+🔹 Q38. How Service Discovery and Registration works ? ( A problem Scenario )
+-------------------------------------------------------------
+🔴 Imagine a microservices system with Order Service calling Payment Service.
+❌ Naive approach (hardcoded IP) : Order Service → http://10.0.1.12:8080/pay
+🔑 What goes wrong? : 
+	✔Payment Service restarts → IP changes
+	✔Auto-scaling adds more instances
+	✔Failures make IP unreachable
+	✔Multiple environments (dev/qa/prod)
+	Result: Order Service breaks frequently
+
+👉 This is the core problem service discovery solves.
+✅ The Solution: Service Discovery & Registration
+	✔Core idea: Services register themselves on startup, and clients discover them dynamically at runtime.
+
+🧩 Key Components
+	✔Service Provider – e.g., Payment Service
+	✔Service Registry – Central directory
+	✔Service Consumer – e.g., Order Service
+
+🟢 Step-by-Step Flow (Problem → Solution)
+	1️⃣ Service starts → Registration
+		✔ When Payment Service starts: Payment Service → Service Registry
+		✔ Happens automatically on startup
+		✔ Updated on restart or scale-up
+		
+	2️⃣ Heartbeat mechanism (Health check)
+		✔ Payment Service → Registry (heartbeat every 30s)
+		✔ If heartbeats stop: Registry marks instance DOWN, Removes it from active list
+		✔ Prevents calling dead services
+	
+	3️⃣ Client wants to call a service → Discovery
+		✔ Order Service needs Payment Service: Order Service → Registry → List of Payment Service instances
+	
+	4️⃣ Load balancing & call
+		✔ Order Service: Picks one instance (round-robin), Makes the call
+		✔	Order Service → Payment Service (chosen instance)
+		✔ No IP hardcoding, Load balanced, Fault tolerant
+
+🧠 Two Discovery Models (Interview Must-Know)
+	1️⃣ Client-side Discovery: 
+		✔ Client → Service Registry → Service
+		✔ How it works: Client queries registry, Client chooses instance, Client does load balancing
+		✔ Examples: Eureka, Consul
+		✔ Flexible, ❌ Client complexity
+
+	2️⃣ Server-side Discovery (Most common today)
+		✔ Client → Load Balancer → Service
+		✔ How it works: Client calls a logical service name, Platform resolves & routes
+		✔ Examples: Kubernetes, Cloud Load Balancers
+		✔ Simple clients, Platform-managed
+
+How do you design a rate-limiting system?
+How do you handle distributed transactions?
+What is circuit breaker?
+How do you ensure idempotency?
+What is eventual consistency?
+Difference between synchronous vs asynchronous communication.
+How do you handle API versioning?
+How do you design highly available systems?
+What is CAP theorem?
+How do you secure microservices?
+REST API design
+Rate limiting
+Circuit breaker
+Idempotency
+Must Practice: Designing scalable APIs
+Handling distributed transactions
+-------------------------------------------------------------
+How Client side load balancing different then the Server Side load balancing ?
+-------------------------------------------------------------
+-------------------------------------------------------------
+Is server side load balancing causes a single point of failure?
+-------------------------------------------------------------
+-------------------------------------------------------------
+How to handle failure in a microservices environment ?
+-------------------------------------------------------------
+-------------------------------------------------------------
+How the retry pattern works ?
+-------------------------------------------------------------
+-------------------------------------------------------------
+How a block thread causes issue in a microservices environment ?
+-------------------------------------------------------------
+-------------------------------------------------------------
+How to protect your microservices from random load?
+-------------------------------------------------------------
+-------------------------------------------------------------
+Explain the states of a  circuit breaker in spring boot
+-------------------------------------------------------------
+-------------------------------------------------------------
+How to track a slower Microservice which causes performance issue?
+-------------------------------------------------------------
+-------------------------------------------------------------
+How to track exceptions in a microservices environment ?
+-------------------------------------------------------------
+-------------------------------------------------------------
+Explain API Gateway responsibilities in microservices architecture.
+-------------------------------------------------------------
+-------------------------------------------------------------
+How will you design rate-limiting for an API?
+-------------------------------------------------------------
+🔹 1. Fixed Window: How it works: Count requests in a fixed time window
+🔹 2. Sliding Window (Improved Fixed Window): Tracks requests more accurately using timestamps.
+
+
+-------------------------------------------------------------
+Q13. How do you ensure fault tolerance in microservices? 
+-------------------------------------------------------------
+Ensuring fault tolerance in microservices means designing your system so that it continues to function properly even if some of its components fail. In distributed systems, failures are inevitable — network issues, service crashes, timeouts, etc. Fault-tolerant microservices absorb these failures and fail gracefully instead of bringing the entire system down.
+Key Concepts to Ensure Fault Tolerance in Microservices
+Circuit Breaker Pattern
+Retry Mechanism
+Timeouts
+Fallback Methods
+Bulkhead Pattern
+Load Balancing
+Service Discovery and Self-Healing
+Health Checks
+Asynchronous Communication
+Graceful Degradation
