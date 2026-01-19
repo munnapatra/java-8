@@ -309,15 +309,15 @@ Case 2: Server timeout < Read timeout => Server fails fast, Client receives erro
 -------------------------------------------------------------
 🔹 Q11. Should you use JWT or Session-based authentication in the microservices environment? 
 -------------------------------------------------------------
-| Aspect               | Session-based | JWT         |
-| -------------------- | ------------- | ----------- |
-| State                | Stateful      | Stateless   |
-| Scalability          | ❌ Poor      | ✅ Excellent|
-| Microservices fit    | ❌ No        | ✅ Yes      |
-| Cross-service calls  | Hard          | Easy        |
-| Infrastructure       | Session store | None        |
-| Cloud / K8s friendly | ❌            | ✅         |
-| Architecture         | Monolithic    | Microservice|
+	| Aspect               | Session-based | JWT         |
+	| -------------------- | ------------- | ----------- |
+	| State                | Stateful      | Stateless   |
+	| Scalability          | ❌ Poor      | ✅ Excellent|
+	| Microservices fit    | ❌ No        | ✅ Yes      |
+	| Cross-service calls  | Hard          | Easy        |
+	| Infrastructure       | Session store | None        |
+	| Cloud / K8s friendly | ❌            | ✅         |
+	| Architecture         | Monolithic    | Microservice|
 
 -------------------------------------------------------------
 🔹 Q12. What is content negotiation?
@@ -335,17 +335,317 @@ Why Content Negotiation is needed
 -------------------------------------------------------------
 🔹 Q13. What are the cross-cutting concerns in spring? how do you implement it in microservices architecture?
 -------------------------------------------------------------
+🔑 Cross-cutting concerns are functionalities that span across multiple layers and modules
+   of an application but are not part of core business logic.
+	| Concern              | What it does                        |
+	| -------------------- | ----------------------------------- |
+	| Logging              | Method entry/exit, request/response |
+	| Security             | Authentication & authorization      |
+	| Transactions         | Commit / rollback management        |
+	| Exception Handling   | Centralized error handling          |
+	| Caching              | Performance optimization            |
+	| Validation           | Input & business validation         |
+	| Monitoring & Metrics | Health, performance                 |
+	| Distributed Tracing  | Trace & correlation IDs             |
+	| Auditing             | Who changed what & when             |
+	| Rate Limiting        | Prevent abuse                       |
+
+❓ Why handle them separately?
+	✔ Without separation: Code duplication, Tangled business logic, Hard maintenance, Inconsistent behavior
+	✔ Spring provides infrastructure mechanisms to keep business code clean.
+	
+1️⃣ How Spring Implements Cross-Cutting Concerns (Core Concepts)
+	🔹A. Spring AOP ⭐⭐⭐⭐⭐: 	✔ No code duplication, ✔ Applied uniformly
+	🔹B. Declarative Annotations: @Transactional, @Cacheable, @Async, @Secured
+
+2️⃣ Cross-Cutting Concerns in Microservices Architecture
+🔹API Gateway Level (Global): Tools => Spring Cloud Gateway, Nginx, Kong, AWS API Gateway
+	| Concern         | How                     |
+	| --------------- | ----------------------- |
+	| Authentication  | OAuth2 / JWT validation |
+	| Rate limiting   | Gateway filters         |
+	| CORS            | Gateway configuration   |
+	| Request logging | Global filters          |
+
+🔹Service Level (Spring AOP)
+	| Concern            | Mechanism           |
+	| ------------------ | ------------------- |
+	| Transactions       | `@Transactional`    |
+	| Logging            | AOP aspects         |
+	| Validation         | Bean Validation     |
+	| Caching            | `@Cacheable`        |
+	| Exception handling | `@ControllerAdvice` |
+
+🔹Filter & Interceptor Level
+	| Tool                | Use                       |
+	| ------------------- | ------------------------- |
+	| Servlet Filters     | Security, correlation IDs |
+	| HandlerInterceptors | Request metadata          |
+	| WebClient Filters   | Outgoing calls            |
+
+🔹Distributed Tracing (Microservices-specific): Tools => OpenTelemetry, Zipkin, Jaeger
+	✔ Correlation ID propagation, Trace ID / Span ID
+
+🔹Centralized Observability
+	| Concern | Tool            |
+	| ------- | --------------- |
+	| Logs    | ELK / EFK       |
+	| Metrics | Prometheus      |
+	| Traces  | Jaeger / Zipkin |
+
+
+
+
+-------------------------------------------------------------
 🔹 Q14. How to create custom validators in spring?
 -------------------------------------------------------------
-Give me a code walkthrough on the spring security internal workflow
-Explain the Signleton design pattern. How spring's singleton scope is different then GOF signleton?
-Tell me 5 Spring Exceptions that you came across.
-Tell me 5 spring Annotations that you have used ? (Excluding the stereotype annotations)
-Is it required to write @Repository annotations in spring data JPA?
-Explain the Spring Data Project and the hierarchy ? 
-Use of  @NoRepositoryBean in spring boot ? Can we write @NoRepositoryBean on top of our Repositories interfaces ?
-What is a  java config file  and What is it' s limitations?
-How a CGLIB Proxy works with @Bean?
+🔑 A custom validator allows you to define your own validation rules beyond
+   standard constraints (@NotNull, @Size, etc.) using Bean Validation (Jakarta Validation / JSR-380).
+  
+✅ Recommended Way: Annotation-based Bean Validation
+Step 1️⃣ Create a Custom Constraint Annotation
+	@Documented
+	@Constraint(validatedBy = PasswordStrengthValidator.class)
+	@Target({ ElementType.FIELD, ElementType.PARAMETER })
+	@Retention(RetentionPolicy.RUNTIME)
+	public @interface StrongPassword {
+		String message() default "Password is too weak";
+		Class<?>[] groups() default {};
+		Class<? extends Payload>[] payload() default {};
+	}
+	
+Step 2️⃣ Implement ConstraintValidator
+	public class PasswordStrengthValidator implements ConstraintValidator<StrongPassword, String> {
+
+		@Override
+		public boolean isValid(String value, ConstraintValidatorContext context) {
+			if (value == null) return false;
+			return value.length() >= 8 &&
+				   value.matches(".*[A-Z].*") &&
+				   value.matches(".*[0-9].*");
+		}
+	}
+
+Step 3️⃣ Use the Custom Validator
+	public class UserRequest {
+
+		@StrongPassword
+		private String password;
+	}
+
+-------------------------------------------------------------
+🔹 Q15. How spring's singleton scope is different then GOF signleton?
+-------------------------------------------------------------
+1️⃣ Spring Singleton Scope
+	✔ What: One bean instance per ApplicationContext, Managed by Spring container, Default scope in Spring
+	✔ Lifecycle is fully managed by Spring @PostConstruct/@PreDestroy, Easy to test and mock
+	✔ Clean DI, Loose coupling, Works with AOP, transactions, proxies
+
+2️⃣ GoF Singleton Pattern
+	✔ What: One instance per JVM, Enforced by code, No framework involved
+	✔ JVM-wide single instance, Global access, No lifecycle hooks
+	❌ Hard to test, Global state, Tight coupling, Thread-safety complexity, Cannot easily reset between tests
+
+-------------------------------------------------------------
+🔹 Q16. Tell me some Spring Exceptions that you came across with example ?
+-------------------------------------------------------------
+1️⃣ NoSuchBeanDefinitionException
+	✔ Why: Spring cannot find a required bean, Wrong package scanning, Missing implementation for an interface
+
+2️⃣ BeanCreationException
+	✔ Why: Bean fails during creation, Exception inside constructor or @PostConstruct
+
+3️⃣ UnsatisfiedDependencyException
+	✔ Why: Dependency chain cannot be resolved, Constructor injection failure, Circular dependency
+	
+4️⃣ HttpRequestMethodNotSupportedException
+	✔ Why: Client uses wrong HTTP method, Endpoint mapping mismatch
+
+5️⃣ MethodArgumentNotValidException
+	✔ Occurs when validation fails. public void create(@Valid @RequestBody User user) {}
+
+6️⃣ TransactionRequiredException
+	✔ Why: Executing update/delete query without transaction
+
+7️⃣ InvalidDataAccessApiUsageException
+	✔ Why: Wrong JPA usage, Passing null or invalid arguments
+
+8️⃣ DataIntegrityViolationException
+	✔ Why: DB constraint violation, Unique key, Foreign key, Not null constraint
+
+9️⃣ OptimisticLockingFailureException
+	✔ Why: Concurrent update with @Version
+
+🔟 NoUniqueBeanDefinitionException
+	✔ why: Interface with multiple implementations
+	✔ Spring resolves dependencies in this order: By type, By name, By qualifier, By @Primary
+		✅ Option 1: @Primary (Most common)
+		✅ Option 2: @Qualifier (Best practice for clarity)
+		✅ Option 3: Inject by name: private PaymentService cardPaymentService;
+		✅ Option 4: Inject all implementations: private List<PaymentService> paymentServices; 
+
+
+-------------------------------------------------------------
+🔹 Q17. Tell me 10 spring Annotations that you have used ? (Excluding the stereotype annotations)
+-------------------------------------------------------------
+1️⃣ @Autowired: Purpose: Inject dependencies automatically.
+2️⃣ @Qualifier: Purpose: Resolve ambiguity when multiple beans of same type exist.
+3️⃣ @Primary: Purpose: Marks a bean as default choice.
+4️⃣ @Value: Purpose: Inject values from properties or environment.
+5️⃣ @Configuration: Purpose: Marks a class as Spring Java configuration.
+6️⃣ @Bean: Purpose: Manually register a bean.
+7️⃣ @Transactional: Purpose: Manage database transactions declaratively.
+8️⃣ @RequestMapping: Purpose: Map HTTP requests to controller methods.
+9️⃣ @RequestBody: Purpose: Bind HTTP request body to Java object.
+🔟 @PathVariable: Purpose: Extract values from URI path.
+🎯 Bonus (Very commonly used – if interviewer asks more)
+@RequestParam, @ResponseStatus, @ExceptionHandler, @ControllerAdvice
+@PostConstruct, @PreDestroy, @EnableCaching, @Cacheable, @Validated, @Profile
+
+-------------------------------------------------------------
+🔹 Q18. Is it required to write @Repository annotations in spring data JPA?
+-------------------------------------------------------------
+🔑 No, it is not required to explicitly write @Repository on Spring Data JPA repository interfaces.
+	Spring Data JPA:
+		✔ Automatically detects the interface
+		✔ Creates a proxy implementation at runtime
+		✔ Registers it as a Spring bean
+		✔ Marks it internally as @Repository
+		✔ So exception translation and bean registration are already handled.
+		✔ Convert PersistenceException, SQLException into Spring’s DataAccessException
+
+-------------------------------------------------------------
+🔹 Q19. Explain the Spring Data Project and the hierarchy ? 
+-------------------------------------------------------------
+🌳 Repository Hierarchy (Most Important for Interviews)
+Repository (marker interface) : Enables Spring Data repository detection, ✔ Base for all repositories
+   ↓
+CrudRepository : ✔ Store-independent, ✔ Works for SQL & NoSQL
+   ↓
+PagingAndSortingRepository: ✔ Pagination, ✔ Sorting
+   ↓
+JpaRepository (JPA-specific) : ✔ Hibernate/JPA optimizations, ✔ Batch operations, ✔ Most common in real projects
+
+🔗 How Spring Data works internally (Simplified)
+Repository Interface
+        ↓
+Spring Data Proxy
+        ↓
+EntityManager / Template
+        ↓
+Database
+
+No implementation written by developer, Proxy created at runtime, Queries derived from method names
+
+-------------------------------------------------------------
+🔹 Q20. Use of  @NoRepositoryBean in spring boot ?
+-------------------------------------------------------------
+🔑 @NoRepositoryBean is a Spring Data annotation used to tell Spring: “Do NOT create a repository bean for this interface.”
+	It is mainly used for base (parent) repository interfaces that are meant to be extended, not instantiated.
+	By default, Spring Data tries to create a bean for every repository interface it finds. If you create a generic/base repository interface, Spring will: Try to create a proxy bean for it and Fail at startup (because it has no domain type) @NoRepositoryBean prevents this.
+	✔ Spring Data itself uses @NoRepositoryBean on: Repository, CrudRepository, PagingAndSortingRepository
+	👉 That’s why Spring doesn’t try to create beans for them
+
+-------------------------------------------------------------
+🔹 Q21. Different types of bean scope presenet in spring and its use case ?
+-------------------------------------------------------------
+🔑 What is a Bean Scope in Spring: A bean scope defines how many instances of a bean Spring creates
+   and how long that instance lives within the container.
+   
+   1️⃣ singleton (Default & Most Used): One bean instance per Spring ApplicationContext, Shared across the entire application
+   2️⃣ prototype: New instance every time getBean() is called, Spring manages creation only, not destruction.
+		@Component
+		@Scope("prototype")
+		public class ReportGenerator {}
+
+   3️⃣ request (Web Scope): One bean per HTTP request, Exists only during a single request
+		@Component
+		@Scope(value = WebApplicationContext.SCOPE_REQUEST)
+		public class RequestContext {}
+
+	4️⃣ session (Web Scope): One bean per HTTP session, Shared across multiple requests of the same user
+		@Component
+		@Scope(value = WebApplicationContext.SCOPE_SESSION)
+		public class UserSession {}
+	
+	5️⃣ application (Web Scope): One bean per ServletContext, Similar to singleton, but web-specific
+		@Component
+		@Scope(value = WebApplicationContext.SCOPE_APPLICATION)
+		public class AppMetadata {}
+
+	6️⃣ websocket (Specialized Web Scope): One bean per WebSocket session
+		@Scope("websocket")
+		@Component
+		public class WebSocketSessionBean {}
+
+   
+   
+-------------------------------------------------------------
+🔹 Q22. What is limitations of java config file?
+-------------------------------------------------------------
+1️⃣ Tight Coupling Between Configuration & Code
+	What: Configuration is written in Java
+	Any config change requires: Code change, Recompile, Redeploy, 
+	Example
+		@Bean
+		public DataSource dataSource() {
+			return new HikariDataSource();
+		}
+
+		➡️ Changing pool type = code change
+
+	Why it’s a limitation: Ops/DevOps cannot change config easily, Not ideal for runtime-only configuration
+
+2️⃣ Less Runtime Flexibility Compared to XML / Properties
+	XML / properties allow
+	datasource.pool.size=20
+
+	Java config requires
+	dataSource.setMaximumPoolSize(20);
+
+	➡️ Harder to externalize complex configurations
+
+3️⃣ Harder for Non-Java Users
+	XML / YAML can be edited by: Ops, Support teams, 
+	Java config requires: Java knowledge, IDE, Build process, 👉 Not business-friendly
+
+4️⃣ Verbosity for Large Configurations 
+	Example: Large security / integration config
+	Java config: Long, Hard to scan visually, Mixed with logic
+	XML/YAML: More declarative, Easier to review
+
+5️⃣ Harder to Enable/Disable Config Dynamically
+	Java config: Conditional logic must be coded
+	@ConditionalOnProperty(name = "feature.enabled", havingValue = "true")
+	Compared to XML
+	<beans profile="prod">
+👉 XML / profiles can feel simpler for environment-based switching
+
+6️⃣ Accidental Business Logic in Configuration 
+	Java config is Turing complete.
+		@Bean
+		public ObjectMapper mapper() {
+			if (env.acceptsProfiles("prod")) {
+				return prodMapper();
+			}
+			return devMapper();
+		}
+	⚠️ Risk: Logic-heavy config, Hard to test, Violates separation of concerns
+
+7️⃣ Startup Time Slightly Higher (Edge Case)
+	Java config: Class loading, Reflection
+	XML: Simple parsing
+	📌 Usually negligible, but relevant in very large apps
+
+8️⃣ Not Ideal for Pure Configuration Data
+	Example: Feature flags, Routing rules, Large static mappings
+	Better stored in: YAML / properties, External config servers, Databases
+	
+	
+-------------------------------------------------------------
+🔹 Q23. How a CGLIB Proxy works with @Bean?
+-------------------------------------------------------------
+-------------------------------------------------------------
 @Component vs @Bean . What is the difference between creating a bean with @Bean and creating a bean with @Component ? 
 What is a BeanFactoryPostProcessor?
 Bean Factory Post Processor Code walkthrough
