@@ -2,315 +2,316 @@
 -------------------------------------------------------------
 🔹 Q1. Dependency inversion principle vs Dependency Injection
 -------------------------------------------------------------
-🔑 Dependency Inversion Principle (DIP) is a design principle. 
-	✔Part of SOLID principles.
-	✔High-level modules should not depend on low-level modules. Both should depend on abstractions.
-🔑 Dependency Injection (DI) is a design pattern / technique to implement that principle.
-	✔Provides dependencies from outside instead of creating them
-	✔Achieve loose coupling, Enable DIP, Improve testability
+	🔑 Dependency Inversion Principle (DIP) is a design principle. 
+		✔Part of SOLID principles.
+		✔High-level modules should not depend on low-level modules. Both should depend on abstractions.
+	🔑 Dependency Injection (DI) is a design pattern / technique to implement that principle.
+		✔Provides dependencies from outside instead of creating them
+		✔Achieve loose coupling, Enable DIP, Improve testability
 	
 -------------------------------------------------------------
 🔹 Q2. @Component vs @Service vs @Repository vs @RestController vs @Controller
 -------------------------------------------------------------
-All five are Spring stereotype annotations used for component scanning, 
-but each represents a different layer and responsibility in a Spring application.
-🔑 @Component — Generic Spring Bean 
-	✔What is it: Base stereotype annotation, Parent of all other stereotypes.
-	✔When to use: Utility classes, Helpers, Shared components, When no specific layer fits
-	
-🔑 @Service — Business Logic Layer
-	✔ What it is: Specialization of @Component, Represents service layer
-	✔ When to use: Business rules, Orchestration logic, Transaction boundaries
-	✔ Enables clean application of cross-cutting concerns
+	All five are Spring stereotype annotations used for component scanning, 
+	but each represents a different layer and responsibility in a Spring application.
+	🔑 @Component — Generic Spring Bean 
+		✔What is it: Base stereotype annotation, Parent of all other stereotypes.
+		✔When to use: Utility classes, Helpers, Shared components, When no specific layer fits
+		
+	🔑 @Service — Business Logic Layer
+		✔ What it is: Specialization of @Component, Represents service layer
+		✔ When to use: Business rules, Orchestration logic, Transaction boundaries
+		✔ Enables clean application of cross-cutting concerns
 
-🔑 @Repository — Persistence / DAO Layer (Special behavior Exception translation)
-	✔ What it is: Specialization of @Component, Represents data access layer
-	✔ Exception translation: Converts SQLException, HibernateException Into DataAccessException (unchecked)
-	✔ Using @Service instead of @Repository works, but you lose exception translation.
-	
-🔑 @Controller — MVC Web Controller
-	✔ What it is: Specialization of @Component, Used in Spring MVC (server-side rendering), Methods typically return view names
-	✔ When to use: Building MVC apps, Rendering HTML, Using JSP / Thymeleaf
-	✔ Default behavior: Returns view names, Used with JSP, Thymeleaf, etc., Needs @ResponseBody for REST
-	✔ Key points: Uses ViewResolver, Needs @ResponseBody to return JSON
+	🔑 @Repository — Persistence / DAO Layer (Special behavior Exception translation)
+		✔ What it is: Specialization of @Component, Represents data access layer
+		✔ Exception translation: Converts SQLException, HibernateException Into DataAccessException (unchecked)
+		✔ Using @Service instead of @Repository works, but you lose exception translation.
+		
+	🔑 @Controller — MVC Web Controller
+		✔ What it is: Specialization of @Component, Used in Spring MVC (server-side rendering), Methods typically return view names
+		✔ When to use: Building MVC apps, Rendering HTML, Using JSP / Thymeleaf
+		✔ Default behavior: Returns view names, Used with JSP, Thymeleaf, etc., Needs @ResponseBody for REST
+		✔ Key points: Uses ViewResolver, Needs @ResponseBody to return JSON
 
-🔑 @RestController — REST API Controller
-	✔ What it is: Combination of: @Controller + @ResponseBody
-	✔ When to use: REST APIs, Microservices, JSON / XML responses
-	✔ Key points: Returns JSON/XML by default, Uses HttpMessageConverter, No ViewResolver involved
+	🔑 @RestController — REST API Controller
+		✔ What it is: Combination of: @Controller + @ResponseBody
+		✔ When to use: REST APIs, Microservices, JSON / XML responses
+		✔ Key points: Returns JSON/XML by default, Uses HttpMessageConverter, No ViewResolver involved
 
 -------------------------------------------------------------
 🔹 Q3. Explain spring Bean Lifecycle ?
 -------------------------------------------------------------
 🔁 What is the Spring Bean Lifecycle: It is the sequence of steps Spring follows to create,
    initialize, use, and destroy a bean inside the IoC container.
-🪜 Step-by-Step Lifecycle
-1️⃣ Bean Definition Loaded
-	✔ Spring reads configuration (XML / Java Config / Annotations).
-	✔ Creates BeanDefinition (scope, dependencies, init/destroy methods).
+	🪜 Step-by-Step Lifecycle
+	1️⃣ Bean Definition Loaded
+		✔ Spring reads configuration (XML / Java Config / Annotations).
+		✔ Creates BeanDefinition (scope, dependencies, init/destroy methods).
 
-2️⃣ Bean Instantiation: 
-	✔ Spring creates the bean instance using the constructor.
-	✔ Object exists, but dependencies are not injected yet.
+	2️⃣ Bean Instantiation: 
+		✔ Spring creates the bean instance using the constructor.
+		✔ Object exists, but dependencies are not injected yet.
 
-3️⃣ Dependency Injection (Populate Properties)
-	✔ Injects dependencies via: Constructor / Setter / Field (@Autowired)
-	
-4️⃣ Aware Interfaces (Optional)
-	✔ If implemented, Spring injects container context: BeanNameAware, BeanFactoryAware, ApplicationContextAware
-	
-5️⃣ BeanPostProcessor — Before Initialization [postProcessBeforeInitialization(bean, beanName)]
-	✔ Used for: Validation, Pre-init customization, Framework logic
+	3️⃣ Dependency Injection (Populate Properties)
+		✔ Injects dependencies via: Constructor / Setter / Field (@Autowired)
+		
+	4️⃣ Aware Interfaces (Optional)
+		✔ If implemented, Spring injects container context: BeanNameAware, BeanFactoryAware, ApplicationContextAware
+		
+	5️⃣ BeanPostProcessor — Before Initialization [postProcessBeforeInitialization(bean, beanName)]
+		✔ Used for: Validation, Pre-init customization, Framework logic
 
-6️⃣ Initialization Phase (IMPORTANT) : Spring runs any/all of the following in order:
-	✔ a) @PostConstruct (Recommended)
-	✔ b) InitializingBean.afterPropertiesSet()
-	✔ c) Custom init-method : @Bean(initMethod = "customInit")
+	6️⃣ Initialization Phase (IMPORTANT) : Spring runs any/all of the following in order:
+		✔ a) @PostConstruct (Recommended)
+		✔ b) InitializingBean.afterPropertiesSet()
+		✔ c) Custom init-method : @Bean(initMethod = "customInit")
 
-7️⃣ BeanPostProcessor — After Initialization [postProcessAfterInitialization(bean, beanName)]
-	✔ AOP proxies (@Transactional, @Async) are created here.
+	7️⃣ BeanPostProcessor — After Initialization [postProcessAfterInitialization(bean, beanName)]
+		✔ AOP proxies (@Transactional, @Async) are created here.
 
-8️⃣ Bean is READY to Use 🎉: 
-	✔ Fully initialized, Dependencies injected, Proxies applied (if any), Available from ApplicationContext
+	8️⃣ Bean is READY to Use 🎉: 
+		✔ Fully initialized, Dependencies injected, Proxies applied (if any), Available from ApplicationContext
 
-8️⃣  Destruction Phase (Shutdown) 
-	✔ Triggered when: Application stops, Context is closed
-	🧹 Destruction callbacks (order):
-		✔ a) @PreDestroy
-		✔ b) DisposableBean.destroy()
-		✔ c) Custom destroy-method
-⚠️ Called only for singleton beans
-⚠️ Prototype beans are not destroyed by Spring
+	8️⃣  Destruction Phase (Shutdown) 
+		✔ Triggered when: Application stops, Context is closed
+		🧹 Destruction callbacks (order):
+			✔ a) @PreDestroy
+			✔ b) DisposableBean.destroy()
+			✔ c) Custom destroy-method
+	⚠️ Called only for singleton beans
+	⚠️ Prototype beans are not destroyed by Spring
 
 -------------------------------------------------------------
 🔹 Q4. How you will call the @Predestory marked methods in the standalone application.
 -------------------------------------------------------------
-🔑 Key rule: @PreDestroy methods are called only when the Spring container is closed.
-✔ In a standalone (non-web) application, you must explicitly close the ApplicationContext.
-	🧹context.close(); 
-	✅ Using try-with-resources
-	✅ Alternative (Register shutdown hook): context.registerShutdownHook();
-🔑 Why @PreDestroy does NOT work for prototype scope:
-	✅Spring manages the entire lifecycle of singleton beans, but only the creation phase of prototype beans.
-🔑 Then who should destroy prototype beans?
-	👉 Developer. TempBean bean = context.getBean(TempBean.class); bean.cleanup();
-	👉 Or implement AutoCloseable:
-		public class TempBean implements AutoCloseable {
-			@Override
-			public void close() {
-				// cleanup
+	🔑 Key rule: @PreDestroy methods are called only when the Spring container is closed.
+	✔ In a standalone (non-web) application, you must explicitly close the ApplicationContext.
+		🧹context.close(); 
+		✅ Using try-with-resources
+		✅ Alternative (Register shutdown hook): context.registerShutdownHook();
+	🔑 Why @PreDestroy does NOT work for prototype scope:
+		✅Spring manages the entire lifecycle of singleton beans, but only the creation phase of prototype beans.
+	🔑 Then who should destroy prototype beans?
+		👉 Developer. TempBean bean = context.getBean(TempBean.class); bean.cleanup();
+		👉 Or implement AutoCloseable:
+			public class TempBean implements AutoCloseable {
+				@Override
+				public void close() {
+					// cleanup
+				}
 			}
-		}
-🔑 What happens in a Web Application?
-	👉 The Servlet container (Tomcat / Jetty / Undertow) controls the lifecycle.
-	👉 @PreDestroy methods are called automatically when the web application is shutting down.
-✅ Who triggers it internally?
-	✔Classic Spring MVC (WAR) : ContextLoaderListener, Listens to servlet lifecycle, Calls contextDestroyed(), Closes Spring context
-	✔Spring Boot: Embedded server, Spring Boot auto-registers shutdown hooks, Calls ApplicationContext.close()
+	🔑 What happens in a Web Application?
+		👉 The Servlet container (Tomcat / Jetty / Undertow) controls the lifecycle.
+		👉 @PreDestroy methods are called automatically when the web application is shutting down.
+	✅ Who triggers it internally?
+		✔Classic Spring MVC (WAR) : ContextLoaderListener, Listens to servlet lifecycle, Calls contextDestroyed(), Closes Spring context
+		✔Spring Boot: Embedded server, Spring Boot auto-registers shutdown hooks, Calls ApplicationContext.close()
 
 -------------------------------------------------------------
 🔹 Q5. Explain the helper class that initializes and destroys the web application context.
 -------------------------------------------------------------
-🔑 ContextLoaderListener is a Spring-provided ServletContext listener that bridges the servlet container lifecycle with the Spring IoC container.It initialize the root WebApplicationContext when the web app starts and destroy (close) the WebApplicationContext when the web app stops.
+	🔑 ContextLoaderListener is a Spring-provided ServletContext listener that bridges the servlet container lifecycle with the Spring IoC container.It initialize the root WebApplicationContext when the web app starts and destroy (close) the WebApplicationContext when the web app stops.
 
-🔑 Why is this helper class needed?: In a web application, the lifecycle is controlled by the Servlet container (Tomcat, Jetty, etc.), not by Spring. Spring needs a hook to Start the IoC container at application startup and Cleanly shut it down during application shutdown. ➡️ ContextLoaderListener provides exactly this hook.
+	🔑 Why is this helper class needed?: In a web application, the lifecycle is controlled by the Servlet container (Tomcat, Jetty, etc.), not by Spring. Spring needs a hook to Start the IoC container at application startup and Cleanly shut it down during application shutdown. ➡️ ContextLoaderListener provides exactly this hook.
 
-🔑 What happens during Application Startup?
-Web Container starts ↓ ServletContext initialized ↓ ContextLoaderListener.contextInitialized()
-↓ Spring creates Root WebApplicationContext ↓ Beans are instantiated & initialized
+	🔑 What happens during Application Startup?
+	Web Container starts ↓ ServletContext initialized ↓ ContextLoaderListener.contextInitialized()
+	↓ Spring creates Root WebApplicationContext ↓ Beans are instantiated & initialized
 
-Internally: Reads contextConfigLocation, Creates the root application context, Stores it in ServletContext
+	Internally: Reads contextConfigLocation, Creates the root application context, Stores it in ServletContext
 
-🔑 What happens during Application Shutdown?
-Server stops / App undeployed ↓ ServletContext destroyed ↓ ContextLoaderListener.contextDestroyed() 
-↓ Spring closes ApplicationContext ↓ @PreDestroy / destroy() methods called
+	🔑 What happens during Application Shutdown?
+	Server stops / App undeployed ↓ ServletContext destroyed ↓ ContextLoaderListener.contextDestroyed() 
+	↓ Spring closes ApplicationContext ↓ @PreDestroy / destroy() methods called
 
-✔ Proper cleanup, Resource release, Graceful shutdown
+	✔ Proper cleanup, Resource release, Graceful shutdown
 
-🔑 Configuration (Classic Spring MVC – WAR)
-	web.xml
-	<listener>
-		<listener-class>
-			org.springframework.web.context.ContextLoaderListener
-		</listener-class>
-	</listener>
+	🔑 Configuration (Classic Spring MVC – WAR)
+		web.xml
+		<listener>
+			<listener-class>
+				org.springframework.web.context.ContextLoaderListener
+			</listener-class>
+		</listener>
 
-	<context-param>
-		<param-name>contextConfigLocation</param-name>
-		<param-value>/WEB-INF/applicationContext.xml</param-value>
-	</context-param>
+		<context-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>/WEB-INF/applicationContext.xml</param-value>
+		</context-param>
 
-🔑 Root vs Servlet WebApplicationContext (IMPORTANT)
-Spring web apps have two contexts: 
-| Context                           | Created by              | Contains                            |
-| --------------------------------- | ----------------------- | ----------------------------------- |
-| **Root WebApplicationContext**    | `ContextLoaderListener` | Services, Repositories, DataSources |
-| **Servlet WebApplicationContext** | `DispatcherServlet`     | Controllers, ViewResolvers          |
+	🔑 Root vs Servlet WebApplicationContext (IMPORTANT)
+	Spring web apps have two contexts: 
+	| Context                           | Created by              | Contains                            |
+	| --------------------------------- | ----------------------- | ----------------------------------- |
+	| **Root WebApplicationContext**    | `ContextLoaderListener` | Services, Repositories, DataSources |
+	| **Servlet WebApplicationContext** | `DispatcherServlet`     | Controllers, ViewResolvers          |
 
 
-🔑 Relationship with DispatcherServlet
-	✔ ContextLoaderListener → initializes shared beans
-	✔ DispatcherServlet → handles web layer only
-	✔ This separation: Improves modularity, Keeps web concerns isolated
+	🔑 Relationship with DispatcherServlet
+		✔ ContextLoaderListener → initializes shared beans
+		✔ DispatcherServlet → handles web layer only
+		✔ This separation: Improves modularity, Keeps web concerns isolated
 
-🔑 What about Spring Boot?
-	✔ You do not explicitly configure ContextLoaderListener
-	✔ Boot auto-configures it internally
-	✔ Lifecycle behavior remains the same
-
--------------------------------------------------------------
-🔹 Q5. What are all RestClients in spring?
--------------------------------------------------------------
-🔑 RestTemplate (Legacy – synchronous)
-	✔ Where: Older Spring Boot (2.x) projects, Simple internal REST calls
-	✔ Why: Easy to use, Blocking & synchronous
-
-🔑 WebClient (Reactive & non-blocking)
-	✔ Where: Microservices, High-throughput systems, Parallel API calls
-	✔ Why: Non-blocking I/O, Better scalability, Supports reactive streams
-	
-🔑 Spring RestClient (Spring 6+) ⭐ Preferred now
-	✔ Where: New Spring Boot 3 projects
-	✔ Why: Modern replacement for RestTemplate, Fluent, clean API, Still synchronous (easy to reason about)
-
-🔑 Feign Client (Declarative REST client)
-	✔ Where: Microservices (Spring Cloud), Service-to-service communication
-	✔ Why: Interface-based, Less boilerplate, Integrates well with load balancing & resilience
-	
-🔑 Apache HttpClient (Low-level control)
-	✔ Where: Legacy systems, Custom SSL / proxy / timeout requirements
-	✔ Why: Full control over HTTP, Fine-grained configuration
+	🔑 What about Spring Boot?
+		✔ You do not explicitly configure ContextLoaderListener
+		✔ Boot auto-configures it internally
+		✔ Lifecycle behavior remains the same
 
 -------------------------------------------------------------
-🔹 Q6. getForEntity() vs postForEntity()
+🔹 Q6. What are all RestClients in spring?
 -------------------------------------------------------------
-| Aspect         | `getForEntity()` | `postForEntity()` |
-| -------------- | ---------------- | ----------------- |
-| HTTP Method    | GET              | POST              |
-| Purpose        | Fetch data       | Create/send data  |
-| Request Body   | ❌ No            | ✅ Yes           |
-| Idempotent     | ✅ Yes           | ❌ No            |
-| Cacheable      | ✅ Yes           | ❌ No            |
-| Typical Status | 200 OK           | 201 Created       |
-| Use case       | Read operations  | Create operations |
+	🔑 RestTemplate (Legacy – synchronous)
+		✔ Where: Older Spring Boot (2.x) projects, Simple internal REST calls
+		✔ Why: Easy to use, Blocking & synchronous
 
--------------------------------------------------------------
-🔹 Q7. What are the uses of ResponseEntity?
--------------------------------------------------------------
-ResponseEntity<T> represents the entire HTTP response — status code, headers, and body.
-1️⃣ Control HTTP Status Codes : ✅ return ResponseEntity.status(HttpStatus.CREATED).body(user);
-	✔ Instead of always returning 200 OK, you can return meaningful REST status codes.
-2️⃣ Add / Modify HTTP Headers : ✅ return new ResponseEntity<>(user, headers, HttpStatus.OK);
-	✔ Used for: Authentication tokens, Location header, Caching, CORS, Custom metadata
-3️⃣ Return Response Body Conditionally
-4️⃣ Build RESTful Responses (Best Practice)
-5️⃣ Support Content Negotiation : ✅ return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)body(user);
-	✔ ResponseEntity works with: Accept header, Message converters
-6️⃣ Handle Empty Responses Properly
-7️⃣ Centralized Error Handling Integration
-8️⃣ Generic & Type-safe Responses
-9️⃣ Avoid Using void or Raw Objects ❌
+	🔑 WebClient (Reactive & non-blocking)
+		✔ Where: Microservices, High-throughput systems, Parallel API calls
+		✔ Why: Non-blocking I/O, Better scalability, Supports reactive streams
+		
+	🔑 Spring RestClient (Spring 6+) ⭐ Preferred now
+		✔ Where: New Spring Boot 3 projects
+		✔ Why: Modern replacement for RestTemplate, Fluent, clean API, Still synchronous (easy to reason about)
+
+	🔑 Feign Client (Declarative REST client)
+		✔ Where: Microservices (Spring Cloud), Service-to-service communication
+		✔ Why: Interface-based, Less boilerplate, Integrates well with load balancing & resilience
+		
+	🔑 Apache HttpClient (Low-level control)
+		✔ Where: Legacy systems, Custom SSL / proxy / timeout requirements
+		✔ Why: Full control over HTTP, Fine-grained configuration
 
 -------------------------------------------------------------
-🔹 Q7. Why should you handle response timeout while calling any API?
+🔹 Q7. getForEntity() vs postForEntity()
 -------------------------------------------------------------
-🔑 We handle response timeouts to avoid thread blocking, prevent cascading failures,
- protect system resources, and maintain predictable latency and SLAs.
-1️⃣ Prevent thread blocking & resource exhaustion
-	✔ Without a timeout, a client thread can wait forever.
-	✔ Under load, blocked threads exhaust pools → system slowdown or crash.
-	✔ Timeout = fail fast and free resources.
-	
-2️⃣ Avoid cascading failures
-	✔ One slow/downstream service can stall callers.
-	✔ Without timeouts, failures propagate across services.
-	✔ Timeouts isolate failures and keep the rest of the system responsive.
-
-3️⃣ Maintain predictable latency & SLAs
-	✔ APIs must respond within defined SLAs (e.g., 300–500 ms).
-	✔ Timeouts enforce upper bounds on waiting, keeping latency predictable.
-
-4️⃣ Enable resilience patterns
-	✔ Timeouts are prerequisites for:Retries, Circuit breakers, Fallbacks, Bulkheads
-	✔ No timeout → these patterns can’t trigger effectively.
-
-5️⃣ Protect against unreliable external dependencies
-	✔ Third-party APIs can hang, slow down, or partially fail.
-	✔ Timeouts protect your system from vendor/network issues.
-
-6️⃣ Improve user experience
-	✔ Users prefer quick failure with a clear error over infinite loading.
-	✔ Enables graceful degradation (cached data, partial responses).
-
-7️⃣ Security & abuse protection
-	✔ Prevents slow-response attacks (e.g., keeping connections open).
-	✔ Limits how long a malicious or buggy endpoint can tie up resources.
+	| Aspect         | `getForEntity()` | `postForEntity()` |
+	| -------------- | ---------------- | ----------------- |
+	| HTTP Method    | GET              | POST              |
+	| Purpose        | Fetch data       | Create/send data  |
+	| Request Body   | ❌ No            | ✅ Yes           |
+	| Idempotent     | ✅ Yes           | ❌ No            |
+	| Cacheable      | ✅ Yes           | ❌ No            |
+	| Typical Status | 200 OK           | 201 Created       |
+	| Use case       | Read operations  | Create operations |
 
 -------------------------------------------------------------
-🔹 Q8. Explain the differences between Server timeout and Read timeout.
+🔹 Q8. What are the uses of ResponseEntity?
 -------------------------------------------------------------
-🔑 Server timeout limits how long the server is allowed to process a request,
-while Read timeout limits how long the client waits to receive a response after sending the request.
-1️⃣ Server Timeout (Server-side)
-	✔ What: 
-		🔹Configured on the server / gateway / load balancer
-		🔹Maximum time allowed for request processing
-		🔹Includes business logic, DB calls, downstream calls
-	✔ What happens when it expires: Server stops processing, Returns an error response
-	✔ Common responses: 504 Gateway Timeout, 503 Service Unavailable, 500 Internal Server Error (implementation-specific)
-	✔ Typical places configured: API Gateway (Nginx, Kong), Load balancer, Application server (Tomcat, Undertow)
-
-2️⃣ Read Timeout (Client-side)
-	✔	What:
-		🔹Configured on the client
-		🔹Maximum time client waits for response data
-		🔹Starts after request is sent and connection is established
-	✔	What happens when it expires: Client throws a timeout exception, Connection is closed by the client
-	✔	Common exceptions: SocketTimeoutException, ReadTimeoutException, WebClientRequestException
-
-Case 1: Read timeout < Server timeout => Client times out first, Server may still process request (wasted work)
-Case 2: Server timeout < Read timeout => Server fails fast, Client receives error response
-👉 Best practice: Server timeout ≤ Client read timeout
+	ResponseEntity<T> represents the entire HTTP response — status code, headers, and body.
+	1️⃣ Control HTTP Status Codes : ✅ return ResponseEntity.status(HttpStatus.CREATED).body(user);
+		✔ Instead of always returning 200 OK, you can return meaningful REST status codes.
+	2️⃣ Add / Modify HTTP Headers : ✅ return new ResponseEntity<>(user, headers, HttpStatus.OK);
+		✔ Used for: Authentication tokens, Location header, Caching, CORS, Custom metadata
+	3️⃣ Return Response Body Conditionally
+	4️⃣ Build RESTful Responses (Best Practice)
+	5️⃣ Support Content Negotiation : ✅ return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)body(user);
+		✔ ResponseEntity works with: Accept header, Message converters
+	6️⃣ Handle Empty Responses Properly
+	7️⃣ Centralized Error Handling Integration
+	8️⃣ Generic & Type-safe Responses
+	9️⃣ Avoid Using void or Raw Objects ❌
 
 -------------------------------------------------------------
-🔹 Q9. What is versioning in Rest? what are the ways that you can use to implement versioning? 
+🔹 Q9. Why should you handle response timeout while calling any API?
 -------------------------------------------------------------
-🔑 REST API versioning is the practice of managing breaking changes to an API so that existing clients continue to work while newer clients adopt updated behavior.
-	🔹Why:
-		✔ Clients depend on a stable contract
-		✔ Mobile apps can’t upgrade instantly
-		✔ Third-party integrations must not break
-		✔ APIs evolve over time (fields change, behavior changes)
+	🔑 We handle response timeouts to avoid thread blocking, prevent cascading failures,
+	 protect system resources, and maintain predictable latency and SLAs.
+	1️⃣ Prevent thread blocking & resource exhaustion
+		✔ Without a timeout, a client thread can wait forever.
+		✔ Under load, blocked threads exhaust pools → system slowdown or crash.
+		✔ Timeout = fail fast and free resources.
+		
+	2️⃣ Avoid cascading failures
+		✔ One slow/downstream service can stall callers.
+		✔ Without timeouts, failures propagate across services.
+		✔ Timeouts isolate failures and keep the rest of the system responsive.
 
-1️⃣ URI (Path) Versioning ⭐ Most Common : GET /api/v2/users
-2️⃣ Query Parameter Versioning : GET /api/users?version=1
-3️⃣ Header Versioning (Custom Header): @GetMapping(value = "/users", headers = "X-API-VERSION=1")
-4️⃣ Media Type Versioning (Content Negotiation) ⭐ Most RESTful :
-	@GetMapping(
-	  value = "/users",
-	  produces = "application/vnd.company.users-v1+json"
-	)
+	3️⃣ Maintain predictable latency & SLAs
+		✔ APIs must respond within defined SLAs (e.g., 300–500 ms).
+		✔ Timeouts enforce upper bounds on waiting, keeping latency predictable.
 
--------------------------------------------------------------
-🔹 Q10. How does Basic Authentication work in Rest API?
--------------------------------------------------------------
-🔑 Basic Authentication is an HTTP authentication scheme where the client sends username and password (Base64-encoded) with every request via the Authorization header.
-1️⃣ Client requests a protected resources : GET /api/users
-2️⃣ Server challenges the client
-	✔ If no credentials are sent: 401 Unauthorized WWW-Authenticate: Basic realm="users"
+	4️⃣ Enable resilience patterns
+		✔ Timeouts are prerequisites for:Retries, Circuit breakers, Fallbacks, Bulkheads
+		✔ No timeout → these patterns can’t trigger effectively.
 
-3️⃣ Client sends credentials: 
-	✔ Combines username:password, Encodes with Base64, Sends in header
-	✔ Authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ= (username:password → Base64)
+	5️⃣ Protect against unreliable external dependencies
+		✔ Third-party APIs can hang, slow down, or partially fail.
+		✔ Timeouts protect your system from vendor/network issues.
 
-4️⃣ Server validates credentials
-	✔ Decodes Base64, Extracts username & password, Validates against DB / LDAP / IdP
-5️⃣ Server responds
-	✅ 200 OK → valid credentials
-	❌ 401 Unauthorized → invalid credentials
+	6️⃣ Improve user experience
+		✔ Users prefer quick failure with a clear error over infinite loading.
+		✔ Enables graceful degradation (cached data, partial responses).
+
+	7️⃣ Security & abuse protection
+		✔ Prevents slow-response attacks (e.g., keeping connections open).
+		✔ Limits how long a malicious or buggy endpoint can tie up resources.
 
 -------------------------------------------------------------
-🔹 Q11. Should you use JWT or Session-based authentication in the microservices environment? 
+🔹 Q10. Explain the differences between Server timeout and Read timeout.
+-------------------------------------------------------------
+	🔑 Server timeout limits how long the server is allowed to process a request,
+	while Read timeout limits how long the client waits to receive a response after sending the request.
+	1️⃣ Server Timeout (Server-side)
+		✔ What: 
+			🔹Configured on the server / gateway / load balancer
+			🔹Maximum time allowed for request processing
+			🔹Includes business logic, DB calls, downstream calls
+		✔ What happens when it expires: Server stops processing, Returns an error response
+		✔ Common responses: 504 Gateway Timeout, 503 Service Unavailable, 500 Internal Server Error (implementation-specific)
+		✔ Typical places configured: API Gateway (Nginx, Kong), Load balancer, Application server (Tomcat, Undertow)
+
+	2️⃣ Read Timeout (Client-side)
+		✔	What:
+			🔹Configured on the client
+			🔹Maximum time client waits for response data
+			🔹Starts after request is sent and connection is established
+		✔	What happens when it expires: Client throws a timeout exception, Connection is closed by the client
+		✔	Common exceptions: SocketTimeoutException, ReadTimeoutException, WebClientRequestException
+
+	Case 1: Read timeout < Server timeout => Client times out first, Server may still process request (wasted work)
+	Case 2: Server timeout < Read timeout => Server fails fast, Client receives error response
+	👉 Best practice: Server timeout ≤ Client read timeout
+
+-------------------------------------------------------------
+🔹 Q11. What is versioning in Rest? what are the ways that you can use to implement versioning? 
+-------------------------------------------------------------
+	🔑 REST API versioning is the practice of managing breaking changes to an API so that existing clients
+		continue to work while newer clients adopt updated behavior.
+		🔹Why:
+			✔ Clients depend on a stable contract
+			✔ Mobile apps can’t upgrade instantly
+			✔ Third-party integrations must not break
+			✔ APIs evolve over time (fields change, behavior changes)
+
+	1️⃣ URI (Path) Versioning ⭐ Most Common : GET /api/v2/users
+	2️⃣ Query Parameter Versioning : GET /api/users?version=1
+	3️⃣ Header Versioning (Custom Header): @GetMapping(value = "/users", headers = "X-API-VERSION=1")
+	4️⃣ Media Type Versioning (Content Negotiation) ⭐ Most RESTful :
+		@GetMapping(
+		  value = "/users",
+		  produces = "application/vnd.company.users-v1+json"
+		)
+
+-------------------------------------------------------------
+🔹 Q12. How does Basic Authentication work in Rest API?
+-------------------------------------------------------------
+	🔑 Basic Authentication is an HTTP authentication scheme where the client sends username and password (Base64-encoded) with every request via the Authorization header.
+	1️⃣ Client requests a protected resources : GET /api/users
+	2️⃣ Server challenges the client
+		✔ If no credentials are sent: 401 Unauthorized WWW-Authenticate: Basic realm="users"
+
+	3️⃣ Client sends credentials: 
+		✔ Combines username:password, Encodes with Base64, Sends in header
+		✔ Authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ= (username:password → Base64)
+
+	4️⃣ Server validates credentials
+		✔ Decodes Base64, Extracts username & password, Validates against DB / LDAP / IdP
+	5️⃣ Server responds
+		✅ 200 OK → valid credentials
+		❌ 401 Unauthorized → invalid credentials
+
+-------------------------------------------------------------
+🔹 Q13. Should you use JWT or Session-based authentication in the microservices environment? 
 -------------------------------------------------------------
 	| Aspect               | Session-based | JWT         |
 	| -------------------- | ------------- | ----------- |
@@ -323,190 +324,190 @@ Case 2: Server timeout < Read timeout => Server fails fast, Client receives erro
 	| Architecture         | Monolithic    | Microservice|
 
 -------------------------------------------------------------
-🔹 Q12. What is content negotiation?
+🔹 Q14. What is content negotiation?
 -------------------------------------------------------------
 🔑 Content negotiation allows a REST API to return different representations of the 
    same resource based on the client’s Accept header.
-Why Content Negotiation is needed
-	✔ Different clients prefer different formats
-	  🔹Browsers → HTML
-	  🔹Mobile apps → JSON
-	  🔹Legacy systems → XML
-	✔ One API serves multiple consumers
-	✔ Keeps URIs stable and resource-oriented
+	Why Content Negotiation is needed
+		✔ Different clients prefer different formats
+		  🔹Browsers → HTML
+		  🔹Mobile apps → JSON
+		  🔹Legacy systems → XML
+		✔ One API serves multiple consumers
+		✔ Keeps URIs stable and resource-oriented
 
 -------------------------------------------------------------
-🔹 Q13. What are the cross-cutting concerns in spring? how do you implement it in microservices architecture?
+🔹 Q15. What are the cross-cutting concerns in spring? how do you implement it in microservices architecture?
 -------------------------------------------------------------
-🔑 Cross-cutting concerns are functionalities that span across multiple layers and modules
-   of an application but are not part of core business logic.
-	| Concern              | What it does                        |
-	| -------------------- | ----------------------------------- |
-	| Logging              | Method entry/exit, request/response |
-	| Security             | Authentication & authorization      |
-	| Transactions         | Commit / rollback management        |
-	| Exception Handling   | Centralized error handling          |
-	| Caching              | Performance optimization            |
-	| Validation           | Input & business validation         |
-	| Monitoring & Metrics | Health, performance                 |
-	| Distributed Tracing  | Trace & correlation IDs             |
-	| Auditing             | Who changed what & when             |
-	| Rate Limiting        | Prevent abuse                       |
+	🔑 Cross-cutting concerns are functionalities that span across multiple layers and modules
+	   of an application but are not part of core business logic.
+		| Concern              | What it does                        |
+		| -------------------- | ----------------------------------- |
+		| Logging              | Method entry/exit, request/response |
+		| Security             | Authentication & authorization      |
+		| Transactions         | Commit / rollback management        |
+		| Exception Handling   | Centralized error handling          |
+		| Caching              | Performance optimization            |
+		| Validation           | Input & business validation         |
+		| Monitoring & Metrics | Health, performance                 |
+		| Distributed Tracing  | Trace & correlation IDs             |
+		| Auditing             | Who changed what & when             |
+		| Rate Limiting        | Prevent abuse                       |
 
-❓ Why handle them separately?
-	✔ Without separation: Code duplication, Tangled business logic, Hard maintenance, Inconsistent behavior
-	✔ Spring provides infrastructure mechanisms to keep business code clean.
-	
-1️⃣ How Spring Implements Cross-Cutting Concerns (Core Concepts)
-	🔹A. Spring AOP ⭐⭐⭐⭐⭐: 	✔ No code duplication, ✔ Applied uniformly
-	🔹B. Declarative Annotations: @Transactional, @Cacheable, @Async, @Secured
+	❓ Why handle them separately?
+		✔ Without separation: Code duplication, Tangled business logic, Hard maintenance, Inconsistent behavior
+		✔ Spring provides infrastructure mechanisms to keep business code clean.
+		
+	1️⃣ How Spring Implements Cross-Cutting Concerns (Core Concepts)
+		🔹A. Spring AOP ⭐⭐⭐⭐⭐: 	✔ No code duplication, ✔ Applied uniformly
+		🔹B. Declarative Annotations: @Transactional, @Cacheable, @Async, @Secured
 
-2️⃣ Cross-Cutting Concerns in Microservices Architecture
-🔹API Gateway Level (Global): Tools => Spring Cloud Gateway, Nginx, Kong, AWS API Gateway
-	| Concern         | How                     |
-	| --------------- | ----------------------- |
-	| Authentication  | OAuth2 / JWT validation |
-	| Rate limiting   | Gateway filters         |
-	| CORS            | Gateway configuration   |
-	| Request logging | Global filters          |
+	2️⃣ Cross-Cutting Concerns in Microservices Architecture
+	🔹API Gateway Level (Global): Tools => Spring Cloud Gateway, Nginx, Kong, AWS API Gateway
+		| Concern         | How                     |
+		| --------------- | ----------------------- |
+		| Authentication  | OAuth2 / JWT validation |
+		| Rate limiting   | Gateway filters         |
+		| CORS            | Gateway configuration   |
+		| Request logging | Global filters          |
 
-🔹Service Level (Spring AOP)
-	| Concern            | Mechanism           |
-	| ------------------ | ------------------- |
-	| Transactions       | `@Transactional`    |
-	| Logging            | AOP aspects         |
-	| Validation         | Bean Validation     |
-	| Caching            | `@Cacheable`        |
-	| Exception handling | `@ControllerAdvice` |
+	🔹Service Level (Spring AOP)
+		| Concern            | Mechanism           |
+		| ------------------ | ------------------- |
+		| Transactions       | `@Transactional`    |
+		| Logging            | AOP aspects         |
+		| Validation         | Bean Validation     |
+		| Caching            | `@Cacheable`        |
+		| Exception handling | `@ControllerAdvice` |
 
-🔹Filter & Interceptor Level
-	| Tool                | Use                       |
-	| ------------------- | ------------------------- |
-	| Servlet Filters     | Security, correlation IDs |
-	| HandlerInterceptors | Request metadata          |
-	| WebClient Filters   | Outgoing calls            |
+	🔹Filter & Interceptor Level
+		| Tool                | Use                       |
+		| ------------------- | ------------------------- |
+		| Servlet Filters     | Security, correlation IDs |
+		| HandlerInterceptors | Request metadata          |
+		| WebClient Filters   | Outgoing calls            |
 
-🔹Distributed Tracing (Microservices-specific): Tools => OpenTelemetry, Zipkin, Jaeger
-	✔ Correlation ID propagation, Trace ID / Span ID
+	🔹Distributed Tracing (Microservices-specific): Tools => OpenTelemetry, Zipkin, Jaeger
+		✔ Correlation ID propagation, Trace ID / Span ID
 
-🔹Centralized Observability
-	| Concern | Tool            |
-	| ------- | --------------- |
-	| Logs    | ELK / EFK       |
-	| Metrics | Prometheus      |
-	| Traces  | Jaeger / Zipkin |
+	🔹Centralized Observability
+		| Concern | Tool            |
+		| ------- | --------------- |
+		| Logs    | ELK / EFK       |
+		| Metrics | Prometheus      |
+		| Traces  | Jaeger / Zipkin |
 
 
 
 
 -------------------------------------------------------------
-🔹 Q14. How to create custom validators in spring?
+🔹 Q16. How to create custom validators in spring?
 -------------------------------------------------------------
-🔑 A custom validator allows you to define your own validation rules beyond
-   standard constraints (@NotNull, @Size, etc.) using Bean Validation (Jakarta Validation / JSR-380).
-  
-✅ Recommended Way: Annotation-based Bean Validation
-Step 1️⃣ Create a Custom Constraint Annotation
-	@Documented
-	@Constraint(validatedBy = PasswordStrengthValidator.class)
-	@Target({ ElementType.FIELD, ElementType.PARAMETER })
-	@Retention(RetentionPolicy.RUNTIME)
-	public @interface StrongPassword {
-		String message() default "Password is too weak";
-		Class<?>[] groups() default {};
-		Class<? extends Payload>[] payload() default {};
-	}
-	
-Step 2️⃣ Implement ConstraintValidator
-	public class PasswordStrengthValidator implements ConstraintValidator<StrongPassword, String> {
-
-		@Override
-		public boolean isValid(String value, ConstraintValidatorContext context) {
-			if (value == null) return false;
-			return value.length() >= 8 &&
-				   value.matches(".*[A-Z].*") &&
-				   value.matches(".*[0-9].*");
+	🔑 A custom validator allows you to define your own validation rules beyond
+	   standard constraints (@NotNull, @Size, etc.) using Bean Validation (Jakarta Validation / JSR-380).
+	  
+	✅ Recommended Way: Annotation-based Bean Validation
+	Step 1️⃣ Create a Custom Constraint Annotation
+		@Documented
+		@Constraint(validatedBy = PasswordStrengthValidator.class)
+		@Target({ ElementType.FIELD, ElementType.PARAMETER })
+		@Retention(RetentionPolicy.RUNTIME)
+		public @interface StrongPassword {
+			String message() default "Password is too weak";
+			Class<?>[] groups() default {};
+			Class<? extends Payload>[] payload() default {};
 		}
-	}
+		
+	Step 2️⃣ Implement ConstraintValidator
+		public class PasswordStrengthValidator implements ConstraintValidator<StrongPassword, String> {
 
-Step 3️⃣ Use the Custom Validator
-	public class UserRequest {
+			@Override
+			public boolean isValid(String value, ConstraintValidatorContext context) {
+				if (value == null) return false;
+				return value.length() >= 8 &&
+					   value.matches(".*[A-Z].*") &&
+					   value.matches(".*[0-9].*");
+			}
+		}
 
-		@StrongPassword
-		private String password;
-	}
+	Step 3️⃣ Use the Custom Validator
+		public class UserRequest {
 
--------------------------------------------------------------
-🔹 Q15. How spring's singleton scope is different then GOF signleton?
--------------------------------------------------------------
-1️⃣ Spring Singleton Scope
-	✔ What: One bean instance per ApplicationContext, Managed by Spring container, Default scope in Spring
-	✔ Lifecycle is fully managed by Spring @PostConstruct/@PreDestroy, Easy to test and mock
-	✔ Clean DI, Loose coupling, Works with AOP, transactions, proxies
-
-2️⃣ GoF Singleton Pattern
-	✔ What: One instance per JVM, Enforced by code, No framework involved
-	✔ JVM-wide single instance, Global access, No lifecycle hooks
-	❌ Hard to test, Global state, Tight coupling, Thread-safety complexity, Cannot easily reset between tests
+			@StrongPassword
+			private String password;
+		}
 
 -------------------------------------------------------------
-🔹 Q16. Tell me some Spring Exceptions that you came across with example ?
+🔹 Q17. How spring's singleton scope is different then GOF signleton?
 -------------------------------------------------------------
-1️⃣ NoSuchBeanDefinitionException
-	✔ Why: Spring cannot find a required bean, Wrong package scanning, Missing implementation for an interface
+	1️⃣ Spring Singleton Scope
+		✔ What: One bean instance per ApplicationContext, Managed by Spring container, Default scope in Spring
+		✔ Lifecycle is fully managed by Spring @PostConstruct/@PreDestroy, Easy to test and mock
+		✔ Clean DI, Loose coupling, Works with AOP, transactions, proxies
 
-2️⃣ BeanCreationException
-	✔ Why: Bean fails during creation, Exception inside constructor or @PostConstruct
-
-3️⃣ UnsatisfiedDependencyException
-	✔ Why: Dependency chain cannot be resolved, Constructor injection failure, Circular dependency
-	
-4️⃣ HttpRequestMethodNotSupportedException
-	✔ Why: Client uses wrong HTTP method, Endpoint mapping mismatch
-
-5️⃣ MethodArgumentNotValidException
-	✔ Occurs when validation fails. public void create(@Valid @RequestBody User user) {}
-
-6️⃣ TransactionRequiredException
-	✔ Why: Executing update/delete query without transaction
-
-7️⃣ InvalidDataAccessApiUsageException
-	✔ Why: Wrong JPA usage, Passing null or invalid arguments
-
-8️⃣ DataIntegrityViolationException
-	✔ Why: DB constraint violation, Unique key, Foreign key, Not null constraint
-
-9️⃣ OptimisticLockingFailureException
-	✔ Why: Concurrent update with @Version
-
-🔟 NoUniqueBeanDefinitionException
-	✔ why: Interface with multiple implementations
-	✔ Spring resolves dependencies in this order: By type, By name, By qualifier, By @Primary
-		✅ Option 1: @Primary (Most common)
-		✅ Option 2: @Qualifier (Best practice for clarity)
-		✅ Option 3: Inject by name: private PaymentService cardPaymentService;
-		✅ Option 4: Inject all implementations: private List<PaymentService> paymentServices; 
-
+	2️⃣ GoF Singleton Pattern
+		✔ What: One instance per JVM, Enforced by code, No framework involved
+		✔ JVM-wide single instance, Global access, No lifecycle hooks
+		❌ Hard to test, Global state, Tight coupling, Thread-safety complexity, Cannot easily reset between tests
 
 -------------------------------------------------------------
-🔹 Q17. Tell me 10 spring Annotations that you have used ? (Excluding the stereotype annotations)
+🔹 Q18. Tell me some Spring Exceptions that you came across with example ?
 -------------------------------------------------------------
-1️⃣ @Autowired: Purpose: Inject dependencies automatically.
-2️⃣ @Qualifier: Purpose: Resolve ambiguity when multiple beans of same type exist.
-3️⃣ @Primary: Purpose: Marks a bean as default choice.
-4️⃣ @Value: Purpose: Inject values from properties or environment.
-5️⃣ @Configuration: Purpose: Marks a class as Spring Java configuration.
-6️⃣ @Bean: Purpose: Manually register a bean.
-7️⃣ @Transactional: Purpose: Manage database transactions declaratively.
-8️⃣ @RequestMapping: Purpose: Map HTTP requests to controller methods.
-9️⃣ @RequestBody: Purpose: Bind HTTP request body to Java object.
-🔟 @PathVariable: Purpose: Extract values from URI path.
-🎯 Bonus (Very commonly used – if interviewer asks more)
-@RequestParam, @ResponseStatus, @ExceptionHandler, @ControllerAdvice
-@PostConstruct, @PreDestroy, @EnableCaching, @Cacheable, @Validated, @Profile
+	1️⃣ NoSuchBeanDefinitionException
+		✔ Why: Spring cannot find a required bean, Wrong package scanning, Missing implementation for an interface
+
+	2️⃣ BeanCreationException
+		✔ Why: Bean fails during creation, Exception inside constructor or @PostConstruct
+
+	3️⃣ UnsatisfiedDependencyException
+		✔ Why: Dependency chain cannot be resolved, Constructor injection failure, Circular dependency
+		
+	4️⃣ HttpRequestMethodNotSupportedException
+		✔ Why: Client uses wrong HTTP method, Endpoint mapping mismatch
+
+	5️⃣ MethodArgumentNotValidException
+		✔ Occurs when validation fails. public void create(@Valid @RequestBody User user) {}
+
+	6️⃣ TransactionRequiredException
+		✔ Why: Executing update/delete query without transaction
+
+	7️⃣ InvalidDataAccessApiUsageException
+		✔ Why: Wrong JPA usage, Passing null or invalid arguments
+
+	8️⃣ DataIntegrityViolationException
+		✔ Why: DB constraint violation, Unique key, Foreign key, Not null constraint
+
+	9️⃣ OptimisticLockingFailureException
+		✔ Why: Concurrent update with @Version
+
+	🔟 NoUniqueBeanDefinitionException
+		✔ why: Interface with multiple implementations
+		✔ Spring resolves dependencies in this order: By type, By name, By qualifier, By @Primary
+			✅ Option 1: @Primary (Most common)
+			✅ Option 2: @Qualifier (Best practice for clarity)
+			✅ Option 3: Inject by name: private PaymentService cardPaymentService;
+			✅ Option 4: Inject all implementations: private List<PaymentService> paymentServices; 
+
 
 -------------------------------------------------------------
-🔹 Q18. Is it required to write @Repository annotations in spring data JPA?
+🔹 Q19. Tell me 10 spring Annotations that you have used ? (Excluding the stereotype annotations)
+-------------------------------------------------------------
+	1️⃣ @Autowired: Purpose: Inject dependencies automatically.
+	2️⃣ @Qualifier: Purpose: Resolve ambiguity when multiple beans of same type exist.
+	3️⃣ @Primary: Purpose: Marks a bean as default choice.
+	4️⃣ @Value: Purpose: Inject values from properties or environment.
+	5️⃣ @Configuration: Purpose: Marks a class as Spring Java configuration.
+	6️⃣ @Bean: Purpose: Manually register a bean.
+	7️⃣ @Transactional: Purpose: Manage database transactions declaratively.
+	8️⃣ @RequestMapping: Purpose: Map HTTP requests to controller methods.
+	9️⃣ @RequestBody: Purpose: Bind HTTP request body to Java object.
+	🔟 @PathVariable: Purpose: Extract values from URI path.
+	🎯 Bonus (Very commonly used – if interviewer asks more)
+	@RequestParam, @ResponseStatus, @ExceptionHandler, @ControllerAdvice
+	@PostConstruct, @PreDestroy, @EnableCaching, @Cacheable, @Validated, @Profile
+
+-------------------------------------------------------------
+🔹 Q20. Is it required to write @Repository annotations in spring data JPA?
 -------------------------------------------------------------
 🔑 No, it is not required to explicitly write @Repository on Spring Data JPA repository interfaces.
 	Spring Data JPA:
@@ -518,30 +519,30 @@ Step 3️⃣ Use the Custom Validator
 		✔ Convert PersistenceException, SQLException into Spring’s DataAccessException
 
 -------------------------------------------------------------
-🔹 Q19. Explain the Spring Data Project and the hierarchy ? 
+🔹 Q21. Explain the Spring Data Project and the hierarchy ? 
 -------------------------------------------------------------
-🌳 Repository Hierarchy (Most Important for Interviews)
-Repository (marker interface) : Enables Spring Data repository detection, ✔ Base for all repositories
-   ↓
-CrudRepository : ✔ Store-independent, ✔ Works for SQL & NoSQL
-   ↓
-PagingAndSortingRepository: ✔ Pagination, ✔ Sorting
-   ↓
-JpaRepository (JPA-specific) : ✔ Hibernate/JPA optimizations, ✔ Batch operations, ✔ Most common in real projects
+	🌳 Repository Hierarchy (Most Important for Interviews)
+	Repository (marker interface) : Enables Spring Data repository detection, ✔ Base for all repositories
+	   ↓
+	CrudRepository : ✔ Store-independent, ✔ Works for SQL & NoSQL
+	   ↓
+	PagingAndSortingRepository: ✔ Pagination, ✔ Sorting
+	   ↓
+	JpaRepository (JPA-specific) : ✔ Hibernate/JPA optimizations, ✔ Batch operations, ✔ Most common in real projects
 
-🔗 How Spring Data works internally (Simplified)
-Repository Interface
-        ↓
-Spring Data Proxy
-        ↓
-EntityManager / Template
-        ↓
-Database
+	🔗 How Spring Data works internally (Simplified)
+	Repository Interface
+			↓
+	Spring Data Proxy
+			↓
+	EntityManager / Template
+			↓
+	Database
 
-No implementation written by developer, Proxy created at runtime, Queries derived from method names
+	No implementation written by developer, Proxy created at runtime, Queries derived from method names
 
 -------------------------------------------------------------
-🔹 Q20. Use of  @NoRepositoryBean in spring boot ?
+🔹 Q22. Use of  @NoRepositoryBean in spring boot ?
 -------------------------------------------------------------
 🔑 @NoRepositoryBean is a Spring Data annotation used to tell Spring: “Do NOT create a repository bean for this interface.”
 	It is mainly used for base (parent) repository interfaces that are meant to be extended, not instantiated.
@@ -550,7 +551,7 @@ No implementation written by developer, Proxy created at runtime, Queries derive
 	👉 That’s why Spring doesn’t try to create beans for them
 
 -------------------------------------------------------------
-🔹 Q21. Different types of bean scope presenet in spring and its use case ?
+🔹 Q23. Different types of bean scope presenet in spring and its use case ?
 -------------------------------------------------------------
 🔑 What is a Bean Scope in Spring: A bean scope defines how many instances of a bean Spring creates
    and how long that instance lives within the container.
@@ -582,7 +583,7 @@ No implementation written by developer, Proxy created at runtime, Queries derive
 		public class WebSocketSessionBean {}
    
 -------------------------------------------------------------
-🔹 Q22. What is limitations of java config file?
+🔹 Q24. What is limitations of java config file?
 -------------------------------------------------------------
 	1️⃣ Tight Coupling Between Configuration & Code
 		What: Configuration is written in Java
@@ -644,7 +645,7 @@ No implementation written by developer, Proxy created at runtime, Queries derive
 		
 		
 -------------------------------------------------------------
-🔹 Q23. How a CGLIB Proxy works with @Bean?
+🔹 Q25. How a CGLIB Proxy works with @Bean?
 -------------------------------------------------------------
 🔑 Spring uses a CGLIB-generated subclass for @Configuration classes to 
 	intercept @Bean method calls and ensure that the container returns the same 
@@ -657,7 +658,7 @@ No implementation written by developer, Proxy created at runtime, Queries derive
 	⚠️ BUT: Calling one @Bean from another creates a new instance, Safe only when @Bean methods are independent
 
 -------------------------------------------------------------
-🔹 Q24. Difference between creating a bean with @Bean and @Component ? 
+🔹 Q26. Difference between creating a bean with @Bean and @Component ? 
 -------------------------------------------------------------
 🔑 @Component creates beans through classpath scanning for application classes
 	✔ Bean lifecycle managed normally, Created during component scan
@@ -669,7 +670,7 @@ No implementation written by developer, Proxy created at runtime, Queries derive
 	✔ Yes, but: Singleton behavior may break, CGLIB proxying won’t apply
 	
 -------------------------------------------------------------
-🔹 Q25. What is a BeanFactoryPostProcessor?
+🔹 Q27. What is a BeanFactoryPostProcessor?
 -------------------------------------------------------------
 🔑 BeanFactoryPostProcessor is a Spring extension point that allows 
    you to modify bean definitions (metadata) before any beans are instantiated.
@@ -705,7 +706,7 @@ No implementation written by developer, Proxy created at runtime, Queries derive
 | Typical usage  | Config, metadata         | AOP, proxies        |
 
 -------------------------------------------------------------
-🔹 Q26. What do you mean by a @Transactional Annotation and explain the Transactional Propagation in spring?
+🔹 Q28. What do you mean by a @Transactional Annotation and explain the Transactional Propagation in spring?
 -------------------------------------------------------------
 🔑 @Transactional is a declarative transaction management annotation in Spring that
    ensures a group of database operations execute as one atomic unit.
@@ -786,44 +787,9 @@ No implementation written by developer, Proxy created at runtime, Queries derive
 		⚠️ Performance cost is high
 	
 	👉 Spring isolation works only if DB supports it.
-
--------------------------------------------------------------	
-🔹 Q27. Explain optimistic vs pessimistic locking ?
--------------------------------------------------------------
-	1️⃣ Optimistic Locking
-	🔸 Core idea: Assume conflicts are rare. Don’t lock data while reading; check for conflicts at update time.
-		✔ How it works: 
-			Add a version field to the entity, Every update checks the version, If version changed → fail the update
-			
-			@Entity
-			public class Product {
-				@Id
-				private Long id;
-				private int quantity;
-
-				@Version
-				private int version;
-			}
-			
-		✔ Pros : High performance, No database locks, Scales well, Ideal for read-heavy systems
-		✔ Cons : ❌ Update may fail, ❌ Requires retry logic
-		✔ Best use cases: High-read, low-write systems, Web apps, REST APIs, Microservices, User-driven updates
-		
-	2️⃣ Pessimistic Locking
-	🔸 Core idea: Assume conflicts are likely. Lock data upfront so no one else can modify it.
-		✔ How it works:
-			DB acquires a lock when data is read, Other transactions must wait.
-			
-			@Lock(LockModeType.PESSIMISTIC_WRITE)
-			@Query("select p from Product p where p.id = :id")
-			Product findForUpdate(@Param("id") Long id);
-		
-		✔ Pros : Strong consistency, No update conflicts, Predictable behavior
-		✔ Cons : ❌ Lower concurrency, ❌ Risk of deadlocks, ❌ Slower under load
-		✔ Best use cases: High-contention updates, Financial transactions, Inventory reservations, Critical sections
 		
 -------------------------------------------------------------	
-🔹 Q28. How the dispatcher servlet is set up in a spring boot project gets auto-configured?
+🔹 Q29. How the dispatcher servlet is set up in a spring boot project gets auto-configured?
 -------------------------------------------------------------
 🔑 In Spring Boot, DispatcherServlet is auto-configured through Spring Boot Auto-Configuration (spring-boot-autoconfigure)
    using DispatcherServletAutoConfiguration, so developers don’t need to define it manually in web.xml or Java config.
@@ -904,7 +870,7 @@ No implementation written by developer, Proxy created at runtime, Queries derive
 ❓ What if I add @EnableWebMvc?: 👉 ❌ Boot MVC auto-configuration is disabled
 
 -------------------------------------------------------------
-🔹 Q29. How will you handle exceptions in spring?
+🔹 Q30. How will you handle exceptions in spring?
 -------------------------------------------------------------
 🔑 In Spring, exceptions are handled using local handlers, global handlers with
    @ControllerAdvice, ResponseEntityExceptionHandler, and custom exceptions, 
@@ -948,7 +914,7 @@ No implementation written by developer, Proxy created at runtime, Queries derive
 		✔ Handles: MethodArgumentNotValidException, HttpMessageNotReadableException, HttpRequestMethodNotSupportedException
 
 -------------------------------------------------------------
-🔹 Q30. Difference between @ControllerAdvice and @RestControllerAdvice?
+🔹 Q31. Difference between @ControllerAdvice and @RestControllerAdvice?
 -------------------------------------------------------------
 🔑 @ControllerAdvice is a global advice for MVC controllers that typically returns views or responses
    @RestControllerAdvice is specialized for REST APIs and automatically returns JSON/XML responses using @ResponseBody.
@@ -990,7 +956,7 @@ No implementation written by developer, Proxy created at runtime, Queries derive
 	❓ Can both exist in the same app? ✔ Yes — Spring will apply both as needed
 
 -------------------------------------------------------------
-🔹 Q31. What happens internally when you use @Autowired?
+🔹 Q32. What happens internally when you use @Autowired?
 -------------------------------------------------------------
 🔑 When @Autowired is used, Spring performs dependency injection at runtime
  by resolving a matching bean from the ApplicationContext and injecting it using reflection,
@@ -1007,7 +973,7 @@ No implementation written by developer, Proxy created at runtime, Queries derive
 		🔹Setter injection: Optional dependencies
 
 -------------------------------------------------------------
-🔹 Q32. Compare @Autowired vs @Inject vs @Resource
+🔹 Q33. Compare @Autowired vs @Inject vs @Resource
 -------------------------------------------------------------
 | Feature               | `@Autowired`                 | `@Inject`  | `@Resource` |
 | --------------------- | ---------------------------- | ---------- | ----------- |
@@ -1021,7 +987,7 @@ No implementation written by developer, Proxy created at runtime, Queries derive
 | Spring features       | Full                         | Limited    | Limited     |
 
 -------------------------------------------------------------
-🔹 Q33. How will you handle a Bad gateway exception when thrown from a rest client ?
+🔹 Q34. How will you handle a Bad gateway exception when thrown from a rest client ?
 -------------------------------------------------------------
 🔑 A 502 means: Your service (gateway / client) received an invalid or no response from an upstream service.
   Typical causes: Downstream service is down, Timeout/connection reset, Load balancer issues, DNS/network problems
@@ -1058,7 +1024,7 @@ No implementation written by developer, Proxy created at runtime, Queries derive
 		}
 
 -------------------------------------------------------------
-🔹 Q34. How a spring boot application bootstraps ?
+🔹 Q35. How a spring boot application bootstraps ?
 -------------------------------------------------------------
 1️⃣ Entry point: main() → SpringApplication.run() : This single call triggers the entire startup lifecycle.
 2️⃣ What @SpringBootApplication really does
@@ -1111,7 +1077,7 @@ No implementation written by developer, Proxy created at runtime, Queries derive
 	
 
 -------------------------------------------------------------
-🔹 Q39. What is Spring Boot Actuator and how it works ?
+🔹 Q36. What is Spring Boot Actuator and how it works ?
 -------------------------------------------------------------
 🔑 Spring Boot Actuator is a Spring Boot module that provides production-ready features
    to monitor, manage, and observe your application at runtime.
@@ -1197,7 +1163,7 @@ No implementation written by developer, Proxy created at runtime, Queries derive
 		✔ /actuator/health/liveness, /actuator/health/readiness
 
 -------------------------------------------------------------
-How does AOP work internally?
+🔹 Q37. How does AOP work internally?
 -------------------------------------------------------------
 ✔ SOAP is a strict XML-based protocol with built-in standards for security and transactions
 ✔ REST is a lightweight architectural style that leverages HTTP semantics for scalable and flexible APIs.
@@ -1214,19 +1180,19 @@ How does AOP work internally?
 | Error handling | SOAP Fault            | HTTP status codes          |
 
 -------------------------------------------------------------
-How did you handle security in your Spring boot based application ?
+🔹 Q38. How did you handle security in your Spring boot based application ?
 -------------------------------------------------------------
 -------------------------------------------------------------
-What are the differences between SOAP and REST Webservices?
--------------------------------------------------------------
-
--------------------------------------------------------------
-How did you optimize your application ?
+🔹 Q39. What are the differences between SOAP and REST Webservices?
 -------------------------------------------------------------
 
+-------------------------------------------------------------
+🔹 Q40. How did you optimize your application ?
+-------------------------------------------------------------
+
 
 -------------------------------------------------------------
-How do you secure REST APIs without using Spring Security? (Filters, interceptors, gateway rules, custom tokens, etc.)
+🔹 Q41. How do you secure REST APIs without using Spring Security? (Filters, interceptors, gateway rules, custom tokens, etc.)
 -------------------------------------------------------------
 Without Spring Security, I secure REST APIs using custom filters or interceptors for authentication, typically with JWT or API keys. Authorization is enforced manually using roles from tokens, combined with HTTPS, rate limiting, and infrastructure-level security.
 Custom Servlet Filter
@@ -1234,7 +1200,7 @@ Register Filter
 API Key Authentication
 
 -------------------------------------------------------------
-Explain internal working of REST Template & WebClient and which one you prefer.
+🔹 Q42. Explain internal working of REST Template & WebClient and which one you prefer.
 -------------------------------------------------------------
 🔹 Step-by-Step Execution Flow
 1️⃣ Your code calls: restTemplate.getForObject(url, Response.class);

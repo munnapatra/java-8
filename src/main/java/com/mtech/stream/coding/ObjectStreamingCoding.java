@@ -20,13 +20,18 @@ public class ObjectStreamingCoding {
 				.sorted(Comparator.comparing(Student::getScore).reversed())
 				.limit(3).toList();
 		System.out.println(top3Student);
+		
+		//2nd highest salary employee
+		Employee secndHighSalary = Employee
+		.getEmployees().stream().sorted(Comparator.comparing(Employee::getSalary).reversed()).skip(1).findFirst().get();
+		System.out.println(secndHighSalary);
 
 		// Group employees by department and then by age.
 		Map<String, Map<Integer, List<String>>> collect = Employee
 				.getEmployees().stream()
-				.collect(Collectors.groupingBy(e -> e.getDepartment(),
-						Collectors.groupingBy(e -> e.getAge(),
-								Collectors.mapping(e -> e.getName(),
+				.collect(Collectors.groupingBy(Employee::getDepartment,
+						Collectors.groupingBy(Employee::getAge,
+								Collectors.mapping(Employee::getName,
 										Collectors.toList()))));
 		System.out.println(collect);
 
@@ -40,13 +45,11 @@ public class ObjectStreamingCoding {
 				.max(Comparator.comparingLong(Employee::getSalary));
 		System.out.println(max.get());
 
-		// From a list of employees, find the highest-paid employee in each
-		// department
+		// From a list of employees, find the highest-paid employee in each department
 		Map<String, Optional<Employee>> highestPaidEmpByDep = Employee
 				.getEmployees().stream()
 				.collect(Collectors.groupingBy(Employee::getDepartment,
-						Collectors.maxBy(
-								Comparator.comparing(Employee::getSalary))));
+						Collectors.maxBy(Comparator.comparing(Employee::getSalary))));
 		System.out.println(highestPaidEmpByDep);
 
 		// Detect cycles in a list of parent-child relationships.

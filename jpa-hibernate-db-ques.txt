@@ -4,9 +4,121 @@ What is N+1 problem and how to fix it?
 Difference between save(), persist(), merge().
 What is first-level vs second-level cache?
 Explain dirty checking.
-How does @Transactional interact with Hibernate?
-What is optimistic vs pessimistic locking?
+-------------------------------------------------------------
+🔹 Q27. How does @Transactional interact with Hibernate?
+-------------------------------------------------------------
+🔑 @Transactional uses Spring AOP and a TransactionManager to open and bind a Hibernate Session to the current thread,
+    manage flush/commit or rollback, and ensure consistent persistence behavior across repository calls.
+	1️⃣ Who does what? (Roles)
+		✔ Spring: Transaction demarcation, lifecycle, rollback rules (via AOP)
+		✔ TransactionManager: Bridges Spring ↔ ORM/DB, Usually JpaTransactionManager (for JPA/Hibernate)
+		✔ Hibernate: ORM that performs persistence using a Session
+		✔ Database: Executes SQL within the transaction
+
+	2️⃣ What happens internally when you call a @Transactional method
+		✔ Proxy intercepts the method call (Spring AOP)
+		✔ Spring asks PlatformTransactionManager to begin a transaction
+		✔ Hibernate Session is opened (or reused)
+		✔ Session is bound to the current thread
+		✔ Repositories use the same Session
+		✔ Method completes:
+			✅ Success → flush + commit
+			❌ Runtime exception → rollback
+		✔ Session is closed/unbound at the end
+	3️⃣ Session binding & why it matters
+		✔ Spring binds the Hibernate Session to the thread
+		✔ All DAO calls in the transaction share: Same Session, Same first-level cache
+		✔ Enables: Consistent reads, Dirty checking, Lazy loading (within TX)
+
+	4️⃣ Flush vs Commit (common interview trap)
+		✔ Flush: Hibernate syncs in-memory changes to SQL
+		✔ Commit: DB makes changes permanent
+		✔ @Transactional method ends 
+			→ Hibernate flushes
+			→ DB commit happens
+		✔ Flush can occur before commit (e.g., before a query)
+
+	5️⃣ Rollback rules (very important)
+		✔ Default behavior
+			✔ Rollback on unchecked exceptions (RuntimeException)
+			❌ No rollback on checked exceptions
+
+		✔ @Transactional(rollbackFor = Exception.class) Use this to include checked exceptions.
+
+	6️⃣ Lazy loading & @Transactional
+		✔ Without transaction : 
+				Order order = repo.findById(id).get();
+				order.getItems().size(); // LazyInitializationException
+
+		✔ With transaction
+				@Transactional
+				public Order getOrder(Long id) {
+					Order o = repo.findById(id).get();
+					o.getItems().size(); // works
+					return o;
+				}
+
+		✔ Why: The Hibernate Session is still open.
+
+	7️⃣ Propagation with Hibernate
+		✔ REQUIRED (default): Join existing Session/Tx
+		✔ REQUIRES_NEW: Suspend current Session/Tx, open a new one
+		✔ NESTED: Uses savepoints (DB-dependent)
+
+	8️⃣ Isolation levels (delegated to DB): @Transactional(isolation = Isolation.READ_COMMITTED)
+		✔ Spring sets isolation on the JDBC connection
+		✔ DB enforces it
+		✔ Hibernate obeys DB semantics
+
+	9️⃣ What doesn’t work (classic pitfalls)
+		❌ Self-invocation (method in same class calls another @Transactional method)
+		❌ Private methods (proxies can’t intercept)
+		❌ Using @Transactional on non-Spring beans
+		
+	| Stack                           | TransactionManager             |
+	| ------------------------------- | ------------------------------ |
+	| Spring Data JPA + Hibernate     | `JpaTransactionManager`        |
+	| Pure Hibernate (SessionFactory) | `HibernateTransactionManager`  |
+	| JDBC                            | `DataSourceTransactionManager` |
+
+-------------------------------------------------------------	
+🔹 Q27. Explain optimistic vs pessimistic locking ?
+-------------------------------------------------------------
+	1️⃣ Optimistic Locking
+	🔸 Core idea: Assume conflicts are rare. Don’t lock data while reading; check for conflicts at update time.
+		✔ How it works: 
+			Add a version field to the entity, Every update checks the version, If version changed → fail the update
+			
+			@Entity
+			public class Product {
+				@Id
+				private Long id;
+				private int quantity;
+
+				@Version
+				private int version;
+			}
+			
+		✔ Pros : High performance, No database locks, Scales well, Ideal for read-heavy systems
+		✔ Cons : ❌ Update may fail, ❌ Requires retry logic
+		✔ Best use cases: High-read, low-write systems, Web apps, REST APIs, Microservices, User-driven updates
+		
+	2️⃣ Pessimistic Locking
+	🔸 Core idea: Assume conflicts are likely. Lock data upfront so no one else can modify it.
+		✔ How it works:
+			DB acquires a lock when data is read, Other transactions must wait.
+			
+			@Lock(LockModeType.PESSIMISTIC_WRITE)
+			@Query("select p from Product p where p.id = :id")
+			Product findForUpdate(@Param("id") Long id);
+		
+		✔ Pros : Strong consistency, No update conflicts, Predictable behavior
+		✔ Cons : ❌ Lower concurrency, ❌ Risk of deadlocks, ❌ Slower under load
+		✔ Best use cases: High-contention updates, Financial transactions, Inventory reservations, Critical sections
+
+-------------------------------------------------
 How does pagination work internally?
+-------------------------------------------------
 Difference between Hibernate and Jdbc (hibernate vs JDBC)
 Session VS Session factory (Differences)
 Can you create multiple session factory objects? Justify your answer!
