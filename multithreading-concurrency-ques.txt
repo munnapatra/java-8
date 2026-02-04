@@ -1,0 +1,346 @@
+✅ Java Multithreading & Concurrency – 8+ Years Interview Questions
+1️⃣ Core Multithreading Fundamentals
+
+What is the difference between process and thread?
+
+Why is Java considered a multi-threaded language?
+
+What are the benefits and drawbacks of multithreading?
+
+Explain Thread vs Runnable. Which one do you prefer and why?
+
+Difference between start() and run() methods.
+
+What happens internally when start() is called?
+
+Why can’t we start a thread twice?
+
+What are daemon threads? Give real-world use cases.
+
+Difference between user thread and daemon thread.
+
+How does JVM decide thread scheduling?
+
+Is thread scheduling platform dependent?
+
+What is context switching?
+
+Explain green threads vs native threads.
+
+What is thread priority? Does it really work?
+
+2️⃣ Thread Lifecycle & States (Very Important)
+
+Explain thread lifecycle with states.
+
+Difference between NEW, RUNNABLE, BLOCKED, WAITING, TIMED_WAITING, TERMINATED.
+
+When does a thread enter BLOCKED state?
+
+Difference between BLOCKED vs WAITING.
+
+Difference between WAITING vs TIMED_WAITING.
+
+What happens if a thread throws an exception?
+
+How does JVM clean up a terminated thread?
+
+Can a thread move from WAITING to RUNNABLE without notify?
+
+What happens if notify is called before wait?
+
+3️⃣ Synchronization & Locks (Heavyweight Section)
+
+What is synchronization and why is it needed?
+
+What problem does synchronization solve?
+
+Difference between synchronized method vs synchronized block.
+
+Why is synchronized block preferred?
+
+Can we synchronize a static method?
+
+What is the lock associated with static synchronization?
+
+What happens if multiple threads synchronize on different objects?
+
+Is synchronization reentrant?
+
+Explain reentrant lock concept with example.
+
+Can a constructor be synchronized?
+
+Can we synchronize on null?
+
+What happens if an exception occurs inside synchronized block?
+
+Does synchronized guarantee fairness?
+
+What is intrinsic lock / monitor lock?
+
+How does JVM implement synchronized internally?
+
+4️⃣ wait(), notify(), notifyAll()
+
+Why are wait(), notify(), notifyAll() in Object class, not Thread?
+
+Difference between wait() and sleep().
+
+Why must wait/notify be called inside synchronized block?
+
+What happens internally when wait() is called?
+
+Difference between notify() vs notifyAll().
+
+When should notifyAll be preferred?
+
+What is spurious wakeup?
+
+Why should wait always be used inside a loop?
+
+What happens if notify is called without any waiting thread?
+
+Can notify wake up a specific thread?
+
+What happens if multiple threads are waiting on same monitor?
+
+5️⃣ Volatile Keyword & Memory Visibility
+
+What problem does volatile solve?
+
+Difference between volatile and synchronized.
+
+Does volatile guarantee atomicity?
+
+Can volatile replace synchronization?
+
+What is happens-before relationship?
+
+How volatile works internally (CPU cache + memory barriers)?
+
+Why volatile int i++ is not thread safe?
+
+Can volatile be used with objects?
+
+Difference between visibility vs atomicity.
+
+6️⃣ Java Memory Model (JMM) – MUST for 8+ Years
+
+What is Java Memory Model?
+
+Explain heap, stack, registers, CPU cache in multithreading.
+
+What are memory barriers / fences?
+
+Explain happens-before rules.
+
+How does synchronization affect memory visibility?
+
+How does volatile affect instruction reordering?
+
+What is out-of-order execution?
+
+Why double-checked locking was broken earlier?
+
+How was it fixed in Java 5+?
+
+What is safe publication?
+
+7️⃣ Deadlock, Livelock, Starvation
+
+What is deadlock?
+
+Conditions required for deadlock.
+
+Real-world deadlock example.
+
+How do you detect deadlock in Java?
+
+How to prevent deadlock?
+
+Difference between deadlock and livelock.
+
+What is starvation?
+
+Can synchronized cause starvation?
+
+How ReentrantLock helps avoid starvation?
+
+Tools to detect deadlock in production?
+
+8️⃣ java.util.concurrent Package (Core for Senior Devs)
+
+Why was java.util.concurrent introduced?
+
+Difference between synchronized vs Lock interface.
+
+Explain ReentrantLock.
+
+What is fair vs non-fair lock?
+
+Difference between ReentrantLock and synchronized.
+
+What is ReadWriteLock?
+
+When to use ReadWriteLock?
+
+Explain StampedLock.
+
+Difference between optimistic and pessimistic locking.
+
+9️⃣ Executors & Thread Pools (Most Asked)
+
+Why should we avoid creating threads manually?
+
+Explain Executor framework.
+
+Difference between Executor, ExecutorService, ScheduledExecutorService.
+
+Types of thread pools:
+
+Fixed
+
+Cached
+
+Single
+
+Scheduled
+
+How does Executors.newFixedThreadPool() work internally?
+
+What is ThreadPoolExecutor?
+
+CorePoolSize vs MaximumPoolSize.
+
+What is work queue?
+
+What happens when queue is full?
+
+Explain RejectedExecutionHandler.
+
+Types of rejection policies.
+
+What is keepAliveTime?
+
+How to gracefully shutdown executor?
+
+Difference between shutdown() and shutdownNow().
+
+🔟 Callable, Future, CompletableFuture
+
+Difference between Runnable and Callable.
+
+What is Future?
+
+Limitations of Future.
+
+How CompletableFuture solves Future problems?
+
+Difference between thenApply vs thenCompose.
+
+thenAccept vs thenRun.
+
+How to combine multiple CompletableFutures?
+
+How to handle exceptions in CompletableFuture?
+
+What thread executes CompletableFuture by default?
+
+Difference between async and non-async methods.
+
+1️⃣1️⃣ Concurrent Collections
+
+Why HashMap is not thread safe?
+
+Difference between HashMap and ConcurrentHashMap.
+
+How ConcurrentHashMap works internally (Java 8)?
+
+Why no synchronization on entire map?
+
+Difference between CopyOnWriteArrayList and synchronizedList.
+
+When should CopyOnWrite be used?
+
+What is fail-fast vs fail-safe iterator?
+
+Which collections are thread safe by default?
+
+1️⃣2️⃣ Atomic Variables & CAS
+
+What are atomic classes?
+
+Difference between atomic and volatile.
+
+What is CAS (Compare And Swap)?
+
+How AtomicInteger works internally?
+
+What is ABA problem?
+
+How is ABA problem solved?
+
+Difference between AtomicLong and LongAdder.
+
+When to use LongAdder?
+
+1️⃣3️⃣ Fork/Join & Parallelism
+
+What is ForkJoinPool?
+
+Difference between ForkJoinPool and ExecutorService.
+
+What is work-stealing algorithm?
+
+When should ForkJoin be used?
+
+How parallel streams work internally?
+
+Why parallel streams can be dangerous?
+
+How to control parallel stream thread pool?
+
+1️⃣4️⃣ Advanced & JVM-Level Questions
+
+How does JVM handle thread stack?
+
+What is stack overflow in multithreading?
+
+How many threads can JVM create?
+
+What happens if too many threads are created?
+
+Difference between concurrency and parallelism.
+
+How does GC interact with running threads?
+
+Can GC stop application threads?
+
+What is safepoint?
+
+ThreadLocal – how it works internally?
+
+Memory leak with ThreadLocal?
+
+1️⃣5️⃣ Scenario-Based / Design Questions (Senior Level)
+
+Design a producer-consumer system.
+
+Implement rate limiter using Java concurrency.
+
+Design a thread-safe cache.
+
+How to ensure ordering of tasks?
+
+How to limit concurrent API calls?
+
+How to handle back-pressure?
+
+How would you debug high CPU due to threads?
+
+Real production issue you faced with concurrency.
+
+How do you test multithreaded code?
+
+How to make singleton thread safe?
