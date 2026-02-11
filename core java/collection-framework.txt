@@ -1,15 +1,161 @@
 =============================================================================================================
 🔹 Q1. What is the Java Collection Framework? Why was it introduced?
 =============================================================================================================
+✅ The Java Collection Framework is a unified architecture in Java that provides interfaces, implementations, and algorithms to store and manipulate groups of objects.
+It is part of the java.util package and includes:
+	Interfaces → List, Set, Queue, Map
+	Implementations → ArrayList, HashSet, HashMap, TreeMap, etc.
+	Utility Algorithms → sorting, searching, synchronization (via Collections class)
+
+✅ Why Was Java Collection Framework Introduced?
+	Before JCF (pre-Java 1.2), Java had: Vector, Stack, Hashtable, Enumeration
+	These were: Inconsistent, Not part of a unified hierarchy, Mostly synchronized (performance overhead), Lacked common interfaces
+	
+	🎯 Key Reasons for Introducing JCF
+		1️⃣ Standardization: 
+			Provide a common set of interfaces so developers can code against interfaces instead of implementations.
+			Example:
+					List<String> list = new ArrayList<>();
+			This allows flexibility to switch to:
+					List<String> list = new LinkedList<>();
+		
+		2️⃣ Reusability & Interoperability
+			All collections follow common interfaces → algorithms work across implementations.
+			Example:
+					Collections.sort(list);
+			Works for any List implementation.
+
+		3️⃣ Performance Improvements
+			Non-synchronized alternatives (e.g., ArrayList instead of Vector)
+			Better data structures (e.g., HashMap, TreeMap)
+	
+		4️⃣ Algorithm Abstraction
+			The Collections utility class provides: Sorting, Searching, Reversing, Synchronization wrappers
+			Example:
+					Collections.reverse(list);
+		
+		5️⃣ Cleaner Design (OOP Principles): Interface-based design, Polymorphism, Extensibility, Separation of concerns
+
 =============================================================================================================
 🔹 Q2. Difference between Collection and Collections?
 =============================================================================================================
+| Feature            | `Collection`                  | `Collections`                            |
+| ------------------ | ----------------------------- | ---------------------------------------- |
+| Type               | Interface                     | Utility Class                            |
+| Package            | `java.util`                   | `java.util`                              |
+| Purpose            | Represents a group of objects | Provides utility methods for collections |
+| Part of hierarchy  | Yes (root interface)          | No                                       |
+| Can create object? | No (it's an interface)        | No (private constructor)                 |
+| Examples           | List, Set, Queue              | sort(), reverse(), synchronizedList()    |
+
 =============================================================================================================
 🔹 Q3. Explain the Collection hierarchy in detail.
 =============================================================================================================
-=============================================================================================================
-🔹 Q4. Why Map is not part of Collection hierarchy?
-=============================================================================================================
+1️⃣ Root: Iterable
+			Iterable
+			   └── Collection
+
+		🔹 Why Iterable? Introduced to support for-each loop
+			Defines: Iterator<T> iterator(); 
+					Without Iterable, this would not work: for(String s : list) { }
+
+2️⃣ Collection Interface: This is the root interface for all collections except Map.
+	Core methods: add(), remove(), size(), contains(), iterator()
+	It represents a group of objects.
+
+3️⃣ Subinterfaces of Collection
+	Collection
+	 ├── List
+	 ├── Set
+	 └── Queue
+
+	🔹 A) List Interface: 
+			Characteristics: Ordered, Allows duplicates, Allows null, Index-based access
+			Implementations:
+				| Class      | Internal Structure | Use Case               |
+				| ---------- | ------------------ | ---------------------- |
+				| ArrayList  | Dynamic array      | Fast read              |
+				| LinkedList | Doubly linked list | Frequent insert/delete |
+				| Vector     | Synchronized array | Legacy                 |
+				| Stack      | Extends Vector     | LIFO (legacy)          |
+
+	🔹 B) Set Interface
+			Characteristics: No duplicates, No index-based access
+			Implementations:
+				| Class         | Internal Structure | Order           |
+				| ------------- | ------------------ | --------------- |
+				| HashSet       | Hash table         | No order        |
+				| LinkedHashSet | Hash + Linked List | Insertion order |
+				| TreeSet       | Red-Black Tree     | Sorted          |
+
+	🔹 C) Queue Interface
+			Characteristics: FIFO structure, Used for processing order
+			Implementations:
+				| Class         | Internal Structure | Use Case          |
+				| ------------- | ------------------ | ----------------- |
+				| PriorityQueue | Heap               | Priority-based    |
+				| ArrayDeque    | Resizable array    | Faster than Stack |
+				| LinkedList    | Doubly linked list | Queue/Deque       |
+
+4️⃣ Map Hierarchy (Separate from Collection)
+	⚠ Map does NOT extend Collection. Why? Because Map stores key-value pairs, not individual elements.
+			Map
+			 ├── HashMap
+			 ├── LinkedHashMap
+			 ├── TreeMap
+			 ├── Hashtable (Legacy)
+			 ├── ConcurrentHashMap
+			 ├── WeakHashMap
+			 └── EnumMap
+
+	Key Differences:
+		| Map Type          | Ordering         | Thread-safe | Internal Structure |
+		| ----------------- | ---------------- | ----------- | ------------------ |
+		| HashMap           | No               | No          | Hash table         |
+		| LinkedHashMap     | Insertion/Access | No          | Hash + Linked      |
+		| TreeMap           | Sorted           | No          | Red-Black Tree     |
+		| ConcurrentHashMap | No               | Yes         | CAS + Buckets      |
+		| Hashtable         | No               | Yes         | Legacy             |
+
+5️⃣ Abstract Classes (Important for Senior Devs)
+	Between interfaces and implementations, Java provides skeletal implementations:
+		AbstractCollection
+		   ├── AbstractList
+		   ├── AbstractSet
+		   ├── AbstractQueue
+		   └── AbstractMap
+		   
+		Why? To reduce boilerplate when creating custom collections.
+		Example: If you implement List, better extend AbstractList.
+
+6️⃣ Complete Structure in Tree Form
+		Iterable
+		 └── Collection
+			  ├── List
+			  │     ├── ArrayList
+			  │     ├── LinkedList
+			  │     ├── Vector
+			  │     └── Stack
+			  │
+			  ├── Set
+			  │     ├── HashSet
+			  │     ├── LinkedHashSet
+			  │     └── TreeSet
+			  │
+			  └── Queue
+					├── PriorityQueue
+					├── ArrayDeque
+					└── LinkedList
+
+		Map (Separate)
+		 ├── HashMap
+		 ├── LinkedHashMap
+		 ├── TreeMap
+		 ├── Hashtable
+		 ├── ConcurrentHashMap
+		 ├── WeakHashMap
+		 └── EnumMap
+
 =============================================================================================================
 🔹 Q5. Difference between Iterable and Iterator?
 =============================================================================================================
