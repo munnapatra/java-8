@@ -1,0 +1,222 @@
+🔵 Java (Core + Advanced)
+How does JVM memory model work? Explain happens-before relationship.
+What is GC? How does it work?
+How does G1 GC work? When would you tune GC?
+How would you debug high CPU usage in a production JVM?
+How does class loading work? What causes ClassLoader memory leaks?
+
+What is the difference between HashMap and ConcurrentHashMap?
+How does HashMap work internally?
+How does ConcurrentHashMap achieve thread safety internally in Java 8+?
+How does CompletableFuture work internally? How is it different from ExecutorService?
+Explain ForkJoinPool and work-stealing algorithm.
+How would you design a thread-safe cache?
+How does ThreadLocal cause memory leaks?
+How does StampedLock differ from ReadWriteLock?
+What is volatile? Difference between volatile and synchronized?
+What is the difference between Runnable and Callable?
+How does ExecutorService work?
+What is CompletableFuture?
+What is a deadlock? How to prevent it?
+
+Difference between ArrayList and LinkedList?
+What is the difference between Comparable and Comparator?
+Explain equals() and hashCode() contract.
+Difference between String, StringBuilder, and StringBuffer?
+What is immutability? Why is String immutable?
+What are Java 8 features you used?
+What is Optional? Why use it?
+What are Java 17 features you used in production?
+What is Serialization? How does it work?
+What is the difference between checked and unchecked exceptions?
+Explain lock escalation and biased locking.
+How would you detect and fix memory leaks in production?
+How does Java handle safe publication of objects?
+Design a rate limiter in Java.
+
+
+🟢 Spring Boot
+What is Spring Boot?
+What is auto-configuration?
+How does Spring auto-configuration work internally?
+How does Spring manage bean lifecycle?
+Difference between JDK dynamic proxy and CGLIB?
+How to implement custom auto-configuration?
+What is the difference between @Component, @Service, @Repository, and @Controller?
+What is @Autowired? How does dependency injection work?
+What is @Configuration and @Bean?
+What is @SpringBootApplication?
+What is @Transactional? How does it work internally?
+How does @Transactional work using AOP proxies?
+When does @Transactional fail?
+What are different scopes in Spring?
+What is Spring Boot Actuator?
+How do you handle exceptions globally?
+How to design a global exception handling strategy?
+What is application.yml vs application.properties?
+What is Spring Profiles?
+How does Spring Security work?
+How to configure JWT authentication?
+How would you secure microservices with OAuth2 + JWT?
+What is filter vs interceptor?
+How does Spring Boot handle embedded Tomcat threading?
+How to handle graceful shutdown?
+How to implement idempotency in REST APIs?
+How do you implement rate limiting in Spring Boot?
+How to debug circular dependency?
+How to optimize Spring Boot startup time?
+How to externalize configuration in Kubernetes?
+
+
+🟡 Spring Data JPA
+What is JPA?
+What is Hibernate?
+Difference between save() and saveAndFlush()?
+What is the Persistence Context?
+What are entity states?
+What is Lazy vs Eager loading?
+What is N+1 problem? How to solve N+1 problem in production?
+What is dirty checking? How does Hibernate dirty checking work internally?
+Explain first-level and second-level cache.
+When would you use EntityGraph?
+What is @Transactional propagation types?
+How does @Transactional isolation level affect JPA?
+What is optimistic vs pessimistic locking? How does optimistic locking work internally?
+What is @Version?
+What are projections?
+What is JpaRepository?
+How does pagination work? How to design high-performance pagination?
+What is Specification / Criteria API?
+How does Hibernate generate SQL?
+What causes LazyInitializationException?
+How to implement batch inserts?
+When to use native queries vs JPQL?
+How to design read-heavy systems with JPA?
+How to prevent lost update problem?
+How to tune Hibernate performance?
+How to handle large data processing with JPA?
+
+🔴 Angular
+
+What is Angular?
+What is TypeScript?
+What is component lifecycle?
+What is @Input and @Output?
+What is ViewChild?
+What is dependency injection in Angular? How does Angular DI hierarchy work?
+What are services?
+What is RxJS? What is Observable? How to implement caching using RxJS?
+What is map, filter, switchMap, debounceTime? Difference between mergeMap, switchMap, concatMap, exhaustMap?
+What is reactive form vs template-driven form?
+What is Zone.js role? What is change detection? How does Angular change detection work internally? How does OnPush improve performance?
+How to debug change detection issues?
+What is lazy loading?
+What are guards?
+What is interceptor?
+How to secure Angular apps?
+How to implement state management?
+How to avoid memory leaks in Angular?
+How to design reusable dynamic components?
+How to implement lazy loading with preloading strategy?
+How to handle large data tables performance?
+How to implement micro-frontend architecture?
+How to optimize bundle size?
+
+
+
+
+🟠 Kafka
+What is Kafka?
+What is a topic?
+What is partition? How to design topic partition strategy?
+What is consumer group?
+How does Kafka ensure ordering? How to guarantee ordering in Kafka?
+How does exactly-once semantics work?
+What is offset?
+What is ISR? How does ISR work?
+What is replication factor?
+How does Kafka achieve fault tolerance?
+What is at-least-once vs exactly-once? Difference between at-most-once, at-least-once, exactly-once?
+What is producer acknowledgment?
+What is Kafka rebalance?
+How do you handle message retry? How to design retry mechanism?
+What is idempotent producer? How to implement idempotent consumer?
+What is Kafka Streams? When to use Kafka Streams vs Consumer API?
+How does Kafka achieve high throughput?
+How does partition leader election work?
+How to handle consumer lag?
+How to tune Kafka for high performance?
+How to handle poison messages?
+How rebalancing works internally?
+How to monitor Kafka in production?
+
+🟣 Microservices
+What is microservices architecture? How do you design a microservices architecture from scratch?
+Monolith vs Microservices?
+What is service discovery?
+What is API Gateway? How to design API Gateway? How to implement rate limiting at gateway level?
+What is circuit breaker? How to implement circuit breaker?
+What is distributed transaction? How do you handle distributed transactions? How to implement distributed tracing?
+What is Saga pattern? Saga orchestration vs choreography?
+What is eventual consistency? How do you handle eventual consistency?
+What is centralized configuration? How to implement centralized logging?
+What is observability?
+What is load balancing?
+How to handle database per service?
+How to handle backward compatibility?
+How do microservices communicate? How to secure service-to-service communication?
+What is Docker?
+What is Kubernetes?
+What is containerization?
+How to design multi-region deployment?
+How to design high-availability system?
+How to handle schema evolution in microservices?
+
+🐳 Docker – Most Common Interview Questions
+What is Docker and how is it different from a VM?
+What is a Docker image?
+What is a Docker container?
+What is the difference between image and container?
+What is Dockerfile?
+What are the common Dockerfile instructions (FROM, RUN, CMD, ENTRYPOINT, COPY, ADD)?
+What is the difference between CMD and ENTRYPOINT?
+What is Docker layer caching?
+What is multi-stage build?
+What is the difference between COPY and ADD?
+What is a Docker volume?
+Difference between bind mount and volume?
+What is Docker networking?
+What are bridge, host, and overlay networks?
+How do containers communicate?
+What is Docker Compose?
+How do you reduce Docker image size?
+How do you secure Docker images?
+What is .dockerignore?
+How do you troubleshoot a failing container?
+
+☸️ Kubernetes – Most Common Interview Questions
+What is Kubernetes?
+What is a Pod?
+What is the difference between Pod and Container?
+What is a Deployment?
+What is ReplicaSet?
+What is the difference between Deployment and StatefulSet?
+What is a Service in Kubernetes?
+What are ClusterIP, NodePort, and LoadBalancer?
+What is an Ingress?
+What is ConfigMap?
+What is Secret?
+What is Namespace?
+What is HPA (Horizontal Pod Autoscaler)?
+What is liveness and readiness probe?
+What happens when a Pod crashes?
+How rolling updates work?
+What is etcd?
+What is the difference between DaemonSet and Deployment?
+How does Kubernetes scheduling work?
+How do you debug a failing pod?
+
+
+
+
+
