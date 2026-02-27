@@ -1,71 +1,933 @@
 🔵 Java (Core + Advanced)
-How does JVM memory model work? Explain happens-before relationship.
-What is GC? How does it work?
-How does G1 GC work? When would you tune GC?
-How would you debug high CPU usage in a production JVM?
-How does class loading work? What causes ClassLoader memory leaks?
+Q1. How does JVM memory model work? Explain happens-before relationship.
+--------------------------------------------------------------------------------------------
+✅ Java Memory Model (JMM) defines how threads interact through memory and guarantees visibility, ordering, and atomicity of shared variables in a multithreaded environment.
+It divides memory into:
+	Heap (Shared Memory): Stores objects and instance variables, Shared among all threads.
+	Thread Stack (Working Memory): Each thread has its own stack, Stores local variables and copies of shared variables.
+	Threads read/write to their working memory, then sync with main memory.
+	Because threads cache variables locally, without proper synchronization one thread may not see updates made by another.
 
-What is the difference between HashMap and ConcurrentHashMap?
-How does HashMap work internally?
-How does ConcurrentHashMap achieve thread safety internally in Java 8+?
-How does CompletableFuture work internally? How is it different from ExecutorService?
-Explain ForkJoinPool and work-stealing algorithm.
-How would you design a thread-safe cache?
-How does ThreadLocal cause memory leaks?
-How does StampedLock differ from ReadWriteLock?
-What is volatile? Difference between volatile and synchronized?
-What is the difference between Runnable and Callable?
-How does ExecutorService work?
-What is CompletableFuture?
-What is a deadlock? How to prevent it?
+✅ Happens-Before Relationship
+	Happens-before is a guarantee that writes by one thread are visible to another thread and that execution order is preserved. 
+		If A happens-before B, then:
+			A’s changes are visible to B
+			A executes before B logically
+	
+	Important Happens-Before Rules:
+		Program Order Rule: Within the same thread, statements execute in order.
+		Monitor Lock Rule: Unlock (synchronized exit) happens-before subsequent lock (synchronized enter).
+		Volatile Rule: Write to a volatile variable happens-before every subsequent read of that variable.
+		Thread Start Rule: Thread.start() happens-before code inside the started thread.
+		Thread Join Rule: Thread completion happens-before join() returns.
 
-Difference between ArrayList and LinkedList?
-What is the difference between Comparable and Comparator?
-Explain equals() and hashCode() contract.
-Difference between String, StringBuilder, and StringBuffer?
-What is immutability? Why is String immutable?
-What are Java 8 features you used?
-What is Optional? Why use it?
-What are Java 17 features you used in production?
-What is Serialization? How does it work?
-What is the difference between checked and unchecked exceptions?
-Explain lock escalation and biased locking.
-How would you detect and fix memory leaks in production?
-How does Java handle safe publication of objects?
-Design a rate limiter in Java.
+--------------------------------------------------------------------------------------------		
+Q2. What is GC? How does it work?
+--------------------------------------------------------------------------------------------
+✅ Garbage Collection (GC) is an automatic memory management process in the JVM that removes unused objects from heap memory to prevent memory leaks.
+
+✅ How does it work?
+	Object Allocation: Objects are created in the Heap (Young Generation first).
+	Mark Phase: GC identifies reachable objects starting from GC Roots (stack variables, static variables, active threads).
+	Sweep Phase: Unreachable objects are marked as garbage.
+	Compact Phase (if applicable): Memory is compacted to remove fragmentation.
+
+✅ Generational Concept
+	JVM heap is divided into:
+		Young Generation (minor GC, frequent)
+		Old Generation (major/full GC, less frequent)
+	Most objects die young, so GC focuses on cleaning the Young Generation efficiently.
+
+--------------------------------------------------------------------------------------------
+Q3. How does G1 GC work? When would you tune GC?
+--------------------------------------------------------------------------------------------
+✅ G1 (Garbage First) GC is a server-style, low-pause, region-based collector designed for large heap applications.
+Instead of fixed Young/Old spaces, G1 divides the heap into multiple equal-sized regions.
+
+How it works:
+	1. Heap Split into Regions:
+			Heap is divided into small regions (1–32 MB).
+			Regions can belong to Young, Old, or Survivor logically.
+			
+	2. Garbage-First Strategy:
+		G1 tracks how much garbage is in each region.
+		It collects regions with most garbage first to maximize efficiency.
+
+	3. Concurrent Marking:
+		Marks live objects mostly concurrently (minimal stop-the-world).
+		Identifies reclaimable regions.
+	
+	4. Evacuation / Compaction:
+		Live objects are copied to new regions.
+		Avoids fragmentation (compacting collector).
+
+	5. Predictable Pause Time:
+		You can set: -XX:MaxGCPauseMillis=200
+		G1 tries to meet this pause target.
+
+✅ When Would You Tune GC?
+	You tune GC when you see:
+		🚨 High GC pause times
+		🚨 Frequent Full GC
+		🚨 High CPU usage due to GC
+		🚨 OutOfMemoryError
+		🚨 Application latency issues
+		🚨 Large heap (8GB+ typical G1 use case)
+		
+--------------------------------------------------------------------------------------------
+Q4. How would you debug high CPU usage in a production JVM?
+--------------------------------------------------------------------------------------------
+✅ Check OS Level: top / htop → Identify high CPU process & thread ID.
+✅ Convert Thread ID: Convert PID (decimal) → Hex, Match with jstack output.
+✅ Take Thread Dump: jstack <pid>, Identify threads in RUNNABLE state consuming CPU.
+✅ Check GC Activity: jstat -gc <pid>, Enable GC logs → Look for frequent GC.
+✅ Profile if Needed: Use tools: JFR, VisualVM, YourKit.
+
+--------------------------------------------------------------------------------------------
+Q5. How does class loading work? What causes ClassLoader memory leaks?
+--------------------------------------------------------------------------------------------
+✅ How Class Loading Works?
+	Loading – ClassLoader loads .class file into memory.
+	Linking – Verify bytecode, prepare(static varibles with default value), resolve references (symbolict->direct).
+	Initialization – Static variables initialized & static blocks executed.
+
+	Uses Parent Delegation Model:
+		Bootstrap → Platform → Application ClassLoader.
+		Child delegates to parent first to avoid duplicate loading.
+
+✅ What Causes ClassLoader Memory Leaks?
+	Occurs when a ClassLoader cannot be garbage collected.
+	Common causes:
+		Static references holding application classes.
+		ThreadLocal variables not cleared.
+		Threads not stopped.
+		JDBC drivers not deregistered.
+		Caches holding class references.
+	
+--------------------------------------------------------------------------------------------
+Q6. What is the difference between HashMap and ConcurrentHashMap?
+--------------------------------------------------------------------------------------------
+✅ HashMap
+	Not thread-safe
+	Allows 1 null key, multiple null values
+	May cause data corruption in multithreading
+
+✅ ConcurrentHashMap
+	Thread-safe (uses bucket-level locking + CAS)
+	Does NOT allow null key/value
+	High concurrency, better performance than Hashtable
+	
+--------------------------------------------------------------------------------------------
+Q7. How does HashMap work internally?
+--------------------------------------------------------------------------------------------
+✅ Hashing
+	Calculates hash(key) → determines bucket index.
+
+✅ Bucket Storage
+	Stores entries in an array of buckets.
+	Each bucket holds a LinkedList (Java 7) or LinkedList + Red-Black Tree (Java 8+ if collisions > 8).
+
+✅ Collision Handling
+	If multiple keys map to same bucket → chaining.
+	Converts to Red-Black Tree for better performance (O(log n)).
+
+✅ Resizing
+	When size exceeds capacity × load factor (0.75) → rehashing occurs.
+	
+--------------------------------------------------------------------------------------------
+Q8. How does ConcurrentHashMap achieve thread safety internally in Java 8+? 
+--------------------------------------------------------------------------------------------
+✅ No Segment Locking (Removed in Java 8): Uses single array of buckets (Node[] table).
+✅ CAS (Compare-And-Swap): Used for inserting into empty buckets (lock-free).
+✅ Synchronized at Bucket Level: Locks only the specific bucket during updates (not whole map).
+✅ Volatile Variables: Ensures visibility of updates across threads.
+✅ TreeBin (Red-Black Tree): Used when collisions exceed threshold for better performance.
+
+--------------------------------------------------------------------------------------------
+Q16. How does ExecutorService work?
+--------------------------------------------------------------------------------------------
+✅ How ExecutorService Works
+	Manages a thread pool to execute tasks.
+	Tasks submitted via submit() or execute().
+	Threads are reused instead of created per task.
+	Uses a blocking queue to hold pending tasks.
+	Returns Future for async result (if submitted).
+	Flow: Task → Queue → Worker Thread → Execution → Result (Future)
+	
+--------------------------------------------------------------------------------------------
+Q17. What is CompletableFuture?
+--------------------------------------------------------------------------------------------
+✅ What is CompletableFuture?
+	An advanced asynchronous programming API introduced in Java 8.
+	Represents a future result that can be completed manually or asynchronously.
+	Supports non-blocking execution, chaining, callbacks, and combining multiple tasks.
+	Uses ForkJoinPool.commonPool() by default.
+	
+--------------------------------------------------------------------------------------------
+Q9. How does CompletableFuture work internally? How is it different from ExecutorService?
+--------------------------------------------------------------------------------------------
+✅ How CompletableFuture Works Internally
+	Uses ForkJoinPool.commonPool() by default.
+	Task execution is asynchronous and non-blocking.
+	Maintains a completion stack of dependent stages.
+	When one stage completes, dependent stages are triggered automatically.
+	Uses CAS for state updates (lock-free design).
+
+✅ Difference: CompletableFuture vs ExecutorService
+	ExecutorService:
+		Submits tasks and returns Future.
+		Blocking → must call get().
+		No chaining support.
+	
+	CompletableFuture:
+		Supports async, non-blocking execution.
+		Allows chaining (thenApply, thenCompose, etc.).
+		Supports callbacks & combining multiple futures.
+	
+--------------------------------------------------------------------------------------------
+Q10. Explain ForkJoinPool and work-stealing algorithm.
+--------------------------------------------------------------------------------------------
+✅ ForkJoinPool
+	A special thread pool designed for parallel divide-and-conquer tasks.
+	Uses ForkJoinTask (RecursiveTask / RecursiveAction).
+	Splits tasks into smaller subtasks (fork) and combines results (join).
+	Used by parallel streams and CompletableFuture (default pool).
+
+✅ Work-Stealing Algorithm
+	Each worker thread has its own deque (double-ended queue).
+	Thread processes tasks from its own queue.
+	If a thread becomes idle, it steals tasks from another thread’s queue (from tail).
+	Improves CPU utilization and reduces contention.
+
+--------------------------------------------------------------------------------------------
+Q11. How would you design a thread-safe cache?
+--------------------------------------------------------------------------------------------
+✅ Use ConcurrentHashMap: For thread-safe read/write operations.
+✅ Use computeIfAbsent() : Prevents duplicate computation in concurrent scenarios.
+✅ Add Eviction Policy: LRU using LinkedHashMap (with locking), Or use Caffeine for production.
+✅ Optional: Use ReadWriteLock, If using custom structure.
+
+🔥 Sample Approach (Basic)**
+private final ConcurrentHashMap<String, Object> cache = new ConcurrentHashMap<>();
+public Object get(String key) {
+    return cache.computeIfAbsent(key, k -> loadFromDB(k));
+}
+
+--------------------------------------------------------------------------------------------
+Q12. What is ThreadLocal? How does ThreadLocal cause memory leaks?
+--------------------------------------------------------------------------------------------
+✅ What is ThreadLocal?
+	Provides thread-confined variables: A thread-confined variable is a variable that is accessible by only one thread and not shared with others.
+	Each thread has its own copy of the variable.
+	Used for per-thread data like DB connections, user context, transactions.
+
+✅ How ThreadLocal Causes Memory Leaks?
+	Internally stored in ThreadLocalMap inside Thread.
+	Key = WeakReference (ThreadLocal object)
+	Value = Strong reference
+	If ThreadLocal is GC’d but thread (like in thread pool) lives long →
+	value remains → cannot be GC’d → memory leak.
+	
+	✅ Prevention
+		Always call: threadLocal.remove();
+		Especially in thread pools.
+		
+--------------------------------------------------------------------------------------------
+Q13. How does StampedLock differ from ReadWriteLock?
+--------------------------------------------------------------------------------------------
+✅ ReadWriteLock
+	Provides read lock and write lock.
+	Multiple readers allowed.
+	Writers block readers.
+	Fully blocking (traditional lock).
+
+✅ StampedLock
+	Provides read, write, and optimistic read.
+	Optimistic read is non-blocking.
+	Returns a stamp (long token) for validation.
+	Better performance in read-heavy scenarios.
+
+--------------------------------------------------------------------------------------------
+Q14. What is volatile? Difference between volatile and synchronized?
+--------------------------------------------------------------------------------------------
+✅ What is volatile?
+	Ensures visibility of variable changes across threads.
+	Prevents instruction reordering.
+	Does NOT guarantee atomicity.
+
+✅ volatile vs synchronized
+	volatile
+		Ensures visibility only.
+		No locking.
+		Lightweight.
+		No atomic compound operations.
+
+	synchronized
+		Ensures visibility + atomicity.
+		Uses intrinsic locking.
+		Prevents race conditions.
+		Higher overhead than volatile.
+
+--------------------------------------------------------------------------------------------
+Q15. What is the difference between Runnable and Callable?
+--------------------------------------------------------------------------------------------
+✅ Runnable
+	Introduced in Java 1.0, run() method, Does NOT return result, Cannot throw checked exception
+
+✅ Callable
+	Introduced in Java 5, call() method, Returns result, Can throw checked exception, Used with Future
+
+--------------------------------------------------------------------------------------------
+Q16. Explain Thread all methods use case ?
+--------------------------------------------------------------------------------------------
+✅ Important Thread Methods & Use Cases
+	start() → Starts new thread, calls run() internally.
+	run() → Contains task logic (should not call directly).
+	sleep(ms) → Pause execution temporarily.
+	join() → Wait for another thread to finish.
+	yield() → Hint scheduler to give chance to other threads.
+	interrupt() → Signals thread to stop or handle interruption.
+	isAlive() → Checks if thread is still running.
+	setPriority() → Suggests execution priority.
+	setDaemon(true) → Marks thread as background thread.
+	wait() → Releases lock and waits until notified.
+	notify() → Wakes up one waiting thread.
+	notifyAll() → Wakes up all waiting threads.
+	
+--------------------------------------------------------------------------------------------
+Q18. What is a deadlock? How to prevent it?
+--------------------------------------------------------------------------------------------
+✅ Deadlock occurs when two or more threads are permanently blocked, each waiting for a resource held by the other.
+	Example:
+	Thread A holds Lock1 → waits for Lock2
+	Thread B holds Lock2 → waits for Lock1
+
+✅ How to Prevent It?
+	Lock Ordering → Always acquire locks in same order.
+	Use tryLock() with timeout.
+	Avoid Nested Locks.
+	Use higher-level concurrency utilities (Executor, Concurrent collections).
+
+--------------------------------------------------------------------------------------------
+Q19. What is ReentrantLock and its use case? Difference between queue and Dequeue ?
+--------------------------------------------------------------------------------------------
+✅ An advanced locking mechanism from java.util.concurrent.locks.
+	Allows a thread to acquire the same lock multiple times.
+	Supports:
+		tryLock()
+		lockInterruptibly()
+		Fairness policy
+		Condition variables
+
+	🔹 Use Case
+		When you need more control than synchronized.
+		Timeout-based locking.
+		Interruptible lock waiting.
+
+✅ Difference Between Queue and Deque
+	Queue: FIFO (First-In-First-Out), Insert at rear, remove from front.
+	Deque (Double-Ended Queue): Insert and remove from both ends, Can work as FIFO or LIFO.
+	
+--------------------------------------------------------------------------------------------
+Q19. Difference between Array and List? Difference between List and Set?  Difference between Set and Map?
+--------------------------------------------------------------------------------------------
+✅ Array vs List
+	Array: Fixed size, Stores primitives & objects, Faster access, Not part of Collection framework
+	List: Dynamic size, Stores objects only, Part of Collection framework, More flexible (ArrayList, LinkedList)
+
+✅ List vs Set
+	List: Allows duplicates, Maintains insertion order, Indexed access
+	Set: No duplicates allowed, No guaranteed order (except LinkedHashSet / TreeSet), No index-based access
+
+✅ Set vs Map
+	Set: Stores only values, No duplicates
+	Map: Stores key-value pairs, Keys must be unique, Values can be duplicate
+
+--------------------------------------------------------------------------------------------
+Q19. ArrayList vs LinkedList? ArrayList and vector? HashMap vs HashTabel? HashMap vs HashSet ? HashMap vs TreeMap
+--------------------------------------------------------------------------------------------
+✅ ArrayList vs LinkedList
+	ArrayList: Backed by dynamic array, Fast random access (O(1)), Slow insert/delete in middle
+	LinkedList: Doubly linked list, Slow random access, Fast insert/delete (O(1) at ends)
+
+✅ ArrayList vs Vector
+	ArrayList: Not synchronized, Faster
+	Vector: Synchronized (thread-safe), Slower
+
+✅ HashMap vs Hashtable
+	HashMap: Not thread-safe, Allows 1 null key & multiple null values
+	Hashtable: Thread-safe (synchronized), No null key/value
+
+✅ HashMap vs HashSet
+	HashMap: Stores key-value pairs
+	HashSet: Stores only unique values, Internally backed by HashMap
+
+✅ HashMap vs TreeMap
+	HashMap: No ordering, O(1) average
+	TreeMap: Sorted (Red-Black Tree), O(log n)
+
+--------------------------------------------------------------------------------------------
+Q20. What is the difference between Comparable and Comparator?
+--------------------------------------------------------------------------------------------
+✅ Comparable
+	Present in java.lang
+	Defines natural ordering
+	Implements compareTo()
+	Only one sorting logic
+
+✅ Comparator
+	Present in java.util
+	Defines custom/external ordering
+	Implements compare()
+	Multiple sorting logics possible
+	
+--------------------------------------------------------------------------------------------
+Q21. Explain equals() and hashCode() contract.
+--------------------------------------------------------------------------------------------
+✅ If two objects are equal using equals(), they must have same hashCode().
+✅ If two objects have same hashCode(), they may or may not be equal.
+✅ If equals() is overridden, hashCode() must also be overridden.
+✅ Consistent: multiple calls should return same result if object state doesn’t change.
+
+--------------------------------------------------------------------------------------------
+Q22. Difference between String, StringBuilder, and StringBuffer?
+--------------------------------------------------------------------------------------------
+✅ String: Immutable, Stored in String pool, New object created on modification
+✅ StringBuilder: Mutable, Not thread-safe, Faster for single-threaded operations
+✅ StringBuffer: Mutable, Thread-safe (synchronized), Slower than StringBuilder
+
+--------------------------------------------------------------------------------------------
+Q23. What is immutability? Why is String immutable?
+--------------------------------------------------------------------------------------------
+✅ Immutability means an object’s state cannot be changed after it is created.
+	Any modification results in a new object.
+
+✅ Why is String Immutable?
+	Security – Prevents modification of sensitive data (file paths, class names).
+	Thread Safety – Safe to share across threads without synchronization.
+	String Pool – Enables memory optimization via reuse.
+	HashCode Caching – Improves performance in hash-based collections.
+	
+--------------------------------------------------------------------------------------------
+Q24. What are Java 8 features you used?
+--------------------------------------------------------------------------------------------
+✅ Lambda Expressions → Cleaner functional code
+✅ Streams API → map, filter, collect, reduce
+✅ Functional Interfaces → Predicate, Function, Consumer
+✅ Optional → Avoid NullPointerException
+✅ CompletableFuture → Async programming
+✅ Default & Static methods in interfaces
+✅ Method References
+✅ Date & Time API (java.time)
+
+--------------------------------------------------------------------------------------------
+Q; what are predefined functional interface in java 8 and its use case
+--------------------------------------------------------------------------------------------
+✅ Predicate<T> → Takes input, returns boolean: Used for filtering (Stream filter): boolean test(T t);
+
+✅ Function<T, R> → Takes input, returns result: Used in map transformations: R apply(T t);
+
+✅ Consumer<T> → Takes input, returns nothing: Used in forEach, logging: void accept(T t);
+
+✅ Supplier<T> → No input, returns value: Used for lazy object creation: T get();
+
+✅ BiFunction<T, U, R> → Two inputs, one result: Used in map operations: R apply(T t, U u);
+
+✅ UnaryOperator<T> → Same input/output type: Used in update operations: T apply(T t);
+
+✅ BinaryOperator<T> → Two same-type inputs: Used in reduce operations: T apply(T t1, T t2);
+
+--------------------------------------------------------------------------------------------
+Q25. What is Optional? Why use it?
+--------------------------------------------------------------------------------------------
+✅ Optional is a container object introduced in Java 8 that may or may not contain a non-null value.
+
+✅ Why Use It?
+	Avoids NullPointerException.
+	Forces explicit null handling.
+	Improves code readability.
+	Supports functional-style methods (map(), orElse(), ifPresent()).
+
+--------------------------------------------------------------------------------------------
+Q26. What are Java 17 features you used in production?
+--------------------------------------------------------------------------------------------
+✅ Records → Immutable DTOs with less boilerplate
+✅ Sealed Classes → Restricted inheritance control
+✅ Pattern Matching for instanceof → Cleaner type checks
+✅ Text Blocks → Multiline JSON/SQL strings
+✅ Switch Expressions (enhanced)
+✅ Improved G1 GC & ZGC performance
+
+--------------------------------------------------------------------------------------------
+Q27. What is Serialization? How does it work?
+--------------------------------------------------------------------------------------------
+✅ Serialization is the process of converting a Java object into a byte stream so it can be stored in a file or sent over a network.
+
+✅ How It Works?
+	Class must implement Serializable (marker interface).
+	JVM converts object state into byte stream using ObjectOutputStream.
+	For reading, ObjectInputStream converts byte stream back to object (Deserialization).
+	
+--------------------------------------------------------------------------------------------
+Q28. What is the difference between checked and unchecked exceptions?
+--------------------------------------------------------------------------------------------
+✅ Checked Exceptions
+	Checked at compile time
+	Must be handled or declared using throws
+	Example: IOException, SQLException
+
+✅ Unchecked Exceptions
+	Occur at runtime
+	Not mandatory to handle
+	Subclasses of RuntimeException
+	Example: NullPointerException, ArithmeticException
+	
+--------------------------------------------------------------------------------------------
+Q29. Explain lock escalation and biased locking.
+--------------------------------------------------------------------------------------------
+✅ Biased Locking
+	Optimization for single-threaded access.
+	JVM biases lock toward first thread.
+	No synchronization overhead if same thread re-enters.
+	If another thread tries → bias revoked.
+
+✅ Lock Escalation
+	JVM upgrades lock level when contention increases:
+		Biased Lock
+		Lightweight Lock (CAS-based)
+		Heavyweight Lock (OS mutex)
+	Happens when multiple threads compete for same lock.
+	
+--------------------------------------------------------------------------------------------
+Q30. How would you detect and fix memory leaks in production?
+--------------------------------------------------------------------------------------------
+✅ How to Detect Memory Leaks in Production
+	Monitor Heap Usage
+	Check increasing heap after full GC.
+	Use JConsole / Prometheus / APM.
+	Enable GC Logs
+	Look for frequent Full GC or heap not shrinking.
+	Take Heap Dump
+	jmap -dump
+	Analyze using MAT (Memory Analyzer Tool).
+	Check Dominator Tree
+	Identify large retained objects.
+
+✅ How to Fix
+	Remove unused static references.
+	Clear ThreadLocal properly.
+	Fix improper caching.
+	Close resources (streams, connections).
+	
+--------------------------------------------------------------------------------------------
+Q31. How does Java handle safe publication of objects?
+--------------------------------------------------------------------------------------------
+✅ Safe publication ensures that an object is visible to other threads in a fully constructed state.
+	Ways to Achieve Safe Publication:
+		Using volatile variable
+		Using synchronized block
+		Using final fields (immutability guarantee)
+		Static initialization
+		Using concurrent collections
+		
+--------------------------------------------------------------------------------------------
+Q32. Design a rate limiter in Java.
+--------------------------------------------------------------------------------------------
+class RateLimiter {
+
+    private final int capacity;
+    private final int refillRate; // tokens per second
+    private int tokens;
+    private long lastRefillTime;
+
+    public RateLimiter(int capacity, int refillRate) {
+        this.capacity = capacity;
+        this.refillRate = refillRate;
+        this.tokens = capacity;
+        this.lastRefillTime = System.nanoTime();
+    }
+
+    public synchronized boolean allowRequest() {
+        refill();
+        if (tokens > 0) {
+            tokens--;
+            return true;
+        }
+        return false;
+    }
+
+    private void refill() {
+        long now = System.nanoTime();
+        long tokensToAdd = ((now - lastRefillTime) / 1_000_000_000) * refillRate;
+        if (tokensToAdd > 0) {
+            tokens = Math.min(capacity, tokens + (int) tokensToAdd);
+            lastRefillTime = now;
+        }
+    }
+}
+
+--------------------------------------------------------------------------------------------
 
 
 🟢 Spring Boot
+--------------------------------------------------------------------------------------------
 What is Spring Boot?
+--------------------------------------------------------------------------------------------
+✅ Spring Boot is an opinionated framework built on top of Spring that enables rapid development of production-ready applications with minimal configuration.
+	Key Features:
+		Auto-configuration
+		Embedded servers (Tomcat, Jetty)
+		Starter dependencies
+		Production-ready features (Actuator)
+
+--------------------------------------------------------------------------------------------
 What is auto-configuration?
+--------------------------------------------------------------------------------------------
+✅ Auto-configuration is a Spring Boot feature that automatically configures beans based on classpath dependencies, properties, and existing beans. 
+	Uses @EnableAutoConfiguration
+	Works via spring.factories / AutoConfiguration classes
+	Can be customized or excluded
+
+--------------------------------------------------------------------------------------------
 How does Spring auto-configuration work internally?
+--------------------------------------------------------------------------------------------
+✅ @SpringBootApplication includes @EnableAutoConfiguration.
+	@EnableAutoConfiguration triggers AutoConfigurationImportSelector.
+	It loads auto-config classes from:
+		META-INF/spring.factories (Spring Boot 2)
+		META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports (Spring Boot 3)
+	
+	Each auto-config class uses:
+		@ConditionalOnClass
+		@ConditionalOnMissingBean
+		@ConditionalOnProperty
+	
+	→ Beans are created only if conditions match.
+	
+--------------------------------------------------------------------------------------------
 How does Spring manage bean lifecycle?
+--------------------------------------------------------------------------------------------
+✅ Instantiation → Creates bean instance.
+✅ Populate Properties → Dependency injection.
+✅ Aware Interfaces → e.g., BeanNameAware, ApplicationContextAware.
+✅ BeanPostProcessor (Before Init)
+✅ Initialization
+	@PostConstruct
+	InitializingBean.afterPropertiesSet()
+	Custom init-method
+
+✅ BeanPostProcessor (After Init)
+✅ Destruction
+	@PreDestroy
+	DisposableBean.destroy()
+	Custom destroy-method
+	
+--------------------------------------------------------------------------------------------
 Difference between JDK dynamic proxy and CGLIB?
+--------------------------------------------------------------------------------------------
+✅ JDK Dynamic Proxy
+	Works only with interfaces
+	Uses java.lang.reflect.Proxy
+	Creates proxy based on interface
+
+✅ CGLIB
+	Works with classes (no interface needed)
+	Creates subclass using bytecode generation
+	Cannot proxy final classes/methods
+
+--------------------------------------------------------------------------------------------
 How to implement custom auto-configuration?
+--------------------------------------------------------------------------------------------
+✅ Create Auto-Config Class using @AutoConfiguration, @ConditionalOnClass(MyService.class), @ConditionalOnMissingBean
+
+✅ Register in Metadata File
+	Create file:
+		META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
+		Add: com.example.MyAutoConfiguration
+	Optional: Add @ConditionalOnProperty, To enable/disable via properties.
+	
+--------------------------------------------------------------------------------------------
 What is the difference between @Component, @Service, @Repository, and @Controller?
+--------------------------------------------------------------------------------------------
+✅ @Component: Generic stereotype annotation, Marks class as Spring bean.
+
+✅ @Service: Specialization of @Component, Used for business logic layer, Semantically clearer.
+
+✅ @Repository: Specialization of @Component, Used for persistence layer, Adds exception translation (DataAccessException).
+
+✅ @Controller: Used in web layer, Handles HTTP requests, Returns view (or @RestController for JSON).
+
+--------------------------------------------------------------------------------------------
 What is @Autowired? How does dependency injection work?
+--------------------------------------------------------------------------------------------
+✅ @Autowired is a Spring annotation used for automatic dependency injection.
+	It tells Spring to inject the required bean from the application context.
+
+✅ How Dependency Injection Works?
+	Spring scans classes and creates beans.
+	During bean creation, Spring resolves dependencies.
+	Injection happens via: 
+		Constructor (recommended)
+		Setter
+		Field injection
+	Spring matches by type, and if multiple beans exist, uses @Qualifier.
+	
+--------------------------------------------------------------------------------------------
 What is @Configuration and @Bean?
+--------------------------------------------------------------------------------------------
+✅ What is @Configuration?
+	Marks a class as a configuration class.
+	Contains bean definitions.
+	Equivalent to XML configuration.
+
+✅ What is @Bean?
+	Used inside @Configuration class.
+	Declares a method whose return object is registered as a Spring bean.
+	
+--------------------------------------------------------------------------------------------
 What is @SpringBootApplication?
+--------------------------------------------------------------------------------------------
+✅ @SpringBootApplication is a meta-annotation that combines:
+	@Configuration → Marks configuration class
+	@EnableAutoConfiguration → Enables auto-config
+	@ComponentScan → Scans components
+It is used as the main entry point of a Spring Boot application.
+
+--------------------------------------------------------------------------------------------
 What is @Transactional? How does it work internally?
+--------------------------------------------------------------------------------------------
+✅ @Transactional is used to manage database transactions declaratively in Spring.
+	It ensures:
+		Commit on success
+		Rollback on RuntimeException (by default)
+
+✅ How It Works Internally?
+	Spring creates a proxy (JDK or CGLIB) around the bean.
+	Proxy intercepts method call.
+	Starts transaction via PlatformTransactionManager.
+	Commits or rolls back based on exception.
+	
+--------------------------------------------------------------------------------------------
 How does @Transactional work using AOP proxies?
-When does @Transactional fail?
+--------------------------------------------------------------------------------------------
+✅ Spring creates a proxy (JDK or CGLIB) for the bean.
+	When a transactional method is called, the proxy intercepts the call.
+	Proxy starts transaction using PlatformTransactionManager.
+	Executes target method.
+		On success → commit.
+		On RuntimeException → rollback.
+⚠ Important: Only works for external method calls (self-invocation won’t trigger proxy).
+
+--------------------------------------------------------------------------------------------
 What are different scopes in Spring?
+--------------------------------------------------------------------------------------------
+✅ Singleton (default): One instance per Spring container.
+✅ Prototype: New instance every time requested.
+✅ Request: One bean per HTTP request.
+✅ Session: One bean per HTTP session.
+✅ Application: One bean per ServletContext.
+✅ WebSocket: One bean per WebSocket session.
+
+--------------------------------------------------------------------------------------------
 What is Spring Boot Actuator?
+--------------------------------------------------------------------------------------------
+✅ Spring Boot Actuator provides production-ready monitoring and management endpoints for applications.
+	Features:
+		Health checks (/actuator/health)
+		Metrics (/actuator/metrics)
+		Info endpoint
+		Environment details
+		Thread dump, heap dump
+	Used for monitoring, observability, and integration with Prometheus.
+	
+--------------------------------------------------------------------------------------------
 How do you handle exceptions globally?
+--------------------------------------------------------------------------------------------
+✅Use @RestControllerAdvice (or @ControllerAdvice) and @ExceptionHandler handles specific exceptions. Applies across all controllers.
+
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<String> handle(RuntimeException ex) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ex.getMessage());
+    }
+}
+
+--------------------------------------------------------------------------------------------
 How to design a global exception handling strategy?
-What is application.yml vs application.properties?
+--------------------------------------------------------------------------------------------
+✅ Create @RestControllerAdvice: Centralized exception handling.
+
+✅ Define Custom Exceptions: BusinessException, ResourceNotFoundException, etc.
+✅ Standard Error Response: timestamp, status, error code, message, path
+✅  Map Exceptions Properly: 
+	400 → Validation errors
+	404 → Not found
+	500 → Internal errors
+
+✅ Handle Validation Errors
+	Handle MethodArgumentNotValidException.
+	
+--------------------------------------------------------------------------------------------
 What is Spring Profiles?
+--------------------------------------------------------------------------------------------
+✅ Spring Profiles allow you to define environment-specific configurations (dev, test, prod).
+	Activate using:
+		spring.profiles.active=dev
+		Use @Profile("dev") on beans.
+	
+	Separate config files:
+		application-dev.yml
+		application-prod.yml
+		
+--------------------------------------------------------------------------------------------
 How does Spring Security work?
+--------------------------------------------------------------------------------------------
+✅ Security Filter Chain: Intercepts every HTTP request, Uses DelegatingFilterProxy.
+✅ Authentication: Validates user via AuthenticationManager, Uses UserDetailsService or other providers.
+✅ Authorization: Checks roles/permissions using filters or annotations (@PreAuthorize).
+✅ SecurityContext: Stores authenticated user details per request.
+
+--------------------------------------------------------------------------------------------
 How to configure JWT authentication?
+--------------------------------------------------------------------------------------------
+✅ Add Dependencies: spring-boot-starter-security, JWT library (jjwt)
+✅ Create JWT Utility: Generate token after successful login, Validate & parse token.
+✅ Create JWT Filter: 
+	Extend OncePerRequestFilter, Extract token from Authorization: Bearer <token>.
+	Validate token, Set authentication in SecurityContextHolder.
+
+✅ Configure Security: Disable CSRF, Set stateless session, Add JWT filter before UsernamePasswordAuthenticationFilter.
+
+--------------------------------------------------------------------------------------------
 How would you secure microservices with OAuth2 + JWT?
+--------------------------------------------------------------------------------------------
+✅ Authorization Server: Authenticates users, Issues JWT access tokens.
+
+✅ API Gateway: Validates JWT, Routes request to microservices.
+
+✅ Resource Servers (Microservices):
+	Configure as OAuth2 Resource Server.
+	Validate JWT signature using public key.
+	Enforce role-based access (@PreAuthorize).
+
+✅ Stateless Security: No session storage, Each request carries JWT.
+
+--------------------------------------------------------------------------------------------
 What is filter vs interceptor?
-How does Spring Boot handle embedded Tomcat threading?
+--------------------------------------------------------------------------------------------
+✅ Filter: 
+	Part of Servlet API.
+	Executes before DispatcherServlet.
+	Works on request/response level.
+	Used for logging, CORS, security.
+
+✅ Interceptor
+	Spring-specific.
+	Executes after DispatcherServlet, before controller.
+	Used for authentication, authorization, pre/post processing.
+	
+--------------------------------------------------------------------------------------------
+How does Spring Boot handle embedded Tomcat threading? How to disable default server of Spring Boot
+--------------------------------------------------------------------------------------------
+✅ Spring Boot uses embedded Tomcat by default.
+	Tomcat uses a thread pool (Executor) to handle HTTP requests.
+	Each incoming request is assigned to a worker thread from the pool.
+	Threads are reused for performance.
+	Default configuration:
+		maxThreads = 200
+		minSpareThreads = 10
+		Can be configured via:
+			server.tomcat.threads.max=300
+			
+✅ How to Disable Default Embedded Server (Tomcat) in Spring Boot
+	Exclude Tomcat Dependency
+	Change Packaging to WAR (Optional): <packaging>war</packaging>
+	Deploy to External Server (Tomcat, Jetty, etc.)
+	
+--------------------------------------------------------------------------------------------
 How to handle graceful shutdown?
+--------------------------------------------------------------------------------------------
+✅ Enable Graceful Shutdown
+	server.shutdown=graceful
+	spring.lifecycle.timeout-per-shutdown-phase=30s
+
+	How It Works
+		Stops accepting new requests.
+		Waits for active requests to complete.
+		Then shuts down application context.
+
+	For Kubernetes: Configure preStop hook + proper terminationGracePeriodSeconds.
+	
+--------------------------------------------------------------------------------------------
 How to implement idempotency in REST APIs?
+--------------------------------------------------------------------------------------------
+✅ Use Idempotency Key
+	Client sends unique Idempotency-Key header.
+	Store key + response in DB/cache.
+	If same key received → return stored response.
+	
+✅ Database Constraint
+	Use unique constraint (e.g., order_id).
+	Prevent duplicate inserts.
+
+✅ HTTP Method Design
+	Use PUT for idempotent updates.
+	POST requires idempotency handling.
+
+✅ Distributed Lock (Optional)
+	Use Redis lock for concurrent duplicate requests.
+	
+--------------------------------------------------------------------------------------------
 How do you implement rate limiting in Spring Boot?
+--------------------------------------------------------------------------------------------
+✅ Using Bucket4j (Recommended)
+		Add Bucket4j dependency.
+		Create token bucket configuration.
+		Use Filter or Interceptor to check request rate.
+
+✅ Using Redis (Distributed Rate Limiting)
+		Store counters per user/IP.
+		Use TTL for time window control.
+
+✅ Using API Gateway: Implement rate limiting at gateway level (preferred for microservices).
+
+--------------------------------------------------------------------------------------------
 How to debug circular dependency?
+--------------------------------------------------------------------------------------------
+✅ Check Error Log; Spring shows bean dependency cycle in stack trace.
+✅ Use Constructor Injection: Helps detect circular dependency at startup.
+✅ Break the Cycle: Refactor logic, Extract common dependency to third bean.
+✅ Use @Lazy (Temporary Fix): Inject one dependency lazily. public A(@Lazy B b) { }
+✅ Avoid Field Injection
+
+--------------------------------------------------------------------------------------------
 How to optimize Spring Boot startup time?
+--------------------------------------------------------------------------------------------
+✅ Remove Unused Auto-Configurations: Use spring.autoconfigure.exclude.
+✅ Lazy Initialization: spring.main.lazy-initialization=true
+✅ Reduce Component Scanning Scope: Avoid scanning unnecessary packages.
+✅ Use Constructor Injection (avoid reflection-heavy patterns)
+✅ Enable Spring AOT / Native Image (Production Optimization)
+✅ Tune JVM: Proper heap size, Use G1GC or ZGC.
+✅ Disable DevTools in Production
+
+--------------------------------------------------------------------------------------------
 How to externalize configuration in Kubernetes?
+--------------------------------------------------------------------------------------------
+✅ ConfigMap: Store non-sensitive properties, Mount as file or inject as environment variables.
+✅ Secret: Store sensitive data (DB password, API keys), Mount as env variables or volume.
+
+✅ Use application.yml with Env Variables
+spring:
+  datasource:
+    url: ${DB_URL}
+
+✅ Spring Cloud Config (Optional): Centralized configuration management.
+--------------------------------------------------------------------------------------------
 
 
 🟡 Spring Data JPA
@@ -97,32 +959,276 @@ How to tune Hibernate performance?
 How to handle large data processing with JPA?
 
 🔴 Angular
-
+--------------------------------------------------------------------------------------------
 What is Angular?
+--------------------------------------------------------------------------------------------
+✅ Angular is a TypeScript-based front-end framework developed by Google for building single-page applications (SPA).
+	Key Features:
+		Component-based architecture
+		Two-way data binding
+		Dependency Injection
+		RxJS for reactive programming
+		Built-in routing and HTTP support
+		
+--------------------------------------------------------------------------------------------
 What is TypeScript?
+--------------------------------------------------------------------------------------------
+✅TypeScript is a statically typed superset of JavaScript developed by Microsoft.
+	It adds types, interfaces, generics, and compile-time error checking, and compiles to plain JavaScript.
+	
+--------------------------------------------------------------------------------------------
 What is component lifecycle?
+--------------------------------------------------------------------------------------------
+✅ Component Lifecycle is the sequence of phases a component goes through from creation → update → destruction.
+	Typical phases:
+		Initialization – Component is created (ngOnInit in Angular).
+		Change Detection / Update – Data changes trigger re-render (ngOnChanges).
+		Destruction – Cleanup before removal (ngOnDestroy).
+--------------------------------------------------------------------------------------------
 What is @Input and @Output?
+--------------------------------------------------------------------------------------------
+✅ @Input and @Output are decorators in Angular used for parent-child communication.
+	@Input → Pass data from parent to child.
+	@Output → Send events/data from child to parent using EventEmitter.
+
+👉 Used for component interaction in Angular applications.
+
+--------------------------------------------------------------------------------------------
 What is ViewChild?
+--------------------------------------------------------------------------------------------
+✅ @ViewChild is a decorator in Angular used to access a child component, directive, or DOM element from the parent component.
+👉 It gives direct reference to child instance after view initialization (ngAfterViewInit).
+
+--------------------------------------------------------------------------------------------
 What is dependency injection in Angular? How does Angular DI hierarchy work?
+--------------------------------------------------------------------------------------------
+✅ Dependency Injection (DI) in Angular is a design pattern where dependencies (services) are injected into components instead of being created manually. Promotes loose coupling and testability.
+
+👉 Angular DI Hierarchy
+		Angular has a hierarchical injector system:
+		Root Injector → Created at app bootstrap (providedIn: 'root') – singleton across app.
+		Module Injector → Scoped to feature modules.
+		Component Injector → Scoped to a specific component and its children.
+	👉 Angular resolves dependency from closest injector → then upward to root.
+	
+--------------------------------------------------------------------------------------------
 What are services?
+--------------------------------------------------------------------------------------------
+✅ In Angular, Services are classes used to hold business logic, shared data, or reusable functionality.
+They are typically injected using Dependency Injection.
+👉 Used for separation of concerns and code reusability.
+
+--------------------------------------------------------------------------------------------
 What is RxJS? What is Observable? How to implement caching using RxJS?
+--------------------------------------------------------------------------------------------
+✅ RxJS (Reactive Extensions for JavaScript) is a library for reactive programming using Observables, heavily used in Angular.
+
+✅ An Observable is a stream of data that can emit multiple values over time (async).
+
+✅ Caching using RxJS
+	Use shareReplay(1) to cache HTTP response.
+	this.users$ = this.http.get('/api/users').pipe(shareReplay(1));
+	👉 Prevents multiple API calls.
+
+Promise vs Observable
+| Promise            | Observable                         |
+| ------------------ | ---------------------------------- |
+| Emits single value | Emits multiple values              |
+| Eager execution    | Lazy execution                     |
+| Cannot cancel      | Can unsubscribe                    |
+| No operators       | Rich operators (map, filter, etc.) |
+
+--------------------------------------------------------------------------------------------
 What is map, filter, switchMap, debounceTime? Difference between mergeMap, switchMap, concatMap, exhaustMap?
+--------------------------------------------------------------------------------------------
+✅map: Transforms each emitted value.
+✅filter: Emits only values that satisfy a condition.
+✅debounceTime: Waits for specified time before emitting (used in search input).
+✅switchMap: Cancels previous inner Observable and switches to latest (best for API search).
+
+| Operator       | Behavior                               |
+| -------------- | -------------------------------------- |
+| **mergeMap**   | Runs all inner Observables in parallel |
+| **switchMap**  | Cancels previous, keeps latest         |
+| **concatMap**  | Executes one by one (queue)            |
+| **exhaustMap** | Ignores new until current completes    |
+
+--------------------------------------------------------------------------------------------
 What is reactive form vs template-driven form?
+--------------------------------------------------------------------------------------------
+✅Reactive Forms
+	Model-driven approach
+	Defined in TypeScript
+	More scalable & testable
+	Good for complex forms
+
+✅Template-Driven Forms
+	Template-based approach
+	Defined in HTML
+	Simple and less code
+	Good for small forms
+👉 Reactive = more control & enterprise-ready.
+
+--------------------------------------------------------------------------------------------
 What is Zone.js role? What is change detection? How does Angular change detection work internally? How does OnPush improve performance?
+--------------------------------------------------------------------------------------------
+✅ Angular uses Zone.js to patch async APIs (setTimeout, HTTP, events) and detect when async tasks complete → triggers change detection.
+
+✅ Change Detection is a Mechanism that updates the DOM when component data changes.
+✅ Angular maintains a component tree.
+	On async event, it runs change detection from root → checks bindings.
+	Uses unidirectional data flow and compares previous vs current values.
+
+✅ With ChangeDetectionStrategy.OnPush:
+	Component checks only when:
+		@Input reference changes
+		Event triggered inside component
+		Observable emits (async pipe)
+	👉 Reduces unnecessary checks → better performance.
+	
+--------------------------------------------------------------------------------------------
 How to debug change detection issues?
+--------------------------------------------------------------------------------------------
+✅ Check ChangeDetectionStrategy
+	If OnPush, ensure @Input reference changes (not mutated object).
+	
+✅ Use console.log() in lifecycle hooks
+	ngOnChanges, ngDoCheck to verify triggers.
+
+✅ Manually trigger detection
+	Use ChangeDetectorRef.detectChanges() or markForCheck().
+
+✅ Check async operations
+	Ensure code runs inside Angular zone (or use NgZone.run()).
+👉 Most issues are due to object mutation, OnPush, or async outside Angular zone.
+
+--------------------------------------------------------------------------------------------
 What is lazy loading?
+--------------------------------------------------------------------------------------------
+✅ In Angular, Lazy Loading is a technique where feature modules are loaded only when required, instead of at app startup.
+	👉 Improves initial load time and performance.
+	Implemented using route-based module loading with loadChildren.
+	
+--------------------------------------------------------------------------------------------
 What are guards?
+--------------------------------------------------------------------------------------------
+✅ In Angular, Guards are interfaces used to control route access.
+	They decide whether a route can be:
+		Activated (CanActivate)
+		Loaded (CanLoad)
+		Deactivated (CanDeactivate)
+		Resolved before load (Resolve)
+	👉 Commonly used for authentication and authorization.
+	
+--------------------------------------------------------------------------------------------
 What is interceptor?
+--------------------------------------------------------------------------------------------
+✅ In Angular, an Interceptor is a class that intercepts HTTP requests and responses globally.
+	Used for:
+		Adding auth tokens
+		Logging
+		Error handling
+		Modifying requests/responses
+	👉 Implemented using HttpInterceptor interface.
+	
+--------------------------------------------------------------------------------------------
 How to secure Angular apps?
+--------------------------------------------------------------------------------------------
+✅ In Angular, Angular apps are secured by:
+	Authentication & Authorization (JWT, OAuth).
+	Route Guards (CanActivate, CanLoad).
+	HTTP Interceptors (attach auth tokens).
+	Avoid storing sensitive data in localStorage (prefer HttpOnly cookies).
+	Enable CORS & backend validation (security mainly handled server-side).
+👉 Frontend security supports backend security — never rely only on Angular.
+
+--------------------------------------------------------------------------------------------
 How to implement state management?
+--------------------------------------------------------------------------------------------
+✅ In Angular, state management can be implemented using:
+	Service with BehaviorSubject
+		Store state in service
+		Expose as Observable
+		Update using next()
+		
+	NgRx (Redux pattern)
+		Actions → Reducers → Store → Selectors
+		Best for large-scale apps
+👉 Small app → Service + RxJS
+👉 Large app → NgRx (centralized store).
+
+--------------------------------------------------------------------------------------------
 How to avoid memory leaks in Angular?
+--------------------------------------------------------------------------------------------
+✅ In Angular, avoid memory leaks by:
+	Unsubscribe from Observables: Use takeUntil, async pipe, or Subscription.unsubscribe().
+	Use async pipe: Automatically unsubscribes.
+	Cleanup in ngOnDestroy: Clear timers, intervals, listeners.
+	Avoid long-lived global references
+
+👉 Most leaks happen due to forgotten subscriptions.
+
+--------------------------------------------------------------------------------------------
 How to design reusable dynamic components?
+--------------------------------------------------------------------------------------------
+✅ In Angular, reusable dynamic components are designed by:
+
+	Using @Input & @Output: Make component configurable and event-driven.
+	Content Projection (ng-content): Allow flexible UI structure.
+	Dynamic Component Loading: Use ViewContainerRef or ComponentFactory.
+	Generic Config-based Design: Pass configuration object instead of hardcoding.
+👉 Focus on loose coupling, reusability, and configurability.
+--------------------------------------------------------------------------------------------
 How to implement lazy loading with preloading strategy?
+--------------------------------------------------------------------------------------------
+✅ Lazy Loading: Use route-based loading:
+{
+  path: 'admin',
+  loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule)
+}
+
+✅ Preloading Strategy: Configure in AppRoutingModule:
+	RouterModule.forRoot(routes, {
+	  preloadingStrategy: PreloadAllModules
+	})
+👉 Loads modules lazily, then preloads in background after app startup → better performance + UX.
+
+--------------------------------------------------------------------------------------------
 How to handle large data tables performance?
+--------------------------------------------------------------------------------------------
+✅ In Angular, improve large data table performance by:
+	Pagination – Load limited records per page.
+	Virtual Scrolling (CDK Virtual Scroll) – Render only visible rows.
+	OnPush Change Detection – Reduce unnecessary checks.
+	*TrackBy in ngFor – Prevent full DOM re-render.
+	Server-side filtering/sorting – Avoid heavy client processing.
+👉 Key idea: Render less, process less.
+
+--------------------------------------------------------------------------------------------
 How to implement micro-frontend architecture?
+--------------------------------------------------------------------------------------------
+✅ In Angular, Micro-Frontend architecture splits a large app into **independent frontend modules** deployed separately.
+
+Implementation Approaches:
+1. Module Federation (Webpack 5): Expose remote modules, Load dynamically at runtime
+2. Single-SPA: Multiple frameworks under one shell
+3. App Shell Architecture; Host app + lazy loaded remote apps
+👉 Key principles: Independent build, deploy, and runtime isolation.
+
+
+--------------------------------------------------------------------------------------------
 How to optimize bundle size?
+--------------------------------------------------------------------------------------------
+✅ In Angular, optimize bundle size by:
+1. Lazy Loading – Load feature modules on demand.
+2. Enable Production Build – `ng build --configuration production` (AOT + minification + tree shaking).
+3. Use Standalone Components – Reduce module overhead.
+4. Remove unused libraries – Avoid heavy third-party packages.
+5. Use Differential Loading & Modern ES builds.
 
+👉 Main idea: Load only what is required.
 
+--------------------------------------------------------------------------------------------
 
 
 🟠 Kafka
