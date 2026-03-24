@@ -1,0 +1,165 @@
+☸️ 1. Kubernetes Architecture (Must Know Internals)
+Explain Kubernetes architecture in detail.
+What are control plane components?
+What is kube-apiserver role?
+What is etcd? Why is it critical?
+What is kube-controller-manager?
+What is kube-scheduler?
+What is kubelet?
+What is kube-proxy?
+How does Kubernetes maintain desired state?
+What happens internally when you run kubectl apply?
+What is a Pod?
+Why is Pod smallest deployable unit?
+Difference between: Pod, ReplicaSet, Deployment
+Deployment vs StatefulSet?
+When to use DaemonSet?
+What is Job?
+What is CronJob?
+What is init container?
+What is sidecar pattern?
+How does rolling update work?
+
+🌐 3. Services & Networking (Very Important)
+What is Service in Kubernetes?
+Types of Services: ClusterIP, NodePort, LoadBalancer, ExternalName
+How does service discovery work?
+What is kube-proxy mode?
+What is CNI?
+What is Ingress?
+How to expose Spring Boot app?
+What is headless service?
+How do pods communicate?
+How to debug networking issue?
+
+💾 4. Storage & Persistence
+What is Persistent Volume (PV)?
+What is Persistent Volume Claim (PVC)?
+What is StorageClass?
+Difference between PV and PVC?
+Static vs Dynamic provisioning?
+What is CSI?
+How to persist DB in Kubernetes?
+What is StatefulSet volume claim template?
+How to backup Kubernetes storage?
+How to handle storage scaling?
+
+🔐 5. Security (Senior-Level Must Know)
+What is RBAC?
+How authentication works?
+What is ServiceAccount?
+What is Role vs ClusterRole?
+What is NetworkPolicy?
+How to secure Spring Boot app in K8s?
+How to handle secrets?
+Difference between ConfigMap and Secret?
+What is PodSecurityPolicy? (Deprecated replacement?)
+How to prevent container privilege escalation?
+
+🚀 6. Scaling & High Availability
+What is HPA (Horizontal Pod Autoscaler)?
+What is VPA?
+What is Cluster Autoscaler?
+How does scaling decision work?
+How to configure auto-scaling for CPU?
+How to achieve zero downtime deployment?
+What is readiness probe?
+What is liveness probe?
+What is startup probe?
+How does rolling update strategy work?
+
+🧠 7. Kubernetes + Spring Boot (Production Focus)
+How to deploy Spring Boot app in Kubernetes?
+How to externalize config?
+How to manage multiple environments?
+How to handle graceful shutdown?
+How to configure health endpoints?
+How to pass JVM options?
+How to limit memory for Spring Boot?
+What happens if pod exceeds memory?
+How to handle DB connections?
+How to enable distributed tracing?
+
+⚡ 8. Troubleshooting (Very Important for 8+)
+Pod is in CrashLoopBackOff — how to debug?
+ImagePullBackOff — possible reasons?
+Pod stuck in Pending state?
+Service not accessible — steps?
+High CPU usage?
+Memory leak inside pod?
+Node not ready?
+How to debug DNS issue?
+How to check logs of previous container?
+How to exec inside pod?
+
+☁️ 9. Deployment Strategies
+Rolling deployment
+Blue-green deployment
+Canary deployment
+Recreate strategy
+A/B testing strategy
+How to rollback deployment?
+What is maxUnavailable?
+What is maxSurge?
+How to achieve zero downtime?
+How to version APIs?
+
+🔄 10. CI/CD & DevOps Integration
+How to build CI/CD for Kubernetes?
+What is Helm?
+Why use Helm?
+What is Kustomize?
+What is GitOps?
+What is ArgoCD?
+How to manage secrets in CI?
+How to promote image across environments?
+How to handle schema migration?
+How to rollback failed deployment?
+
+📊 11. Monitoring & Observability
+How to monitor Kubernetes cluster?
+What is Prometheus?
+What is Grafana?
+How to collect logs?
+What is EFK stack?
+How to enable metrics-server?
+How to trace distributed systems?
+How to monitor pod resource usage?
+How to detect memory leak?
+How to alert on pod failure?
+
+🔥 12. Advanced Internals (Product Companies Ask This)
+How scheduler decides node?
+What is taints and tolerations?
+What is node affinity?
+What is resource quota?
+What is limit range?
+What is admission controller?
+What is API aggregation?
+How etcd consistency works?
+What is CRD?
+How to build custom controller?
+
+🎯 Real Production Scenario Questions
+Production cluster down — what steps?
+One node overloaded — how to handle?
+Database pod restarting frequently.
+Memory OOMKilled — how to debug?
+Need zero downtime migration.
+Service slow after scaling.
+Secret leaked — what to do?
+How to secure cluster from external attacks?
+How to migrate from Docker Compose to K8s?
+How to reduce cluster cost?
+
+🚀 Deep Comparison Questions
+Docker vs Kubernetes?
+StatefulSet vs Deployment?
+HPA vs VPA?
+Ingress vs LoadBalancer?
+ConfigMap vs Secret?
+Helm vs Kustomize?
+Pod vs Container?
+NodePort vs ClusterIP?
+Rolling vs Blue-green?
+Monolith vs Microservices in K8s?

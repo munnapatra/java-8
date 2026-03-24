@@ -1,0 +1,114 @@
+🔹 Core SQL
+What is normalization? Explain 1NF–5NF.
+What is denormalization? When would you use it?
+Difference between WHERE and HAVING.
+Difference between DELETE, TRUNCATE, DROP.
+What are constraints? Types?
+What is a primary key vs unique key?
+What is a composite key?
+What is a surrogate key?
+What is a check constraint?
+What is a default constraint?
+What is a view? Types?
+Can we update a view?
+What is a materialized view?
+What is indexing? Types?
+Clustered vs Non-clustered index?
+What is covering index?
+What is composite index?
+What is index scan vs index seek?
+What is query execution plan?
+How to optimize a slow query?
+What is cardinality?
+
+🔹 Joins & Queries
+Types of joins?
+Difference between INNER and OUTER join?
+Self join use case?
+Cross join?
+What is correlated subquery?
+Subquery vs join – which is faster?
+EXISTS vs IN?
+UNION vs UNION ALL?
+How to remove duplicates?
+How to find nth highest salary?
+How to find duplicate records?
+How to delete duplicate records?
+How to pivot rows into columns?
+What are window functions?
+Difference between RANK, DENSE_RANK, ROW_NUMBER?
+What is PARTITION BY?
+What is CTE?
+Recursive CTE use case?
+How to perform pagination?
+
+🔹 Transactions & Concurrency
+What is ACID?
+What is isolation level?
+Types of isolation levels?
+What is dirty read?
+What is non-repeatable read?
+What is phantom read?
+What is deadlock?
+How to prevent deadlocks?
+What is optimistic vs pessimistic locking?
+What is MVCC?
+How does DB handle concurrent updates?
+
+🔹 Indexing & Performance
+When index should not be used?
+How to analyze query performance?
+What is fragmentation?
+What is fill factor?
+What is statistics in DB?
+How to improve join performance?
+How to optimize large table queries?
+What is partitioning?
+Types of partitioning?
+When to use sharding?
+What is connection pooling?
+What is execution plan cost?
+
+🔹 Database Design
+How to design schema for high traffic system?
+OLTP vs OLAP?
+Star vs Snowflake schema?
+What is fact table?
+What is dimension table?
+How to design audit tables?
+How to design soft delete?
+How to implement versioning?
+How to design idempotent DB operations?
+
+🔹 Advanced SQL
+What are window frames?
+What is LAG/LEAD?
+What is MERGE statement?
+What are stored procedures?
+Function vs procedure?
+Trigger use cases?
+What is cursor?
+When to avoid cursor?
+What is dynamic SQL?
+What is indexing strategy for composite columns?
+What is database replication?
+Types of replication?
+What is CDC (Change Data Capture)?
+What is database failover?
+
+🔹 Production & Real-Time Scenarios
+How to handle DB migration without downtime?
+How to handle large data cleanup?
+How to archive historical data?
+How to design multi-tenant DB?
+How to scale RDBMS horizontally?
+How to implement read replicas?
+How to debug slow production queries?
+How to monitor DB health?
+What metrics do you track?
+How to handle schema changes in microservices?
+How to avoid N+1 query problem?
+How to implement caching strategy?
+How to handle hot partitions?
+How to implement rate limiting at DB level?
+When to move from RDBMS to NoSQL?

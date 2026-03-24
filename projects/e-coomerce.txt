@@ -1,0 +1,322 @@
+1️⃣ System Overview – Blinkit-like Quick Commerce
+
+	Core Functionalities
+		User Registration & Login (OTP / JWT)
+		Product browsing (by category, search)
+		Real-time inventory per warehouse/store
+		Add to cart
+		Order placement
+		Online payment
+		Order tracking
+		Delivery partner assignment
+		Notifications (SMS / Email / Push)
+		Admin dashboard
+		Offers & Coupons
+
+2️⃣ High-Level Architecture
+	Architecture Style
+		Microservice Architecture
+		Event-Driven Architecture (Kafka)
+		CQRS (for scaling read-heavy systems)
+		Distributed Caching (Redis)
+
+🧱 Microservices Breakdown
+| Service              | Responsibility              | Database |
+| -------------------- | --------------------------- | -------- |
+| API Gateway          | Entry point                 | —        |
+| Auth Service         | Login, JWT, OTP             | MySQL    |
+| User Service         | User profile                | MySQL    |
+| Product Service      | Products, categories        | MySQL    |
+| Inventory Service    | Stock per warehouse         | MySQL    |
+| Cart Service         | Cart management             | Redis    |
+| Order Service        | Order management            | MySQL    |
+| Payment Service      | Payment handling            | MySQL    |
+| Delivery Service     | Delivery partner allocation | MongoDB  |
+| Notification Service | Email/SMS/Push              | MongoDB  |
+| Search Service       | Fast product search         | MongoDB  |
+| Admin Service        | Dashboard                   | MySQL    |
+
+3️⃣ System Architecture Diagram (Logical)
+		Angular Frontend
+				↓
+		API Gateway (Spring Cloud Gateway)
+				↓
+		------------------------------------------------
+		| Auth | User | Product | Cart | Order | Payment |
+		------------------------------------------------
+				↓
+		Kafka (Event Streaming)
+				↓
+		Inventory | Delivery | Notification
+
+
+4️⃣ Technology Stack
+| Layer             | Tech                                      |
+| ----------------- | ----------------------------------------- |
+| Frontend          | Angular 19.2.15                           |
+| Backend           | Spring Boot 3.x                           |
+| Security          | Spring Security + JWT                     |
+| Database          | MySQL (Transactional)                     |
+| NoSQL             | MongoDB (Logs, Search, Delivery Tracking) |
+| Cache             | Redis                                     |
+| Messaging         | Kafka                                     |
+| Service Discovery | Consul                                    |
+| Config Server     | Spring Cloud Config                       |
+| Monitoring        | Prometheus + Grafana                      |
+| Logging           | ELK Stack                                 |
+| Containerization  | Docker                                    |
+| Orchestration     | Kubernetes                                |
+
+
+5️⃣ Database Design (Schema Details)
+🟢 5.1 AUTH SERVICE (MySQL)
+Table: users
+CREATE TABLE users (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    phone VARCHAR(15) UNIQUE,
+    email VARCHAR(100) UNIQUE,
+    password VARCHAR(255),
+    role VARCHAR(20),
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+Table: otp_verification
+CREATE TABLE otp_verification (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    phone VARCHAR(15),
+    otp VARCHAR(6),
+    expiry_time TIMESTAMP
+);
+🟢 5.2 PRODUCT SERVICE (MySQL)
+categories
+CREATE TABLE categories (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100),
+    description TEXT,
+    image_url VARCHAR(255)
+);
+products
+CREATE TABLE products (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255),
+    description TEXT,
+    price DECIMAL(10,2),
+    category_id BIGINT,
+    image_url VARCHAR(255),
+    is_active BOOLEAN,
+    FOREIGN KEY (category_id) REFERENCES categories(id)
+);
+🟢 5.3 INVENTORY SERVICE (MySQL)
+CREATE TABLE warehouses (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100),
+    location VARCHAR(255)
+);
+CREATE TABLE inventory (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    product_id BIGINT,
+    warehouse_id BIGINT,
+    stock INT,
+    reserved_stock INT DEFAULT 0
+);
+🟢 5.4 CART SERVICE (Redis)
+
+Key Pattern:
+
+cart:userId
+
+Structure (JSON):
+
+{
+  "userId": 101,
+  "items": [
+    {
+      "productId": 12,
+      "quantity": 2,
+      "price": 50
+    }
+  ],
+  "totalAmount": 100
+}
+🟢 5.5 ORDER SERVICE (MySQL)
+CREATE TABLE orders (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id BIGINT,
+    total_amount DECIMAL(10,2),
+    status VARCHAR(50),
+    payment_status VARCHAR(50),
+    delivery_address TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE order_items (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    order_id BIGINT,
+    product_id BIGINT,
+    quantity INT,
+    price DECIMAL(10,2),
+    FOREIGN KEY (order_id) REFERENCES orders(id)
+);
+🟢 5.6 PAYMENT SERVICE (MySQL)
+CREATE TABLE payments (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    order_id BIGINT,
+    transaction_id VARCHAR(255),
+    payment_method VARCHAR(50),
+    amount DECIMAL(10,2),
+    status VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+🟢 5.7 DELIVERY SERVICE (MongoDB)
+{
+  "_id": "orderId",
+  "deliveryPartnerId": "DP101",
+  "status": "OUT_FOR_DELIVERY",
+  "currentLocation": {
+      "lat": 12.912,
+      "lng": 77.122
+  },
+  "history": [
+      {
+         "status": "PICKED_UP",
+         "timestamp": "2026-02-22T10:20:00"
+      }
+  ]
+}
+🟢 5.8 NOTIFICATION SERVICE (MongoDB)
+	{
+	  "_id": "notificationId",
+	  "userId": 101,
+	  "type": "ORDER_UPDATE",
+	  "message": "Your order is shipped",
+	  "status": "SENT",
+	  "createdAt": "2026-02-22T10:20:00"
+	}
+
+6️⃣ Kafka Event Flow
+	| Event          | Producer      | Consumer           |
+	| -------------- | ------------- | ------------------ |
+	| OrderCreated   | Order Service | Inventory, Payment |
+	| PaymentSuccess | Payment       | Order, Delivery    |
+	| OrderConfirmed | Order         | Notification       |
+	| OrderShipped   | Delivery      | Notification       |
+
+	Topic Naming:
+		order-created-topic
+		payment-success-topic
+		inventory-update-topic
+
+7️⃣ Order Placement Flow (Step-by-Step)
+User adds items → Redis Cart
+User clicks checkout
+
+Order Service:
+Validates cart
+Creates Order (PENDING)
+Publish OrderCreated
+
+Inventory:
+	Reserve stock
+	Publish StockReserved
+
+Payment Service:
+	Process payment
+	Publish PaymentSuccess
+
+Order Service: Update status → CONFIRMED
+
+Delivery Service: Assign partner
+
+Notification: Send order confirmation
+
+8️⃣ Angular Frontend Architecture
+	Structure
+	core/
+	shared/
+	features/
+	   auth/
+	   product/
+	   cart/
+	   order/
+	   admin/
+
+	Use:
+		Standalone components
+		Signals for state
+		NgRx (optional for complex state)
+		Interceptors for JWT
+		Route Guards
+		Lazy loading
+
+9️⃣ Caching Strategy (Redis)
+	| Use Case       | Strategy        |
+	| -------------- | --------------- |
+	| Product list   | Cache with TTL  |
+	| Product detail | Cache           |
+	| Cart           | Primary store   |
+	| OTP            | Temporary store |
+	| Popular items  | Pre-cached      |
+
+🔟 Scaling Strategy
+		Stateless services
+		Horizontal scaling
+		DB replication
+		Kafka partitions
+		Redis cluster
+		Kubernetes autoscaling
+
+1️⃣1️⃣ Security Design
+		JWT Authentication
+		Refresh tokens
+		Role-based access (USER, ADMIN)
+		Rate limiting
+		HTTPS
+		Encryption of sensitive data
+		Input validation
+		API Gateway authentication filter
+
+1️⃣2️⃣ Distributed Transaction Handling
+	Use:
+		Saga Pattern (Choreography)
+		Event-based compensation
+		Example: If payment fails → Release stock
+
+1️⃣3️⃣ CI/CD Pipeline
+		GitHub Actions / GitLab CI
+		Docker build
+		Push to registry
+		Kubernetes deployment
+		Helm charts
+
+1️⃣4️⃣ Performance Optimizations
+		DB indexing
+		Read replicas
+		Pagination
+		Bulk operations
+		Async communication
+		CDN for images
+		Lazy loading in Angular
+
+1️⃣5️⃣ Real-World Advanced Features
+		Dynamic pricing
+		Flash sale engine
+		Location-based warehouse selection
+		AI-based recommendations
+		ElasticSearch integration
+		Real-time delivery tracking via WebSocket
+		Multi-payment gateway integration
+
+1️⃣6️⃣ Future Improvements
+		Multi-vendor support
+		Subscription model
+		Dark store management
+		Real-time analytics
+		Fraud detection
+
+🚀 Final Architecture Summary
+	You will have:
+		10+ Microservices
+		3 Databases (MySQL, MongoDB, Redis)
+		Kafka event-driven backbone
+		Angular SPA frontend
+		Kubernetes production-ready deployment
+		Scalable, fault-tolerant system

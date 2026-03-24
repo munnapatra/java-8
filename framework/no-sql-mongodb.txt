@@ -1,0 +1,2074 @@
+🔥Fundamentals
+==============================================================================================
+Q1. What is NoSQL? When would you choose it over RDBMS?
+==============================================================================================
+✅ NoSQL (Not Only SQL) is a class of non-relational, distributed databases designed for horizontal scalability, flexible schema, and high throughput.
+	Types:
+		Document (e.g., MongoDB)
+		Key-Value (e.g., Redis)
+		Column-family (e.g., Apache Cassandra)
+		Graph (e.g., Neo4j)
+
+	Follows BASE (Basically Available, Soft state, Eventual consistency) instead of strict ACID (traditionally).
+
+✅ Choose NoSQL when over RDBMS:
+	1️⃣ Massive scale required: Need horizontal scaling (sharding) across nodes.
+	2️⃣ High write throughput: Logging, IoT, event streams.
+	3️⃣ Flexible / evolving schema: Rapid product iterations.
+	4️⃣ Unstructured or semi-structured data: JSON documents, nested objects.
+	5️⃣ Low-latency reads: Caching (Redis), session storage.
+	6️⃣ Distributed systems / microservices: Independent data per service.
+	7️⃣ Geo-distributed systems: Multi-region replication.
+
+✅ When NOT to choose NoSQL:
+	Complex joins & relational integrity required
+	Strict ACID transactions across multiple entities
+	Strong consistency is mandatory
+	
+==============================================================================================
+Q2. Explain CAP theorem. Which two does MongoDB choose?
+==============================================================================================
+✅ CAP theorem (by Eric Brewer) states that a distributed system can guarantee only two out of three:
+	1️⃣ Consistency (C) – All nodes see the same data at the same time.
+	2️⃣ Availability (A) – Every request gets a response (success/failure).
+	3️⃣ Partition Tolerance (P) – System continues working despite network failures between nodes.
+
+👉 In real distributed systems, Partition Tolerance (P) is mandatory, so you must choose between C or A during partition.
+
+✅ Which two does MongoDB choose?
+	MongoDB is primarily CP (Consistency + Partition Tolerance).
+	During network partition:
+		Only the Primary accepts writes.
+		Minority partition becomes unavailable.
+		Ensures strong consistency by default (via replica set).
+		However: Read preference + write concern tuning can make it behave closer to AP (eventual consistency).
+		
+==============================================================================================
+Q3. What is eventual consistency vs strong consistency?
+==============================================================================================
+✅ Strong Consistency:
+	After a write completes, all subsequent reads return the latest value.
+	No stale data.
+	Similar to traditional RDBMS behavior.
+
+	Example: In MongoDB with majority write concern + primary read, clients always read latest committed data.
+	✔ Suitable for: banking, payments, inventory systems.
+
+✅ Eventual Consistency
+	After a write, reads may return stale data temporarily.
+	System guarantees that if no new updates happen, all nodes will eventually converge.
+	
+	Example: Apache Cassandra with low consistency level (e.g., ONE).
+	✔ Suitable for: social feeds, analytics, logs, caching.
+
+✅Key Difference (Interview Style)
+| Strong Consistency              | Eventual Consistency |
+| ------------------------------- | -------------------- |
+| Always latest data              | May read stale data  |
+| Higher latency                  | Lower latency        |
+| Lower availability in partition | Higher availability  |
+
+==============================================================================================
+Q4. What are the types of NoSQL databases?
+==============================================================================================
+✅ Types of NoSQL Databases (Interview Level)
+	1️⃣ Document Databases: Store data as JSON/BSON documents, Flexible schema
+		Example: MongoDB
+		Use case: Product catalogs, content management, user profiles
+
+	2️⃣ Key-Value Stores: Simple key → value mapping, Extremely fast lookups
+		Example: Redis
+		Use case: Caching, sessions, rate limiting
+
+	3️⃣ Column-Family (Wide Column) Stores: Data stored by column instead of row, Optimized for large-scale writes
+		Example: Apache Cassandra
+		Use case: Time-series, IoT, event logging
+
+	4️⃣ Graph Databases: Store nodes and relationships, Optimized for relationship-heavy queries
+		Example: Neo4j
+		Use case: Social networks, fraud detection, recommendation engines
+
+==============================================================================================
+Q5. What is BASE principle?
+==============================================================================================
+✅ BASE is an alternative to ACID for distributed systems.
+	1️⃣ Basically Available
+		System always responds (may return stale data).
+		Prioritizes availability over strict consistency.
+	
+	2️⃣ Soft State: 
+		Data state can change over time even without new input (due to replication, eventual sync).
+		
+	3️⃣ Eventual Consistency: 
+		If no new updates occur, all replicas will eventually become consistent.
+
+✅ Where it’s used:
+	Distributed databases like Apache Cassandra
+	Large-scale systems like Amazon DynamoDB
+
+BASE vs ACID (Quick Contrast)
+| ACID                | BASE                 |
+| ------------------- | -------------------- |
+| Strong consistency  | Eventual consistency |
+| Strict transactions | High availability    |
+| Relational systems  | Distributed NoSQL    |
+
+==============================================================================================
+Q6. How does horizontal scaling work in NoSQL?
+==============================================================================================
+✅ Horizontal scaling (scale-out) means adding more nodes to distribute data and load instead of upgrading a single server.
+
+✅ How it works
+	1️⃣ Sharding (Data Partitioning)
+		Data is split across multiple nodes using a shard/partition key.
+		Each node stores only a subset of data.
+		
+		Example:
+			MongoDB → Uses shard key to distribute documents.
+			Apache Cassandra → Uses partition key with consistent hashing.
+
+	2️⃣ Replication
+		Data copies stored on multiple nodes.
+		Provides high availability & fault tolerance.
+
+	3️⃣ Load Distribution
+		Client or coordinator routes request to correct node.
+		Cluster automatically balances data when new nodes are added.
+
+✅ What happens when traffic increases?
+	Add new nodes, Rebalance shards, System continues without downtime
+	
+==============================================================================================
+Q7. What is sharding?
+==============================================================================================
+✅ Sharding is a technique to horizontally partition data across multiple servers (shards) to improve scalability and performance. Instead of storing all data in one database, data is split based on a shard key.
+
+
+✅ How It Works
+	1️⃣ Choose a shard key (e.g., userId)
+	2️⃣ Data is distributed across nodes based on that key
+	3️⃣ Each shard stores only a subset of total data
+
+	Example:
+	In MongoDB, documents are distributed using a shard key.
+	In Apache Cassandra, partition key determines data placement.
+
+✅ Types of Sharding
+	Range-based → Based on value ranges
+	Hash-based → Hash of key decides shard
+	Directory-based → Lookup table decides location
+
+✅ Why Sharding?
+	✔ Handle large datasets (TBs/PBs)
+	✔ Improve write throughput
+	✔ Reduce single-node bottleneck
+
+✅ Challenges
+	Poor shard key → Hot partitions
+	Rebalancing complexity
+	Cross-shard queries are expensive
+	
+==============================================================================================
+Q8. What is replication?
+==============================================================================================
+✅ Replication is the process of storing multiple copies of data across different nodes to ensure high availability and fault tolerance.
+
+✅ How It Works
+	1️⃣ Data is written to a primary (leader) node
+	2️⃣ Changes are copied to secondary (replica) nodes
+	3️⃣ If primary fails → a replica becomes new primary
+
+	Example:
+	MongoDB → Uses Replica Sets (Primary–Secondary).
+	Apache Cassandra → Uses peer-to-peer replication (no single leader).
+
+✅ Types of Replication
+	Synchronous → Strong consistency, higher latency
+	Asynchronous → Eventual consistency, lower latency
+	Multi-master → Multiple nodes accept writes
+
+✅ Why Replication?
+	✔ High availability
+	✔ Disaster recovery
+	✔ Improved read scalability
+
+==============================================================================================
+Q9. How do you handle distributed transactions in NoSQL?
+==============================================================================================
+✅ In NoSQL, cross-node ACID transactions are limited or expensive, so we use alternative patterns.
+
+	1️⃣ Prefer Single-Partition Transactions
+		Design data so related records live in the same shard/partition.
+		Example: In Apache Cassandra, transactions are atomic within a single partition.
+		✔ Best practice: Design for locality.
+
+	2️⃣ Use Database-Supported Transactions (When Available)
+		Some NoSQL DBs support multi-document ACID:
+		MongoDB (4.x+) → Multi-document transactions (Replica Set / Sharded cluster).
+		⚠ But performance overhead exists.
+
+	3️⃣ Saga Pattern (Most Common in Microservices)
+		Break distributed transaction into multiple local transactions.
+		Two types:
+			Orchestration Saga
+			Choreography Saga
+		Each step has a compensating action.
+		✔ Used in order-payment-inventory systems.
+
+	4️⃣ Event-Driven + Idempotency
+		Use message brokers + eventual consistency.
+		Publish event
+		Other service updates its DB
+		Use idempotent consumers
+
+	5️⃣ Two-Phase Commit (2PC)
+		Supported in limited systems but:
+			Blocking
+			Not recommended in high-scale distributed systems
+			
+==============================================================================================
+Q10. What are polyglot persistence patterns?
+==============================================================================================
+✅ Polyglot persistence means using multiple database technologies in the same system, choosing each based on use case.
+	Instead of forcing one DB for everything, you use the right tool for the job.
+
+Common Patterns
+	1️⃣ Per-Service Database Pattern
+		Each microservice owns its database.
+		Example:
+			Orders → MongoDB
+			Caching → Redis
+			Analytics → Apache Cassandra
+		✔ Avoids tight coupling.
+
+	2️⃣ Workload-Based Persistence
+		Different DBs for different workloads.
+		OLTP → RDBMS
+		Session/cache → Redis
+		Search → Elasticsearch
+	
+	3️⃣ CQRS Pattern
+		Separate write model and read model.
+		Write → Strong consistency DB
+		Read → Optimized NoSQL store
+		Improves scalability.
+
+	4️⃣ Event-Driven Architecture
+		Use event store + projections.
+		Events stored in NoSQL
+		Read models built asynchronously
+
+✅ Why Use It?
+	✔ Performance optimization
+	✔ Scalability
+	✔ Technology flexibility
+	✔ Better domain alignment
+	
+==============================================================================================
+
+🔥Data Modeling (Senior-Level Focus)
+==============================================================================================
+Q1. How do you design schema in NoSQL?
+==============================================================================================
+✅ Unlike RDBMS, NoSQL schema design is query-driven, not normalization-driven.
+
+	1️⃣ Start With Access Patterns (Most Important)
+		What queries will run?
+		Read-heavy or write-heavy?
+		Pagination? Sorting? Aggregations?
+		👉 Design schema based on how data is retrieved, not relationships.
+
+	2️⃣ Embed vs Reference (Document DB)
+		In MongoDB:
+			Embed → When data is read together (User + Address)
+			Reference → When data grows large or reused (User → Orders)
+
+		Rule:
+			✔ High read frequency together → Embed
+			✔ High cardinality or independent lifecycle → Reference
+
+	3️⃣ Design Around Partition Key (Wide Column DB)
+		In Apache Cassandra:
+			Choose partition key carefully
+			Avoid hot partitions
+			Design table per query
+
+		Rule: ✔ Model by query, not by entity.
+
+	4️⃣ Avoid Joins
+		Denormalize data
+		Duplicate fields if needed
+		Optimize for read performance
+		Storage is cheap. Network calls are expensive.
+
+	5️⃣ Plan for Scale
+		Choose good shard/partition key
+		Consider data growth
+		Design for horizontal scaling
+
+	6️⃣ Handle Schema Evolution
+		Use flexible documents
+		Add new fields without breaking old data
+		Version documents if needed
+
+==============================================================================================
+Q2. When do you embed vs reference in document DB?
+==============================================================================================
+✅ When to Embed: Store related data inside the same document.
+	Use Embed When:
+		1️⃣ Data is always read together
+		2️⃣ One-to-few relationship
+		3️⃣ Child data is small
+		4️⃣ Same lifecycle (created/updated/deleted together)
+		5️⃣ Need atomic updates within single document
+
+		Example:
+		User → Addresses
+		Order → OrderItems
+		✔ Faster reads (single document fetch), ✔ Atomic within document
+
+✅ When to Reference: Store related data in separate documents and link via ID.
+	Use Reference When:
+		1️⃣ One-to-many (large dataset)
+		2️⃣ Child data grows unbounded
+		3️⃣ Data reused in multiple places
+		4️⃣ Independent lifecycle
+		5️⃣ Avoid document size limit (16MB in MongoDB)
+
+		Example:
+		User → Orders
+		Product → Reviews
+		✔ Prevents document bloat, Better for high cardinality relationships
+
+🔥 Rule of Thumb
+	High read together + small size → Embed
+	High cardinality + independent growth → Reference
+
+==============================================================================================
+Q3. How do you model one-to-many / many-to-many?
+==============================================================================================
+1️⃣ One-to-Many
+	✅ Option A: Embed (One-to-Few): Use when child count is small and always read together.
+
+			{
+			  "orderId": 1,
+			  "customer": "Munna",
+			  "items": [
+				{ "productId": 101, "qty": 2 },
+				{ "productId": 102, "qty": 1 }
+			  ]
+			}
+		✔ Single read, Atomic updates
+		⚠ Not for unbounded growth
+
+	✅ Option B: Reference (One-to-Many Large): Use when child data grows large.
+		users: { "_id": 1, "name": "Munna" }
+		orders: { "userId": 1, "total": 500 }
+
+		✔ Scales better, Prevents document bloat
+
+2️⃣ Many-to-Many
+	✅ Option A: Array of References (Simple Case)
+		students: { "_id": 1, "courseIds": [101, 102] }
+		courses: { "_id": 101 }
+		✔ Works for limited relationships
+
+	✅ Option B: Join Collection Pattern (Recommended for Large M:N)
+		student_course: { "studentId": 1, "courseId": 101 }
+		✔ Scales well, Flexible, Easier indexing
+
+🔥 Design Principle
+	Small + tightly coupled → Embed
+	Large + growing → Reference
+	High cardinality M:N → Join collection
+	
+==============================================================================================
+Q4. How do you handle joins in NoSQL?
+==============================================================================================
+✅ NoSQL avoids traditional SQL joins. Instead, we use alternative patterns.
+
+	1️⃣ Denormalization (Most Common): Store related data together to avoid joins.
+		Example (in MongoDB):
+				{
+				  "orderId": 1,
+				  "customerName": "Munna",
+				  "items": [
+					{ "productName": "Laptop", "price": 50000 }
+				  ]
+				}
+
+		✔ Faster reads, No runtime join
+		⚠ Data duplication
+
+	2️⃣ Application-Level Join: Fetch data separately and combine in service layer.
+		Example:
+			Fetch Order
+			Fetch Customer
+			Merge in Java service
+		
+		✔ More flexible, ⚠ Extra network calls
+
+	3️⃣ Aggregation / Lookup (Limited Join Support)
+		MongoDB supports $lookup in aggregation pipeline.
+		✔ Works like left outer join, ⚠ Expensive at scale
+
+	4️⃣ Precomputed Read Models (CQRS): Maintain a separate read-optimized collection.
+		✔ Best for high-performance systems, Common in microservices
+
+	5️⃣ Join Table Pattern (Many-to-Many): Create linking collection instead of join query.
+	
+==============================================================================================
+Q5. How do you optimize read-heavy workloads?
+==============================================================================================
+1️⃣ Proper Indexing (Most Important): 
+	Create indexes based on query patterns, Use compound indexes, Avoid over-indexing
+	Example: 
+		MongoDB → Use covered queries
+		Apache Cassandra → Design table per query
+
+2️⃣ Denormalization: 
+	Store related data together, Avoid runtime joins, Precompute frequently accessed fields
+
+3️⃣ Caching Layer: 
+	Use in-memory cache: Redis for frequently accessed data, Apply TTL for dynamic data
+	✔ Reduces DB load significantly
+
+4️⃣ Read Replicas:
+	Scale reads using replica nodes, Route read traffic to secondaries
+
+5️⃣ Query Optimization:
+	Avoid full collection scans, Limit result size, Use pagination properly (avoid deep skip)
+
+6️⃣ Precomputed Views / CQRS:
+	Maintain read-optimized collections, Build projections asynchronously
+
+7️⃣ Handle Hot Keys:
+	Cache aggressively, Add random suffix or bucket strategy
+
+==============================================================================================
+Q6. How do you design for write-heavy systems?
+==============================================================================================
+1️⃣ Choose Right Database
+	Use write-optimized systems like:
+		Apache Cassandra (append-only + LSM storage)
+		MongoDB (with proper sharding)
+
+2️⃣ Good Partition / Shard Key
+	Distribute writes evenly, Avoid hot partitions, Use high-cardinality keys, Consider hash-based sharding
+	🔥 Bad shard key = write bottleneck.
+
+3️⃣ Minimize Indexes:
+	Each index adds write overhead, Keep only necessary indexes, More indexes = slower writes.
+
+4️⃣ Batch Writes:
+	Use bulk insert APIs, Reduce network round trips
+
+5️⃣ Asynchronous Processing: 
+	Use event-driven approach
+	Write first → process later
+	Example: Queue + consumer updates projections.
+
+6️⃣ Tune Consistency Level
+	Lower write concern when acceptable
+	Example: Cassandra consistency ONE instead of QUORUM
+	Trade-off: latency vs durability.
+	
+7️⃣ Use Append-Only / Time-Based Model
+	Avoid updates; prefer inserts
+	Use time-series pattern
+	Partition by time window
+
+8️⃣ Horizontal Scaling
+	Add nodes to increase write throughput
+	Ensure automatic rebalancing
+
+==============================================================================================
+Q7. How do you handle schema evolution?
+==============================================================================================
+✅ NoSQL supports flexible schema, but evolution must be controlled.
+	1️⃣ Backward-Compatible Changes (Preferred)
+		Add new optional fields
+		Avoid removing/renaming immediately
+		Keep old fields for compatibility
+		Example in MongoDB: { "name": "Munna" }
+		After change: { "name": "Munna", "email": "m@x.com" }
+		✔ Old documents still valid
+
+	2️⃣ Versioning Strategy
+		Add schema version field: { "version": 2, "name": "Munna", "email": "m@x.com" }
+		Application handles multiple versions
+		Gradual migration possible
+
+	3️⃣ Lazy Migration (On-Read Update)
+		When document is read → transform & update
+		Avoids full bulk migration
+		Good for large collections.
+	
+	4️⃣ Background Bulk Migration
+		Run migration script in batches
+		Use throttling
+		Avoid cluster overload
+	
+	5️⃣ Avoid Breaking Changes
+		❌ Rename fields abruptly
+		❌ Change data type without handling old data
+		❌ Drop required fields instantly
+	
+	6️⃣ Index Evolution
+		Create new index in background
+		Switch traffic
+		Drop old index after validation
+
+==============================================================================================
+Q8. How do you model time-series data?
+==============================================================================================
+✅ Time-series = data ordered by time (logs, metrics, IoT, events).
+
+	1️⃣ Append-Only Model (Preferred)
+		Never update old records
+		Always insert new entries
+		Improves write performance
+		Used in: Apache Cassandra (LSM-tree optimized for writes)
+
+	2️⃣ Partition by Time Window
+		Avoid huge partitions.
+		Example: 
+			Partition key = deviceId + yyyyMM
+			Clustering key = timestamp DESC
+		✔ Prevents hot partitions, ✔ Enables fast range queries
+
+	3️⃣ Bucketing Strategy
+		Instead of: deviceId Use: deviceId + day/hour bucket
+		Prevents unlimited growth in single partition.
+	
+	4️⃣ TTL (Time-To-Live)
+		Auto-expire old data.
+		Example:
+			MongoDB → TTL index
+			Cassandra → Per-row TTL
+		✔ Good for logs, metrics.
+	
+	5️⃣ Index Carefully
+		Index timestamp, Avoid multiple secondary indexes (write-heavy impact)
+
+	6️⃣ Use Compression: Time-series compress well (repeating patterns).
+	
+	7️⃣ Dedicated Time-Series DB (When Needed)
+		For high-scale monitoring: InfluxDB, TimescaleDB
+		Example Schema (Cassandra)
+			PRIMARY KEY ((deviceId, yyyyMM), timestamp)
+		Partition by month
+		Sorted by timestamp
+		
+==============================================================================================
+Q9. How do you prevent hot partitions?
+==============================================================================================
+✅ Hot partition = too many reads/writes hitting the same shard/partition → bottleneck.
+	Common in Apache Cassandra and MongoDB.
+	1️⃣ Choose High-Cardinality Partition Key
+		❌ Bad: country = "India"
+		✔ Good: userId, orderId, deviceId
+		More unique values → better distribution.
+
+	2️⃣ Add Randomization / Hashing
+		Instead of: userId
+		Use: hash(userId)
+		Ensures even shard distribution.
+	
+	3️⃣ Bucketing Strategy (Time-Series)
+		Instead of: deviceId
+		Use: deviceId + yyyyMM
+		Prevents unbounded growth in one partition.
+
+	4️⃣ Write Sharding (Artificial Partitioning)
+		If single key is hot:
+			Instead of: order:123
+			Use: 
+				order:123:1
+				order:123:2
+				order:123:3
+			Distribute writes across buckets.
+
+	5️⃣ Avoid Monotonic Keys
+		Sequential keys (timestamp-only) → all writes go to same shard.
+		Use: Hashed shard key (MongoDB), Composite key (Cassandra)
+
+	6️⃣ Use Read Replicas
+		If read-heavy hot key:
+			Cache with Redis
+			Route reads to replicas
+			
+==============================================================================================
+Q10. How do you design multi-tenant architecture?
+==============================================================================================
+✅ Multi-tenant = single system serving multiple customers (tenants) with isolation.
+
+1️⃣ Isolation Models
+	✅ 1. Shared DB, Shared Collection (TenantId Column)
+			Single collection with tenantId field.
+			{ "tenantId": "T1", "orderId": 101, "amount": 500 }
+			
+			✔ Simple, ✔ Cost-effective, ⚠ Need strict filtering & indexing
+			Best for: Small–medium SaaS.
+
+	✅ 2. Shared DB, Separate Collections per Tenant
+			orders_T1
+			orders_T2
+			✔ Better isolation, ⚠ Hard to manage at scale (1000+ tenants)
+
+	✅ 3. Separate Database per Tenant
+			Each tenant has its own DB.
+			✔ Strong isolation, ✔ Easier backup/restore, ⚠ Operational overhead
+			Used in regulated environments.
+
+2️⃣ Partition Strategy (Very Important): Prevents cross-tenant hot partitions.
+		In MongoDB:	Include tenantId in shard key
+		In Apache Cassandra: Use (tenantId, entityId) as partition key
+
+3️⃣ Indexing Strategy: Always index tenantId, Use compound indexes (tenantId, otherField), Prevent cross-tenant scans
+
+4️⃣ Data Security: Row-level filtering in application, Encryption at rest, Separate credentials (if DB-per-tenant)
+
+5️⃣ Scalability Considerations:
+	Avoid single large tenant dominating cluster
+	Consider tenant-based throttling
+	Monitor per-tenant metrics
+
+6️⃣ Migration Strategy: Start shared, Migrate heavy tenants to dedicated DB (hybrid model)
+
+==============================================================================================
+
+🔥MongoDB Deep Questions
+==============================================================================================
+Q1. How does MongoDB replication work (Replica Set)?
+==============================================================================================
+✅ A Replica Set is a group of MongoDB servers that maintain the same dataset for high availability.
+	
+	1️⃣ Members in Replica Set
+		Primary → Accepts all writes
+		Secondary → Replicates data from primary
+		Arbiter (optional) → Participates in election (no data)
+	
+	2️⃣ How Replication Happens
+			1️⃣ Client writes to Primary
+			2️⃣ Primary records operation in oplog (operation log)
+			3️⃣ Secondaries continuously pull oplog entries
+			4️⃣ Apply operations in the same order
+		Replication is asynchronous by default.
+
+	3️⃣ Oplog (Operation Log)
+		Capped collection in local DB
+		Stores all write operations
+		Enables replication & recovery
+	
+	4️⃣ Failover Process
+		If Primary fails:
+			1️⃣ Replica set detects failure (heartbeat mechanism)
+			2️⃣ Election occurs
+			3️⃣ New Primary is elected (majority vote)
+			4️⃣ Clients reconnect automatically
+		Downtime usually a few seconds.
+	
+	5️⃣ Write Concern & Read Concern
+		writeConcern: majority → Wait until majority acknowledges
+		Read preference → Primary / Secondary / Nearest
+		Consistency is tunable.
+	
+	6️⃣ Data Consistency Model
+		Strong consistency when reading from Primary
+		Eventual consistency when reading from Secondary
+		
+==============================================================================================
+Q2. What is Primary-Secondary architecture?
+==============================================================================================
+✅ Primary–Secondary is a replication model where:
+	Primary (Leader) → Handles all write operations
+	Secondary (Followers) → Replicate data from primary and usually handle reads
+	Used in distributed databases like MongoDB.
+
+✅ How It Works:
+	1️⃣ Client sends write → Primary
+	2️⃣ Primary commits change
+	3️⃣ Change recorded in log (e.g., oplog)
+	4️⃣ Secondaries replicate changes
+	5️⃣ If Primary fails → Election selects new Primary
+
+✅ Key Characteristics: High availability, Read scalability (via replicas), Simple consistency model
+
+✅ Consistency Behavior:
+	Read from Primary → Strong consistency
+	Read from Secondary → Eventual consistency
+
+✅ Pros: Easy conflict resolution (single writer), Predictable write ordering
+✅ Cons: Write bottleneck at Primary, Short downtime during election
+
+==============================================================================================
+Q3. What is oplog?
+==============================================================================================
+✅Oplog (Operation Log) is a special capped collection that stores all write operations performed on the Primary node.
+  Location: local.oplog.rs
+  
+✅ How It Works:
+	1️⃣ Client writes to Primary
+	2️⃣ Primary records the change in oplog
+	3️⃣ Secondaries continuously tail (pull) the oplog
+	4️⃣ Apply operations in the same order
+	Ensures data replication across replica set.
+
+✅ Key Characteristics: Append-only, Ordered by timestamp, Idempotent operations, Fixed size (capped collection)
+
+✅ Why Oplog Is Important: Enables replication, Supports failover, Allows point-in-time recovery, Used in Change Streams
+
+✅ Oplog Size Consideration: 
+	Too small → secondaries fall behind
+	Too large → unnecessary disk usage
+	Production systems must size oplog properly.
+	
+==============================================================================================
+Q4. How does sharding work in MongoDB?
+==============================================================================================
+✅ Sharding = horizontal scaling by distributing data across multiple machines.
+	1️⃣ Core Components
+		🔹 Shard: Stores a subset of data, Usually a replica set
+		🔹 Config Server: Stores cluster metadata (chunk location, shard mapping)
+		🔹 Mongos (Router): Query router, Routes client request to correct shard
+
+	2️⃣ Shard Key (Most Important)
+		Field used to distribute data
+		Determines chunk distribution
+		Example: { userId: 1001 }
+		Choosing correct shard key prevents hot partitions.
+
+	3️⃣ How Data Is Distributed
+		1️⃣ Collection is split into chunks
+		2️⃣ Each chunk assigned to a shard
+		3️⃣ MongoDB auto-balancer moves chunks when needed
+
+		Types of sharding:
+			Range-based
+			Hash-based
+
+	4️⃣ Query Routing
+		If query includes shard key → Routed to specific shard
+		If not → Broadcast to all shards (scatter-gather, expensive)
+
+	5️⃣ Rebalancing
+		When new shard added: Chunks redistributed, Balancer ensures even data distribution
+
+	6️⃣ Write & Read Flow
+		Writes go to correct shard
+		Each shard may internally use replica set
+		
+==============================================================================================
+Q5. What is shard key? How do you choose it?
+==============================================================================================
+✅ A shard key is the field (or fields) used to distribute documents across shards in a sharded cluster.
+	It determines: Data placement, Query routing, Write distribution
+	Once chosen, it cannot be easily changed.
+
+✅ How to Choose a Good Shard Key
+		1️⃣ High Cardinality (Most Important)
+			✔ Many unique values
+			❌ Low-cardinality fields like status, country
+		
+			Example:
+				Good → userId, orderId
+				Bad → gender
+
+		2️⃣ Even Data Distribution
+			Avoid skew.
+				❌ Sequential keys (e.g., auto-increment ID)
+				✔ Use hashed shard key if sequential
+				Example: { userId: "hashed" }
+				
+		3️⃣ Query Patterns
+			Queries should include shard key.
+				✔ If queries filter by userId, use it in shard key
+				❌ Otherwise scatter-gather happens
+
+		4️⃣ Avoid Hot Partitions
+				❌ Monotonically increasing timestamps
+				✔ Use compound key like (userId, createdAt)
+
+		5️⃣ Write Pattern Awareness
+				Write-heavy systems → Prefer hashed keys
+				Range queries → Prefer ranged shard key
+				Example Good Strategy: { tenantId: 1, userId: 1001 }
+			Compound shard key improves distribution and isolation.
+			
+==============================================================================================
+Q6. What are compound indexes?
+==============================================================================================
+✅ A compound index is an index on multiple fields in a specific order.
+	Example:
+		db.orders.createIndex({ userId: 1, createdAt: -1 })
+		This index covers:
+			userId
+			userId + createdAt
+
+✅ Why Use Compound Index?
+		✔ Optimize multi-field queries, Improve filtering + sorting, Reduce collection scan
+	
+✅ Important Rule: Index Order Matters
+		Index: { userId: 1, createdAt: -1 }
+		✔ Works for: userId, userId + createdAt
+		❌ Does NOT work efficiently for: createdAt alone
+		This is called prefix rule.
+		
+		When to Use:
+			Queries filtering on multiple fields
+			Filter + sort together
+			Multi-tenant filtering (tenantId, field)
+
+✅ Performance Impact: ✔ Faster reads, ⚠ Slower writes (each index adds write overhead), Keep only necessary compound indexes.
+
+==============================================================================================
+Q7. How does indexing impact performance?
+==============================================================================================
+✅ Positive Impact (Read Performance)
+	1️⃣ Faster Query Execution: Avoids full collection scan, Uses B-tree index lookup (O(log n))
+	2️⃣ Efficient Sorting: If sort matches index → no in-memory sort
+	3️⃣ Covered Queries: If all fields are in index → no document fetch
+	✔ Huge improvement for read-heavy workloads.
+
+✅ Negative Impact (Write Performance)
+	Every insert/update/delete must: Update all relevant indexes, Maintain B-tree structure
+	More indexes = slower writes.
+
+💾 Storage Overhead: Index consumes additional disk space, Impacts memory usage (working set)
+
+⚖ Trade-Off
+| Reads          | Writes              |
+| -------------- | ------------------- |
+| Faster         | Slower              |
+| Lower CPU      | Higher CPU          |
+| Better latency | More write overhead |
+
+🔥 Common Production Mistakes: Over-indexing, Index on low-cardinality fields, Missing compound indexes for common queries
+
+==============================================================================================
+Q8. What is aggregation pipeline?
+==============================================================================================
+✅ The aggregation pipeline is a framework to process and transform documents through a series of stages — similar to SQL GROUP BY, JOIN, and transformations.
+
+✅ How It Works
+	Documents pass through multiple stages sequentially:
+					db.orders.aggregate([
+					  { $match: { status: "PAID" } },
+					  { $group: { _id: "$userId", total: { $sum: "$amount" } } },
+					  { $sort: { total: -1 } }
+					])
+
+✅ Common Stages
+	$match → Filter (like WHERE)
+	$group → Aggregation (like GROUP BY)
+	$project → Select/reshape fields
+	$sort → Sorting
+	$lookup → Join with another collection
+	$unwind → Flatten array
+	
+✅ Why Use It?
+	✔ Complex data transformations, Reporting & analytics
+	✔ Avoid multiple round trips, Replace application-level processing
+
+✅ Performance Considerations
+	Use indexes before $match
+	Avoid large $lookup on big collections
+	Use $limit early if possible
+	
+==============================================================================================
+Q9. What are transactions in MongoDB (4.x+)?
+==============================================================================================
+✅ MongoDB 4.x introduced multi-document ACID transactions.
+	Before 4.x → Atomicity only at single-document level.
+	After 4.x → ACID across multiple documents and collections.
+
+✅ Key Features
+	✔ Multi-document transactions, Multi-collection transactions
+	✔ Snapshot isolation, Rollback support
+	
+	Supported in:
+		Replica Sets
+		Sharded clusters (4.2+)
+
+✅ ACID Support
+	Atomicity → All succeed or all rollback
+	Consistency → Maintains DB rules
+	Isolation → Snapshot isolation
+	Durability → Controlled via write concern
+	
+	Example (Java/Spring)
+		session.startTransaction();
+		try {
+			collection1.insertOne(...);
+			collection2.updateOne(...);
+			session.commitTransaction();
+		} catch(Exception e) {
+			session.abortTransaction();
+		}
+
+	When to Use
+		✔ Financial operations, Multi-document consistency requirement, Complex business logic
+
+✅ Performance Impact
+	⚠ Slower than single-document write, Higher memory usage, Not ideal for high-throughput systems
+
+Best practice → Prefer embedding when possible.
+
+==============================================================================================
+Q10. How do you handle large collections (100M+ records)?
+==============================================================================================
+1️⃣ Proper Sharding (Mandatory)
+	Choose high-cardinality shard key
+	Avoid monotonic keys
+	Use hashed shard key for even distribution
+	Prevents single-shard overload.
+
+2️⃣ Right Index Strategy
+	Index only query fields
+	Use compound indexes
+	Avoid over-indexing
+	Monitor with explain().
+
+3️⃣ Archiving Strategy
+	Move old data to archive collection
+	Use TTL index for expirable data
+	Cold storage for historical records
+	Keeps working set small.
+
+4️⃣ Pagination Optimization
+	❌ Avoid deep skip()
+	✔ Use range-based pagination: { createdAt: { $lt: lastSeenValue } }
+	
+5️⃣ Batch Processing
+	Process in chunks (e.g., 5k–10k)
+	Use cursor streaming
+	Avoid loading full dataset in memory
+
+6️⃣ Read/Write Separation
+	Use replica set
+	Route reads to secondary (if acceptable)
+
+7️⃣ Monitoring & Tuning
+	Monitor working set vs RAM
+	Check index usage
+	Adjust oplog size
+	Enable compression
+
+8️⃣ Schema Optimization
+	Keep documents small
+	Avoid unbounded arrays
+	Use bucketing for time-series
+	
+==============================================================================================
+Q11. What is write concern and read concern?
+==============================================================================================
+✅They control durability and consistency guarantees in a replica set.
+
+	1️⃣ Write Concern: Defines how many replica nodes must acknowledge a write before it is considered successful.
+		Common Levels
+			w:1 → Only Primary acknowledges (fast, less durable)
+			w:majority → Majority of nodes acknowledge (safer)
+			j:true → Written to journal (disk durability)
+
+		Example: { writeConcern: { w: "majority", j: true } }
+		
+		Trade-off
+			| Low write concern | Majority     |
+			| ----------------- | ------------ |
+			| Faster            | Safer        |
+			| Risk of data loss | More durable |
+
+	2️⃣ Read Concern: Defines how consistent the data must be when reading.
+		Common Levels
+			local → Latest data on that node (default)
+			majority → Only committed majority data
+			snapshot → Consistent snapshot (used in transactions)
+			linearizable → Strongest consistency (Primary only)
+
+✅ Real-World Example
+	Financial app:
+		writeConcern: majority
+		readConcern: majority
+
+	Analytics app:
+		writeConcern: 1
+		readConcern: local
+
+==============================================================================================
+Q12. How to debug slow queries?
+==============================================================================================
+1️⃣ Use explain() (First Step)
+	db.orders.find({ userId: 101 }).explain("executionStats")
+	Check:
+		COLLSCAN ❌ (bad)
+		IXSCAN ✔ (good)
+		nReturned
+		totalDocsExamined
+		executionTimeMillis
+	Goal → Reduce scanned docs.
+
+2️⃣ Check Index Usage
+	Ensure query fields are indexed
+	Verify compound index order (prefix rule)
+	Avoid low-cardinality indexes
+
+3️⃣ Enable Slow Query Logs
+	Monitor: system.profile, Profiler level, Log slowms threshold
+
+4️⃣ Check Query Patterns
+	❌ Missing shard key → scatter-gather
+	❌ Deep pagination (skip(100000))
+	✔ Use range-based pagination
+
+5️⃣ Review Aggregation Pipelines
+	Place $match early
+	Use indexes before $group
+	Avoid large $lookup
+
+6️⃣ Check Cluster Health: CPU / RAM usage, Working set > RAM?, Lock contention, Replication lag
+
+7️⃣ Analyze Sharding: Skewed shard distribution?, Hot partitions?, Imbalanced chunks?
+
+8️⃣ Reduce Document Size: Avoid unnecessary fields, Use projections
+
+==============================================================================================
+
+
+🔥Redis Advanced Questions
+==============================================================================================
+Q1. When would you use Redis?
+==============================================================================================
+✅ Redis is an in-memory key-value store optimized for ultra-low latency (<1ms).
+	
+	1️⃣ Caching Layer (Most Common): Cache DB query results, Reduce load on MongoDB/RDBMS, Use TTL for expiry
+		✔ Improves read performance dramatically
+
+	2️⃣ Session Management: Store user sessions, Stateless microservices, ✔ Fast access + auto-expiry
+	3️⃣ Rate Limiting: API throttling, Token bucket / sliding window, ✔ Atomic counters
+	4️⃣ Distributed Locking: Implement locks using SET NX EX, Prevent duplicate processing
+	5️⃣ Pub/Sub & Messaging: Lightweight messaging, Real-time notifications
+	6️⃣ Leaderboards / Counters: Sorted sets (ZSET), Atomic increment operations
+	7️⃣ Caching Computation Results: Expensive calculations, Precomputed responses
+
+When NOT to Use: ❌ Long-term durable storage, Large relational queries, Complex transactions
+		
+==============================================================================================
+Q2. How does Redis persistence work (RDB vs AOF)?
+==============================================================================================
+✅ Redis is in-memory, but persistence ensures data survives restart.
+
+	1️⃣ RDB (Redis Database Snapshot)
+		How It Works:
+			Takes point-in-time snapshot of dataset
+			Saves to dump.rdb file
+			Triggered by time/changes config
+			Example:
+				save 900 1
+				save 300 10
+				
+		Characteristics: ✔ Compact file, Fast restart, Good for backups, ⚠ Possible data loss between snapshots
+		Best for: Caching + periodic backup.
+
+	2️⃣ AOF (Append Only File)
+		How It Works:
+			Logs every write operation
+			Appends commands to appendonly.aof
+		
+		Sync modes:
+			always → Safest, slowest
+			everysec → Default, balanced
+			no → Fastest, riskier
+			
+		Characteristics: ✔ Better durability, Less data loss, ⚠ Larger file size, Slower than RDB
+
+	3️⃣ RDB vs AOF Comparison
+		| Feature       | RDB    | AOF             |
+		| ------------- | ------ | --------------- |
+		| Durability    | Medium | High            |
+		| Performance   | High   | Slightly slower |
+		| File Size     | Small  | Large           |
+		| Recovery Time | Faster | Slower          |
+
+	4️⃣ Production Recommendation
+		✔ Use AOF (everysec) for durability
+		✔ Enable RDB + AOF together for hybrid safety
+	
+==============================================================================================
+Q3. What is Redis clustering?
+==============================================================================================
+✅ Redis Cluster provides horizontal scaling + high availability by distributing data across multiple nodes.
+
+	1️⃣ How It Works
+		Data is divided into 16,384 hash slots
+		Each key is mapped to a slot using CRC16 hashing
+		Slots distributed across multiple master nodes
+		hash(key) % 16384 → slot number
+		
+	2️⃣ Cluster Architecture
+		Multiple Master nodes (store data)
+		Each master can have Replica nodes
+		Automatic failover if master fails
+
+	3️⃣ Read & Write Flow
+		Client connects to any node
+		If wrong node → redirected using MOVED response
+		Smart clients cache slot mapping
+
+	4️⃣ Scaling: Add new node, Redis rebalances slots, Data redistributed automatically
+	5️⃣ Failover: Replica promoted to Master, Minimal downtime
+
+	6️⃣ Limitations
+		⚠ Multi-key operations must be in same hash slot
+		⚠ Limited cross-slot transactions
+
+	Use hash tags to force same slot:
+		{user:1}:profile
+		{user:1}:orders
+	
+==============================================================================================
+Q4. How do you implement distributed locking?
+==============================================================================================
+✅ Distributed lock ensures only one instance executes a critical section at a time (e.g., order processing).
+
+1️⃣ Basic Implementation (Correct Way)
+	Use atomic SET with NX + EX:
+		SET lock:order123 uniqueValue NX EX 30
+		NX → Set only if not exists
+		EX 30 → Expire in 30 seconds
+		uniqueValue → Random UUID (important)
+		If returns OK → lock acquired.
+
+2️⃣ Safe Unlock (Avoid Deleting Others’ Lock)
+	Use Lua script:
+		if redis.call("get", KEYS[1]) == ARGV[1]
+		then
+		  return redis.call("del", KEYS[1])
+		else
+		  return 0
+		end
+	
+	Prevents accidental unlock by another instance.
+
+3️⃣ Handling Failures
+	Always use TTL to prevent deadlocks
+	Retry with backoff
+	Monitor lock contention
+
+4️⃣ RedLock Algorithm (Advanced)
+	For high availability:
+		Use multiple Redis masters
+		Acquire majority locks
+		Ensures better fault tolerance
+		⚠ Debate exists about RedLock guarantees — use carefully.
+
+5️⃣ When to Use
+	✔ Prevent duplicate order processing
+	✔ Cron job single execution
+	✔ Inventory deduction
+	
+==============================================================================================
+Q5. How do you prevent cache stampede?
+==============================================================================================
+✅ Cache stampede = When many requests hit DB simultaneously after cache expires.
+
+1️⃣ Use Distributed Lock (Most Common)
+	Flow:
+		1️⃣ Cache miss
+		2️⃣ Acquire Redis lock
+		3️⃣ Only one thread rebuilds cache
+		4️⃣ Others wait or return stale data
+	Prevents DB overload.
+
+2️⃣ Add Randomized TTL (Jitter)
+	Instead of: TTL = 600 seconds
+	Use: TTL = 600 + random(0–60)
+	Prevents simultaneous expiry.
+
+3️⃣ Stale-While-Revalidate: Serve expired value, Refresh in background, ✔ Good for read-heavy systems.
+4️⃣ Cache Warming: Preload cache at startup, Refresh popular keys periodically
+5️⃣ Use Soft Expiration: Store expiry inside value, Refresh asynchronously before hard TTL
+6️⃣ Rate Limiting: Limit rebuild attempts per key.
+
+Real Production Strategy
+	✔ Redis lock + TTL jitter
+	✔ Stale-while-revalidate for critical endpoints
+	
+==============================================================================================
+Q6. How to implement rate limiting using Redis?
+==============================================================================================
+✅ Used to control API abuse, DDoS protection, per-user throttling.
+
+1️⃣ Fixed Window Counter (Simple)
+	Allow 100 requests per minute.
+			INCR user:123:202603011430
+			EXPIRE user:123:202603011430 60
+	Key includes timestamp window
+	If count > limit → block
+
+	✔ Simple ⚠ Burst at window boundary possible
+
+2️⃣ Sliding Window (Better Accuracy)
+	Store timestamps in sorted set:
+		ZADD user:123 currentTime requestId
+		ZREMRANGEBYSCORE user:123 0 (currentTime - 60)
+		ZCARD user:123
+	
+	If count > limit → reject.
+	✔ More precise ⚠ Slightly heavier
+
+3️⃣ Token Bucket (Recommended)
+	Add tokens at fixed rate, Each request consumes token, If no token → reject, Smooth traffic control.
+
+4️⃣ Leaky Bucket: Requests processed at constant rate, Excess requests dropped
+
+Production Best Practice
+	✔ Use Lua script for atomicity
+	✔ Use Redis Cluster for scalability
+	✔ Combine with API Gateway
+	
+==============================================================================================
+Q7. What is eviction policy?
+==============================================================================================
+✅ An eviction policy defines how Redis removes keys when memory limit (maxmemory) is reached.
+	Why It’s Needed: Redis is in-memory, When memory is full → Redis evicts keys based on configured policy.
+
+✅ Common Eviction Policies
+	1️⃣ noeviction: Reject new writes, Safe but may break app
+	2️⃣ allkeys-lru: Remove least recently used key, ✔ Good for general caching
+	3️⃣ volatile-lru: Remove LRU only among keys with TTL
+	4️⃣ allkeys-lfu: Remove least frequently used key, ✔ Better for stable hot keys
+	5️⃣ volatile-lfu: LFU among keys with TTL
+	6️⃣ allkeys-random: Remove random key
+	7️⃣ volatile-ttl: Remove key with nearest expiry
+
+LRU vs LFU
+	| LRU                        | LFU                         |
+	| -------------------------- | --------------------------- |
+	| Based on recency           | Based on frequency          |
+	| Good for temporal locality | Good for long-term hot keys |
+
+✅Production Recommendation
+	✔ Use allkeys-lfu for stable traffic
+	✔ Use allkeys-lru for typical caching
+	
+==============================================================================================
+Q8. How to handle cache consistency issues?
+==============================================================================================
+✅ Cache consistency issue = DB updated but cache still has stale data.
+
+1️⃣ Cache-Aside Pattern (Most Common)
+	Flow:
+		1️⃣ Read → Check cache
+		2️⃣ Miss → Fetch from DB → Update cache
+		3️⃣ Write → Update DB → Delete cache
+	✔ Simple, Most widely used
+	⚠ Always delete cache after DB commit.
+
+2️⃣ Write-Through: Write to cache, Cache updates DB
+	✔ Strong consistency, ⚠ Slightly higher latency
+
+3️⃣ Write-Behind (Write-Back): Write to cache, DB updated asynchronously
+✔ High performance, ⚠ Risk of data loss
+
+4️⃣ Use Short TTL: Auto-expire stale data, Good for non-critical data
+
+5️⃣ Distributed Lock During Update: Prevent race condition during concurrent writes.
+
+6️⃣ Versioning Strategy: Store version/timestamp in cache, If mismatch → refresh.
+
+7️⃣ Event-Driven Invalidation: Publish event on DB update, Consumers invalidate related keys, Used in microservices.
+
+✅ Production Best Practice
+	✔ Cache-aside
+	✔ Delete cache after successful DB commit
+	✔ TTL + background refresh for hot keys
+	
+==============================================================================================
+
+🔥Performance & Scaling
+==============================================================================================
+Q1. How do you benchmark NoSQL systems?
+==============================================================================================
+1️⃣ Define Workload First (Most Important)
+	Read-heavy / Write-heavy?
+	Query patterns?
+	Data size?
+	Concurrency level?
+	Latency SLA (P95 / P99)?
+	Benchmark must mimic production workload.
+
+2️⃣ Use Proper Tools: 
+	For MongoDB: YCSB, mongoperf, Custom JMeter/Gatling tests
+	For Apache Cassandra: cassandra-stress, YCSB
+	For Redis: redis-benchmark
+
+3️⃣ Measure Correct Metrics
+✔ Throughput (ops/sec), Latency (P50, P95, P99), CPU & memory usage, Disk IOPS, Replication lag, GC impact (JVM-based DBs)
+
+4️⃣ Test Different Scenarios
+	Single node vs cluster, Different consistency levels
+	With/without indexes, With replication, Sharded vs non-sharded
+	
+5️⃣ Warm-Up Phase: Load realistic dataset, Warm cache, Avoid cold-start bias
+6️⃣ Test Failure Scenarios: Node failure, Network partition, High concurrency spikes
+7️⃣ Analyze Bottlenecks: Full scans?, Hot partitions?, Lock contention?, Memory pressure?
+
+==============================================================================================
+Q2. How do you monitor NoSQL clusters?
+==============================================================================================
+✅ Goal: Detect latency spikes, replication lag, memory pressure, and node failures before outage.
+
+1️⃣ Core Metrics to Monitor
+✔ Performance: Throughput (ops/sec), Latency (P95 / P99), Slow queries
+✔ Resource Usage: CPU, Memory / Working set, Disk IOPS, Network throughput
+✔ Replication Health: Replication lag, Failed nodes, Leader elections
+✔ Storage: Disk usage, Index size, Compaction status (for LSM DBs)
+
+2️⃣ Database-Specific Monitoring
+🔹 MongoDB : Replica set status, Oplog size & lag, Chunk distribution (sharding), Lock percentage
+
+🔹 Apache Cassandra: Pending compactions, Read/write latency, Tombstones, GC pauses
+
+🔹 Redis: Used memory vs maxmemory, Evictions, Connected clients, Hit/miss ratio
+
+3️⃣ Monitoring Tools: Prometheus + Grafana, ELK stack, Cloud-native monitoring (AWS/GCP/Azure), DB-native dashboards
+
+4️⃣ Alerting Strategy: ✔ High P99 latency, Replication lag threshold, Memory > 80%, Disk near full, Node down
+
+5️⃣ Proactive Checks: Index usage review, Shard imbalance detection, Capacity planning, Backup verification
+
+==============================================================================================
+Q3. How do you handle failover?
+==============================================================================================
+✅ Failover = automatic switch to another node when primary/leader fails.
+
+1️⃣ Use Replication (Mandatory)
+🔹 MongoDB: Replica Set, Automatic leader election, Secondary promoted to Primary
+
+🔹 Apache Cassandra: Peer-to-peer (no single leader), Other nodes continue serving traffic
+
+🔹 Redis: Replica + Sentinel Or Redis Cluster auto failover
+
+2️⃣ Configure Majority & Quorum: Ensure odd number of nodes (3,5), Avoid split-brain, Use majority write concern (MongoDB)
+
+3️⃣ Client-Side Resilience: Enable retry logic, Configure multiple hosts in connection string, Use exponential backoff
+
+4️⃣ Monitor Replication Lag: Large lag → stale reads, Ensure oplog/window large enough
+
+5️⃣ Multi-Region Strategy:
+	Primary region + secondary region
+	Automatic DNS / load balancer switch
+	Test DR drills regularly
+
+6️⃣ Test Failover (Very Important)
+	Kill primary intentionally
+	Observe election time
+	Validate application recovery
+	
+==============================================================================================
+Q4. What are common production issues?
+==============================================================================================
+1️⃣ Hot Partitions: Poor shard/partition key, Uneven traffic distribution, One node overloaded, Seen in MongoDB and Apache Cassandra.
+
+2️⃣ Slow Queries: Missing index, Scatter-gather in sharded cluster, Deep pagination, Large $lookup
+
+3️⃣ Memory Pressure: Working set > RAM, Excess indexes, Large documents, In Redis → Evictions start happening.
+
+4️⃣ Replication Lag: Secondary falling behind, Oplog too small (MongoDB), Heavy write spikes
+
+5️⃣ Disk I/O Bottlenecks; Large compactions (Cassandra), High write throughput, Insufficient IOPS
+
+6️⃣ Tombstone Issues (Cassandra): Excess deletes, Slow reads due to tombstone scanning
+
+7️⃣ Cache Stampede: Massive DB hit after cache expiry
+
+8️⃣ GC Pauses (JVM-Based DBs): Large heap, Poor tuning, High latency spikes
+
+9️⃣ Shard Imbalance: Uneven chunk distribution, Balancer not running
+
+🔟 Large Document Anti-Pattern: Unbounded arrays, Exceeding size limits
+
+==============================================================================================
+Q5. How do you tune GC for NoSQL-heavy apps?
+==============================================================================================
+✅ Applies when using: Apache Cassandra, MongoDB (Java drivers/app layer), Spring Boot microservices with heavy DB traffic
+
+1️⃣ Choose Right GC
+	For Java 17+:
+		✔ G1GC → Default, good balance
+		✔ ZGC → Ultra-low latency (<10ms pauses)
+		✔ Avoid CMS (deprecated)
+		
+		Example: -XX:+UseG1GC
+
+2️⃣ Heap Sizing Strategy
+	✔ Keep heap ≤ 50–60% of system RAM
+	✔ Leave memory for OS page cache (critical for DB I/O)
+	Too large heap → long GC pauses.
+
+3️⃣ Monitor Key Metrics: GC pause time (P95/P99), Allocation rate, Old gen promotion, Full GC frequency
+	Use: JFR, Prometheus + Grafana, GC logs
+
+4️⃣ Reduce Object Creation
+	In high-throughput NoSQL apps:
+		Avoid unnecessary DTO mapping
+		Use connection pooling
+		Reuse buffers
+		High allocation rate → frequent minor GC.
+
+5️⃣ Tune G1GC Parameters (If Needed)
+	-XX:MaxGCPauseMillis=200
+	-XX:InitiatingHeapOccupancyPercent=45
+	Lower pause target → more frequent small collections.
+
+6️⃣ Watch for Memory Leaks: Large caches without TTL, Unbounded collections, ThreadLocal misuse
+
+7️⃣ Off-Heap Usage
+	Some systems (like Cassandra) use off-heap memory.
+	Ensure total memory planning includes:
+	Heap + Off-heap + OS cache.
+	
+==============================================================================================
+Q6. How to optimize large bulk writes?
+==============================================================================================
+✅ Applies to high-throughput systems using MongoDB, Apache Cassandra, or write-heavy services.
+
+1️⃣ Use Bulk/Batch APIs (Most Important)
+	MongoDB: db.collection.bulkWrite([...])
+	Cassandra: Use batch statements (carefully — small batches only).
+	✔ Reduces network round trips, Improves throughput
+
+2️⃣ Tune Batch Size
+	Too small → network overhead
+	Too large → memory pressure
+	Typical sweet spot:
+		1k–10k records per batch (depends on size)
+
+3️⃣ Reduce Index Overhead
+	Disable unnecessary indexes
+	Create indexes after bulk load (if initial migration)
+	More indexes = slower writes.
+
+4️⃣ Lower Write Concern (If Acceptable)
+	MongoDB: { writeConcern: { w: 1 } }
+	Cassandra: Use lower consistency level (e.g., ONE)
+	Trade-off: durability vs speed.
+
+5️⃣ Parallelize Writes: Use multiple threads, Partition data by shard/partition key, Avoid single hot partition
+
+6️⃣ Avoid Random Disk I/O: Use append-only patterns, Time-based partitioning, Ensure SSD-backed storage
+
+7️⃣ Disable Synchronous Logging (Carefully): In controlled migration scenarios only.
+
+8️⃣ Monitor During Load: Disk IOPS, Replication lag, GC pauses, CPU usage
+
+9️⃣ Pre-Split Shards (MongoDB)
+	If sharded: Pre-split chunks, Avoid initial shard imbalance
+
+==============================================================================================
+
+🔥Spring Boot + NoSQL Integration
+==============================================================================================
+Q1. How does Spring Data MongoDB work internally?
+==============================================================================================
+✅ Spring Data MongoDB is a repository abstraction layer over the MongoDB Java Driver.
+
+1️⃣ Core Architecture
+	Repository Interface
+			↓
+	Repository Proxy (Dynamic Proxy)
+			↓
+	MongoTemplate
+			↓
+	MongoDB Java Driver
+			↓
+	MongoDB Server
+	
+2️⃣ Repository Proxy Mechanism
+	When you define:
+		public interface UserRepository extends MongoRepository<User, String> {
+			List<User> findByEmail(String email);
+		}
+
+	Spring: 
+		Creates a proxy implementation at runtime, Parses method name (findByEmail)
+		Converts into Mongo query, Delegates to MongoTemplate
+	
+	Uses: Reflection, Query derivation engine
+
+3️⃣ MongoTemplate Role
+	MongoTemplate is the core class.
+	Responsibilities: CRUD operations, Query building, Aggregation support, Transaction handling, Mapping objects to BSON
+
+4️⃣ Object Mapping (ODM Layer)
+	Uses MappingMongoConverter: Converts Java object → BSON document
+	Handles: @Document, @Id, @Field
+	Custom converters
+
+5️⃣ Query Derivation
+	Method: findByNameAndAge(String name, int age)
+	Becomes: { "name": "...", "age": ... }
+	Generated dynamically via parsing.
+
+6️⃣ Transaction Support
+	Uses MongoDB client sessions internally:
+		@Transactional
+		Starts session
+		Commits/rollbacks
+		Requires Replica Set.
+
+7️⃣ Reactive Support: ReactiveMongoTemplate uses: Project Reactor, Non-blocking driver, Backpressure handling
+
+8️⃣ Connection Management: Uses MongoClient, Manages connection pooling internally
+
+==============================================================================================
+Q2. Difference between MongoTemplate vs Repository?
+==============================================================================================
+1️⃣ MongoRepository (Repository Abstraction)
+	What It Is: High-level abstraction, Interface-based, Uses dynamic proxy
+	Example:
+			public interface UserRepository extends MongoRepository<User, String> {
+				List<User> findByEmail(String email);
+			}
+			
+	Pros: Less boilerplate, Query derivation, Pagination & sorting built-in, Easy CRUD
+	Cons: Limited control for complex queries, Harder to optimize low-level behavior
+	Best for: Standard CRUD apps.
+
+2️⃣ MongoTemplate
+	What It Is: Lower-level API, Full control over queries, Direct interaction with driver
+	Example:
+		Query query = new Query(Criteria.where("email").is("x@y.com"));
+		mongoTemplate.find(query, User.class);
+	
+	Pros: Full flexibility, Complex queries, Aggregation pipelines, Bulk operations, Fine-grained performance tuning
+	Cons: More boilerplate, Manual query building
+	Best for: Complex systems / performance-critical code.
+
+3️⃣ Internal Relation: Repository → Delegates to MongoTemplate internally.
+
+4️⃣ When to Use What?
+| Use Case                  | Choose        |
+| ------------------------- | ------------- |
+| Simple CRUD               | Repository    |
+| Complex aggregation       | MongoTemplate |
+| Bulk writes               | MongoTemplate |
+| Custom query optimization | MongoTemplate |
+| Rapid development         | Repository    |
+
+==============================================================================================
+Q3. How do you implement transactions in Spring with MongoDB?
+==============================================================================================
+⚠ Requirements: MongoDB 4.x+, Replica Set (mandatory), Spring Boot 2.x+
+
+1️⃣ Enable Transaction Manager
+	@Bean
+	public MongoTransactionManager transactionManager(MongoDatabaseFactory dbFactory) {
+		return new MongoTransactionManager(dbFactory);
+	}
+	
+2️⃣ Use @Transactional
+		@Service
+		public class OrderService {
+
+			@Autowired
+			private OrderRepository orderRepo;
+
+			@Autowired
+			private PaymentRepository paymentRepo;
+
+			@Transactional
+			public void placeOrder(Order order, Payment payment) {
+				orderRepo.save(order);
+				paymentRepo.save(payment);
+
+				// If exception occurs → rollback
+			}
+		}
+
+	Spring: Starts Mongo session, Binds session to thread, Commits on success, Rolls back on runtime exception
+
+3️⃣ Using MongoTemplate (Manual Control)
+				mongoTemplate.execute(session -> {
+					session.startTransaction();
+					try {
+						mongoTemplate.insert(order);
+						mongoTemplate.insert(payment);
+						session.commitTransaction();
+					} catch (Exception e) {
+						session.abortTransaction();
+					}
+				});
+				
+4️⃣ Read & Write Concern (Important)
+	Recommended:
+		writeConcern = majority
+		readConcern = snapshot
+		Ensures consistency.
+
+5️⃣ Limitations
+	⚠ Slower than single-document operations
+	⚠ Avoid long-running transactions
+	⚠ Not ideal for high-throughput systems
+
+Best practice → Prefer embedding when possible.
+
+==============================================================================================
+Q4. How to configure connection pooling?
+==============================================================================================
+✅ MongoDB Java driver manages pooling internally via MongoClient.
+
+1️⃣ Configure via application.yml (Recommended)
+		spring:
+		  data:
+			mongodb:
+			  uri: mongodb://user:pass@host:27017/db?maxPoolSize=100&minPoolSize=10&maxIdleTimeMS=60000
+
+	Important Parameters
+		maxPoolSize → Max concurrent connections
+		minPoolSize → Minimum maintained connections
+		maxIdleTimeMS → Idle timeout
+		connectTimeoutMS
+		socketTimeoutMS
+
+2️⃣ Java-Based Configuration (Advanced Control)
+			@Bean
+			public MongoClient mongoClient() {
+				ConnectionPoolSettings poolSettings = ConnectionPoolSettings.builder()
+					.maxSize(100)
+					.minSize(10)
+					.maxWaitTime(1000, TimeUnit.MILLISECONDS)
+					.build();
+
+				MongoClientSettings settings = MongoClientSettings.builder()
+					.applyToConnectionPoolSettings(builder -> builder.applySettings(poolSettings))
+					.build();
+
+				return MongoClients.create(settings);
+			}
+			
+3️⃣ How to Size the Pool
+	Formula (rough guideline): maxPoolSize ≈ (threads handling requests)
+	Consider: 
+		CPU cores, Blocking I/O, Average query latency
+		Too small → connection starvation
+		Too large → memory & context switching overhead
+
+4️⃣ Monitor Pool Metrics
+	Track: Active connections, Waiting threads, Pool exhaustion, Connection creation rate
+
+5️⃣ Production Best Practices
+	✔ Reuse single MongoClient bean
+	✔ Avoid creating client per request
+	✔ Tune based on load test
+	✔ Monitor P95 latency under concurrency
+	
+==============================================================================================
+Q5. How to secure NoSQL DB?
+==============================================================================================
+1️⃣ Enable Authentication (Mandatory)
+	Disable anonymous access, Use strong username/password
+	Enable SCRAM (MongoDB), Use role-based users
+	Never expose DB without auth.
+
+2️⃣ Role-Based Access Control (RBAC)
+	✔ Principle of least privilege
+	✔ Separate read/write/admin roles
+	✔ Separate service accounts per microservice
+
+3️⃣ Enable TLS/SSL Encryption
+	Encrypt data in transit, Use TLS certificates, Enforce SSL-only connections, Prevents MITM attacks.
+
+4️⃣ Encrypt Data at Rest
+	Enable disk encryption, Use cloud KMS, Enable database native encryption (if available)
+
+5️⃣ Network Security
+✔ Bind to private IP
+✔ Use VPC / private subnet
+✔ Firewall rules (only app servers allowed)
+✔ Disable public exposure
+Redis should NEVER be public.
+
+6️⃣ Protect Against Injection: Validate inputs, Avoid dynamic query building, Use parameterized queries
+
+7️⃣ Enable Auditing & Logging: Track failed logins, Monitor suspicious queries, Enable audit logs
+
+8️⃣ Backup & Disaster Recovery: Encrypted backups, Regular restore testing
+
+9️⃣ Rate Limiting & DoS Protection: Throttle requests, Protect admin endpoints
+
+🔟 Keep Updated: Patch regularly, Monitor CVEs
+
+==============================================================================================
+Q6. How do you implement auditing?
+==============================================================================================
+✅ Auditing = tracking who changed what and when.
+	Applies to MongoDB with Spring Data MongoDB.
+
+1️⃣ Basic Field-Level Auditing (Spring)
+	Enable auditing: @EnableMongoAuditing
+	Add fields: 
+				@CreatedDate
+				private Instant createdAt;
+
+				@LastModifiedDate
+				private Instant updatedAt;
+
+				@CreatedBy
+				private String createdBy;
+
+				@LastModifiedBy
+				private String modifiedBy;
+
+	Spring auto-populates values.
+
+2️⃣ AuditorAware Implementation
+	Provide current user:
+				@Bean
+				public AuditorAware<String> auditorProvider() {
+					return () -> Optional.of(SecurityContextHolder.getContext().getAuthentication().getName());
+				}
+
+	Captures logged-in user.
+
+3️⃣ Full Audit Trail (Change History)
+	Instead of updating document: Store previous version in audit collection
+	Example:
+		{
+		  "entityId": "123",
+		  "oldValue": {...},
+		  "changedBy": "admin",
+		  "timestamp": "2026-03-01"
+		}
+
+	✔ Supports rollback, Regulatory compliance
+
+4️⃣ MongoDB Native Auditing (Enterprise)
+	MongoDB supports audit logs at server level.
+	Logs: Auth attempts, DDL operations, Privilege changes
+
+5️⃣ Change Streams (Advanced)
+	Use Change Streams to: Capture real-time changes, Publish to audit service, Store immutable event log
+
+6️⃣ Best Practice
+	✔ Field-level auditing for most apps
+	✔ Full history collection for financial/compliance systems
+	✔ Immutable logs
+
+==============================================================================================
+Q7. How to handle reactive MongoDB?
+==============================================================================================
+✅ Using: Spring WebFlux, Spring Data MongoDB (Reactive), MongoDB
+	1️⃣ Use Reactive Driver
+		Add dependency: spring-boot-starter-data-mongodb-reactive
+		Uses non-blocking MongoDB reactive driver internally.
+
+	2️⃣ Reactive Repository
+			public interface UserRepository extends ReactiveMongoRepository<User, String> {
+				Flux<User> findByName(String name);
+			}
+
+		Return types:
+			Mono<T> → 0 or 1 result
+			Flux<T> → Multiple results
+	
+	3️⃣ Reactive Service Example
+		public Mono<User> createUser(User user) {
+			return userRepository.save(user);
+		}
+		Non-blocking execution.	
+	
+	4️⃣ Avoid Blocking Calls (Very Important)
+		❌ .block(), ❌ Traditional JPA calls, ❌ Blocking HTTP calls
+		Blocking breaks reactive model.
+
+	5️⃣ Backpressure Handling
+		Reactive streams: Control demand, Prevent memory overflow, Mongo driver supports reactive streaming of large datasets.
+
+	6️⃣ Transactions in Reactive
+		Use ReactiveMongoTemplate with transactional operator, Requires replica set.
+
+	7️⃣ Connection Pooling: Reactive driver manages async pool automatically, Tune via MongoClient settings if needed.
+	8️⃣ When to Use Reactive:
+		✔ High concurrency (10k+ requests), I/O bound systems, Streaming APIs
+		❌ Simple CRUD apps (unnecessary complexity)
+		
+==============================================================================================
+Q8. How do you test NoSQL repositories?
+==============================================================================================
+1️⃣ Use @DataMongoTest (Recommended for Unit-Level)
+			@DataMongoTest
+			class UserRepositoryTest {
+
+				@Autowired
+				private UserRepository userRepository;
+
+				@Test
+				void shouldFindByEmail() {
+					userRepository.save(new User("munna@test.com"));
+					var user = userRepository.findByEmail("munna@test.com");
+					assertNotNull(user);
+				}
+			}
+
+		✔ Loads only Mongo components, Faster than full context
+
+2️⃣ Use Testcontainers (Best for Realistic Testing)
+	Run real MongoDB in Docker:
+
+	@Container
+	static MongoDBContainer mongo = new MongoDBContainer("mongo:6.0");
+
+	✔ Real DB behavior. Good for integration tests
+	Best practice for production-grade systems.
+
+3️⃣ Embedded Mongo (Not Recommended for Prod-Level Tests)
+	Flapdoodle embedded Mongo
+	⚠ Version mismatch issues
+	⚠ Not ideal for replica/sharding testing
+
+4️⃣ Test Transactions
+	If using transactions: Must use replica set in Testcontainers, Verify rollback scenarios
+
+5️⃣ Test Reactive Repositories
+	Use StepVerifier:
+				StepVerifier.create(userRepository.findByEmail("test"))
+					.expectNextMatches(user -> user.getEmail().equals("test"))
+					.verifyComplete();
+6️⃣ Clean Data Between Tests: ✔ Use deleteAll(), Or transactional rollback, Or separate database per test
+
+7️⃣ Validate Index Behavior: Use explain() in integration tests if performance critical.
+
+==============================================================================================
+
+🔥Real Production Scenario Questions (Very Important)
+==============================================================================================
+Q1. How did you choose shard key in production?
+==============================================================================================
+1️⃣ Started With Access Patterns (Most Important)
+	What are the most frequent queries?
+	What fields are always in filters?
+	Are queries tenant-based? user-based? time-based?
+	Shard key must align with query patterns.
+
+2️⃣ Ensured High Cardinality
+	Avoid: status, country, Low-unique fields
+	Chose: userId, orderId, tenantId + userId (compound), High uniqueness → better distribution.
+
+3️⃣ Avoided Monotonic Growth: ❌ Pure timestamp, Auto-increment ID
+	Used: Hashed shard key for evenly distributed writes: { userId: "hashed" }, Prevents hot shard.
+
+4️⃣ Considered Write Pattern: System was write-heavy (~50k TPS), Used hashed shard key to distribute writes evenly.
+
+5️⃣ Checked Query Routing: Ensured 90%+ queries included shard key, Avoided scatter-gather queries.
+
+6️⃣ Load Tested Before Finalizing: Simulated production load, Checked chunk distribution, Monitored shard balance
+
+7️⃣ Final Production Example
+	For multi-tenant SaaS: { tenantId: 1, userId: "hashed" }
+	✔ Isolated tenants, Distributed traffic evenly
+	
+==============================================================================================
+Q2. How did you migrate from RDBMS to NoSQL?
+==============================================================================================
+We migrated from RDBMS to NoSQL in a phased, production-safe approach.
+
+1️⃣ Identify the Need
+	RDBMS bottleneck (high write load, joins causing latency).
+	Horizontal scaling required.
+	Flexible schema needed for evolving data.
+
+2️⃣ Choose Right NoSQL
+	For key-value / high throughput → Redis
+	For document model → MongoDB
+	For wide-column / distributed writes → Apache Cassandra
+	Decision based on access pattern, consistency requirement, CAP trade-off.
+
+3️⃣ Data Modeling Shift (Most Important)
+	No more joins → Denormalization
+	Design by query pattern
+	Embed related data
+	Avoid cross-collection transactions (unless supported)
+	
+	Example: 
+		Instead of orders + order_items tables
+		Store items embedded inside order document
+
+4️⃣ Migration Strategy
+	Added NoSQL in parallel (polyglot persistence)
+	Implemented Dual write (RDBMS + NoSQL)
+	Backfilled historical data via batch job
+	Gradually switched read traffic to NoSQL
+	Monitored latency, consistency, error rate
+	Finally decommissioned RDBMS for that module
+
+5️⃣ Challenges Faced
+	Handling transactions (moved to eventual consistency)
+	Data duplication
+	Index redesign
+	Query rewriting (no joins)
+	Monitoring & tuning partition keys
+	
+6️⃣ Production Best Practices
+	Proper indexing
+	TTL where applicable
+	Sharding strategy
+	Backup & disaster recovery
+	Observability (slow query monitoring)
+	
+==============================================================================================
+Q3. How did you handle data consistency across microservices?
+==============================================================================================
+In microservices, we avoided distributed transactions and handled consistency using event-driven + eventual consistency patterns.
+
+1️⃣ Database per Service: Each service had its own DB (no shared schema), No cross-service joins.
+2️⃣ Saga Pattern (Core Strategy): Used Choreography-based Saga with, Apache Kafka
+	Flow:
+		Order Service → publishes OrderCreated
+		Payment Service → consumes → processes → publishes PaymentCompleted
+		Inventory Service → consumes → updates stock
+		If failure → publish compensating event (e.g., PaymentFailed) to rollback logically.
+
+3️⃣ Transactional Outbox Pattern
+	To avoid DB + Kafka inconsistency:
+	Write business data + event in same DB transaction
+	Background publisher reads outbox table
+	Publishes event reliably
+	Prevents lost events.
+
+4️⃣ Idempotency
+	Each event had unique eventId
+	Consumers stored processed IDs
+	Prevents duplicate processing
+	
+5️⃣ Eventual Consistency Handling
+	UI showed “Processing” state
+	Used retries + DLQ (Dead Letter Queue)
+	Observability on failed events
+	
+6️⃣ When Strong Consistency Was Needed
+	For rare cases: Used synchronous REST call, Short timeout, Circuit breaker, But avoided 2PC.
+
+==============================================================================================
+Q4. How did you design high-throughput event storage?
+==============================================================================================
+We designed it around append-only, partitioned, horizontally scalable architecture.
+
+1️⃣ Core Storage Engine
+	Used: Apache Kafka
+	Because: Sequential disk writes (append-only log), Partition-based parallelism, Zero-copy transfer, Built-in replication
+
+2️⃣ Partition Strategy (Critical)
+	Chose partition key carefully (e.g., userId, orderId), Ensured even distribution, Avoided hot partitions
+	Increased partitions to scale throughput
+	👉 Throughput = partitions × consumers
+
+3️⃣ Storage Design Principles
+	Append-only log (no updates)
+	Immutable events
+	Schema versioning (Avro/Protobuf)
+	Event compaction for latest state topics
+	TTL for short-lived events
+
+4️⃣ Write Optimization
+	Enabled batching
+	Compression (Snappy/LZ4)
+	Tuned:
+		linger.ms
+		batch.size
+		acks=1 or acks=all (based on durability needs)
+
+5️⃣ Durability & Replication
+	Replication factor ≥ 3
+	ISR monitoring
+	Rack awareness
+	Controlled min.insync.replicas
+
+6️⃣ Consumer Side Scaling
+	Consumer group model
+	Horizontal scaling
+	Manual offset commit for reliability
+	
+7️⃣ Long-Term Storage Strategy
+	For archival: Streamed to, Object storage (S3-like), Or OLAP systems
+	Used Kafka Connect
+
+8️⃣ Observability
+	Lag monitoring
+	Throughput metrics
+	Retention size checks
+	Alerting on under-replicated partitions
+	
+==============================================================================================
+Q5. How do you implement distributed caching strategy?
+==============================================================================================
+We implemented distributed caching using multi-layer caching + consistency control + proper eviction strategy.
+
+1️⃣ Architecture
+	Used:
+		L1 → In-memory (per instance)
+		L2 → Distributed cache
+	
+	Redis Flow: App → L1 → L2 (Redis) → DB, Reduces DB load drastically.
+
+2️⃣ Caching Strategy Patterns
+	✅ Cache-Aside (Most Common)
+		App checks cache If miss → fetch from DB
+		Update cache On update → invalidate cache
+		Best for read-heavy systems.
+
+	✅ Write-Through: Write DB + cache together, Stronger consistency
+
+	✅ Write-Behind (Async): Update cache, Async write to DB, Used for high-write throughput systems
+
+3️⃣ Preventing Cache Problems
+🔹 Cache Stampede: TTL randomization, Distributed locking (SETNX in Redis)
+🔹 Cache Penetration: Cache null values, Bloom filter
+🔹 Cache Avalanche: Staggered expiration, Circuit breaker fallback
+
+4️⃣ Data Consistency Handling
+	Short TTL for volatile data
+	Event-driven invalidation (via Kafka)
+	Version-based keys
+	Idempotent updates
+
+5️⃣ Scaling Redis: Redis Cluster mode, Proper sharding, Replication, Sentinel for failover
+
+6️⃣ Monitoring: Hit ratio, Memory usage, Eviction count, Latency
+
+==============================================================================================
+Q6. How do you perform zero-downtime schema migration?
+==============================================================================================
+We follow expand–migrate–contract strategy to ensure zero downtime.
+
+1️⃣ Backward-Compatible Changes (Expand Phase)
+	Add new column (nullable)
+	Do NOT drop or rename immediately
+	Keep old + new schema working together
+	Used migration tools like: Flyway or Liquibase
+
+2️⃣ Dual-Write / Read Logic (Migrate Phase)
+	Example: Renaming column full_name → name
+		Step 1: Add name column
+		Step 2: App writes to both columns
+		Step 3: Backfill old data via batch job
+		Step 4: Gradually switch reads to new column
+	No breaking change.
+
+3️⃣ Deploy Strategy
+	Rolling deployment (Kubernetes)
+	Blue-Green or Canary release
+	Feature flags for safe switch
+
+4️⃣ Contract Phase (Cleanup)
+	After: All pods upgraded, Backfill verified, Metrics stable
+	Then: Remove old column, Remove dual-write logic
+
+5️⃣ Important Rules:
+	Never combine schema breaking change + app change in same release
+	Avoid long-running locks (use online DDL)
+	Add indexes carefully (concurrently)
+	Monitor slow queries during migration
+
+6️⃣ For Large Tables: Chunked backfill, Avoid full table locks, Use shadow table + switch if needed

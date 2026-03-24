@@ -1,0 +1,97 @@
+My name is Munna Kumar Patra, and I’m a Senior Software Engineer with 8+ years of experience in designing and developing enterprise applications, REST APIs, and microservices.
+
+For the last few years at Concentrix Catalyst, I have been responsible for building and optimizing core platform APIs, and I achieved an 18% improvement in API performance by optimizing queries, implementing caching, and reducing unnecessary processing.
+
+One of my key contributions there was developing a microservice-based monitoring application from scratch, which provides complete visibility into service-to-service API transactions. This tool significantly reduced production debugging time and helped multiple teams understand request flows.
+
+I also mentored a team of 5 junior engineers, led a group of 6 developers, and improved overall productivity and code quality by around 30% through structured code reviews, technical guidance, and best practices.
+
+Additionally, I resolved 300+ CVE security issues, upgraded libraries, fixed vulnerabilities, and maintained code coverage above 70%, ensuring the platform stayed secure and stable.
+
+Prior to Concentrix, I worked at Medplus, where I collaborated closely with UI/UX and backend teams to deliver high-quality web modules, optimize code, and ensure timely releases aligned with product roadmaps.
+
+I started my career at Amdocs, where I worked on telecom applications, debugged complex issues, and developed end-to-end test automation using SoapUI.
+
+Technically, I specialize in Java, Spring Boot, REST APIs, Microservices, SQL, Hibernate, and Angular, and I have hands-on experience with DevOps tools like Jenkins, Docker, Kubernetes, Kafka, and ActiveMQ.
+
+I’m passionate about building scalable systems, improving performance, mentoring teams, and driving high-quality engineering practices. I’m now looking for a role where I can contribute both technically and as a team leader, while continuing to learn and work on modern architectures.
+
+
+You should hire me because I bring a strong combination of technical depth, leadership experience, and proven performance improvement results.
+
+I have 8+ years of experience in building scalable Java/Spring Boot microservices, optimizing API performance, and improving system reliability. In my previous role, I improved API performance by 18%, resolved 300+ security vulnerabilities, built a microservice application from scratch, and mentored a team that achieved 30% better productivity.
+
+I’m not just an individual contributor—I take ownership, drive solutions end-to-end, improve engineering practices, help teammates grow, and ensure timely, high-quality delivery.
+
+I believe these qualities make me a strong fit for LTIMindtree’s engineering culture, where delivering value, reliability, and innovation is a priority.
+
+1. Strong Problem-Solving Skills
+
+I have consistently solved complex performance and production issues, such as reducing API latency and debugging distributed systems.
+
+2. Ownership Mindset
+
+I take responsibility from design to deployment, including documentation, testing, and monitoring.
+
+3. Leadership & Mentoring
+
+I led a team of 6 developers, mentored juniors, and improved team efficiency by 30%.
+
+4. Clean Coding & Quality Focus
+
+I maintain high-quality code, follow best practices, and keep test coverage above 70%.
+
+5. Adaptability & Continuous Learning
+
+I quickly learn new tools—Kafka, Kubernetes, Docker—and apply them effectively in real projects.
+
+✔ Weakness
+
+“Sometimes I spend extra time perfecting solutions.”
+
+I have a habit of refining solutions more than necessary, especially when optimizing performance or writing reusable code.
+However, I’ve learned to balance quality with timelines by aligning early with stakeholders on expected outcomes.
+
+(Perfect weakness—safe, honest, and doesn’t impact job negatively.)
+
+⭐ 3. Why do you want to join LTIMindtree? (Company Specific)
+
+LTIMindtree is known for its strong engineering culture, large-scale digital transformation projects, and focus on modern technologies like cloud, microservices, and DevOps.
+
+What interests me most is the opportunity to work on enterprise-level systems, contribute to scalable architectures, and collaborate with diverse teams.
+
+LTIMindtree offers a platform where I can utilize my experience in Java, Spring Boot, microservices, DevOps, and performance optimization, while also continuing to grow technically and professionally.
+
+The company’s rapid growth, customer-centric approach, and emphasis on innovation align very well with my career goals.
+
+⭐ 4. Project Explanations — Short & Long Versions
+
+Below are polished answers for how to explain your projects quickly or in detail depending on the interview context.
+
+🔹 Short Version (1–2 minutes, technical round start)
+
+At Concentrix Catalyst, I worked as a Senior Software Engineer where I designed and developed scalable REST APIs and microservices using Spring Boot.
+I improved API performance by 18%, resolved 300+ CVE issues, and built an internal monitoring application from scratch for tracking service-to-service transactions.
+I also led a team of 6 engineers and mentored 5 juniors, improving productivity and code quality by 30%.
+My tech stack includes Java, Spring Boot, Microservices, Kafka, SQL, Redis, Docker, Kubernetes, Jenkins, and Angular.
+
+🔹 Long Version (Full Explanation)
+
+In Concentrix Catalyst, I was responsible for enhancing and optimizing core platform microservices. I owned the development and release of multiple REST APIs, where I implemented query tuning, caching, and pagination to achieve 18% faster performance.
+
+One major project I led was building a microservice-based API Monitoring Platform from scratch. The purpose was to provide full visibility into service interactions, response times, failures, and tracing. I used Spring Boot for backend, Kafka for capturing events, and MongoDB for storing logs.
+This tool significantly reduced production debugging time and helped teams identify bottlenecks easily.
+
+My role also involved leading a team of 6 engineers. I mentored junior developers, improved code review practices, and ensured high-quality releases. Overall, team productivity increased by 30%.
+
+Another major contribution was resolving 300+ security vulnerabilities—by updating libraries, fixing insecure patterns, enforcing validations, and enhancing authentication. I also maintained code coverage above 70% using JUnit and Mockito.
+
+Earlier at Medplus, I worked closely with UI/UX teams delivering intuitive Angular + Spring modules. At Amdocs, I worked on telecom features and automated end-to-end testing using SoapUI.
+
+Across all roles, I focused on delivering stable, scalable, and high-performance software solutions.
+
+⭐ 5. Summary to Speak at the Start of Technical Round
+
+I’m a Senior Software Engineer with 8+ years of experience in Java, Spring Boot, Microservices, SQL, Angular, and DevOps tools like Docker, Kubernetes, Jenkins, Kafka, and ActiveMQ.
+I have built microservices, optimized APIs, improved performance, resolved 300+ security issues, and led a 6-member engineering team.
+I focus on clean architecture, best coding practices, mentoring, and delivering scalable, production-ready solutions.

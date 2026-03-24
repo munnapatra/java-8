@@ -1,0 +1,311 @@
+Employee Management System
+🧱 Services Breakdown
+| Service                  | Responsibility                    |
+| ------------------------ | --------------------------------- |
+| **API Gateway**          | Single entry point, routing, auth |
+| **Auth Service**         | Login, JWT, RBAC                  |
+| **Employee Service**     | Core employee data                |
+| **Department Service**   | Departments management            |
+| **Attendance Service**   | Attendance & leave tracking       |
+| **Payroll Service**      | Salary & payroll                  |
+| **Notification Service** | Email/SMS events                  |
+| **Audit Service**        | Activity logging                  |
+| **Config Server**        | Centralized config                |
+| **Discovery Server**     | Service registry                  |
+
+🧩 2. Microservices Design
+1️⃣ API Gateway
+	Technology: Spring Cloud Gateway
+	Responsibilities: JWT validation, Routing, Rate limiting, CORS, Request logging
+
+2️⃣ Auth Service
+	Functionalities: 
+	User registration, Login, Role-based access control (RBAC), Password reset, Token refresh, 
+	Roles: ADMIN, HR, MANAGER, EMPLOYEE
+
+Database Schema
+users
+------
+	id (PK)
+	username (unique)
+	email
+	password_hash
+	status (ACTIVE/INACTIVE)
+	created_at
+	updated_at
+
+roles
+------
+	id (PK)
+	name (ADMIN/HR/MANAGER/EMPLOYEE)
+
+user_roles
+-----------
+	user_id (FK)
+	role_id (FK)
+
+APIs
+| Method | Endpoint       | Description   |
+| ------ | -------------- | ------------- |
+| POST   | /auth/login    | Login         |
+| POST   | /auth/register | Register      |
+| POST   | /auth/refresh  | Refresh token |
+| GET    | /users         | List users    |
+
+
+3️⃣ Employee Service (Core Service) This is the heart of the system.
+🧾 Employee Database Schema
+employees
+---------
+	id (PK)
+	employee_code (unique)
+	first_name
+	last_name
+	email (unique)
+	phone
+	date_of_birth
+	gender
+	marital_status
+	join_date
+	employment_type (FULL_TIME, CONTRACT, INTERN)
+	status (ACTIVE, RESIGNED, TERMINATED)
+	department_id
+	designation
+	manager_id
+	address_id
+	created_at
+	updated_at
+
+addresses
+----------
+	id (PK)
+	street
+	city
+	state
+	country
+	zip_code
+
+documents
+----------
+	id (PK)
+	employee_id
+	document_type (AADHAR, PAN, PASSPORT)
+	file_path
+	uploaded_at
+
+emergency_contacts
+-------------------
+	id (PK)
+	employee_id
+	name
+	relation
+	phone
+
+skills
+-------
+	id (PK)
+	name
+
+employee_skills
+----------------
+	employee_id
+	skill_id
+	proficiency_level
+	
+Employee Service Functionalities
+🔹 Core HR Features
+		Add employee
+		Update employee
+		Delete employee (soft delete)
+		Search employee
+		Bulk import/export (CSV)
+		Upload documents
+		Manage skills
+
+🔹 Advanced Features
+	Manager hierarchy
+	Organization chart
+	Promotion history
+	Employment history
+	
+APIs
+| Method | Endpoint          | Description          |
+| ------ | ----------------- | -------------------- |
+| POST   | /employees        | Create employee      |
+| GET    | /employees/{id}   | Get employee         |
+| GET    | /employees        | Pagination + filter  |
+| PUT    | /employees/{id}   | Update               |
+| DELETE | /employees/{id}   | Soft delete          |
+| GET    | /employees/search | Search by name/email |
+
+4️⃣ Department Service
+departments
+-----------
+	id (PK)
+	name
+	description
+	head_id
+	created_at
+	
+	APIs
+	CRUD department
+	Assign department head
+	Get department employees
+
+5️⃣ Attendance Service
+attendance
+-----------
+	id (PK)
+	employee_id
+	date
+	check_in_time
+	check_out_time
+	status (PRESENT, ABSENT, WFH)
+
+leave_requests
+---------------
+	id (PK)
+	employee_id
+	leave_type (SICK, CASUAL, ANNUAL)
+	start_date
+	end_date
+	reason
+	status (PENDING, APPROVED, REJECTED)
+	approved_by
+	
+Features: Daily attendance tracking, Leave request workflow, Leave balance tracking, Calendar view, Monthly attendance summary
+
+6️⃣ Payroll Service
+salary_structure
+-----------------
+	id
+	employee_id
+	basic
+	hra
+	allowances
+	deductions
+	tax
+
+payroll
+--------
+	id
+	employee_id
+	month
+	year
+	gross_salary
+	net_salary
+	status (GENERATED, PAID)
+	payment_date
+
+Features: Generate monthly salary, Payslip download (PDF), Tax calculation, Bonus processing, Salary revision history
+
+7️⃣ Notification Service
+Event-driven using Kafka.
+Events: Employee created, Leave approved, Salary generated, Password reset
+Channels: Email, SMS, In-app notifications
+
+🔐 Security Architecture
+JWT authentication
+Role-based authorization
+Method-level security
+Password hashing (BCrypt)
+Refresh tokens
+API rate limiting
+
+🗃 Database Strategy Each service has its own database (Database per service pattern).
+| Service    | Database|
+| ---------- | --------|
+| Auth       | Mysql   |
+| Employee   | Mysql   |
+| Payroll    | Mysql   |
+| Attendance | Mysql   |
+| Audit      | Mysql   |
+
+🔄 Communication Strategy
+Sync: REST (Feign Client)
+Async: Kafka events
+Example: Employee created → Publish event → Payroll & Notification consume.
+
+📊 Angular 19 Frontend Architecture
+Structure
+src/
+ ├── core/
+ ├── shared/
+ ├── features/
+ │     ├── employee/
+ │     ├── attendance/
+ │     ├── payroll/
+ │     ├── admin/
+
+Angular Features: 
+Standalone components, Signals for state management, Interceptors (JWT)
+Lazy loaded routes, Reactive forms, Role-based UI, Dashboard charts
+
+UI Modules
+1️⃣ Dashboard
+	Employee count
+	Attendance summary
+	Payroll summary
+	Leave pending approvals
+
+2️⃣ Employee Module
+	List with pagination
+	Advanced filters
+	Add/Edit form
+	Profile view
+	Documents upload
+
+3️⃣ Attendance Module
+	Calendar
+	Apply leave
+	Manager approval
+	
+4️⃣ Payroll Module
+	Salary structure
+	Generate payroll
+	Download payslip
+
+📈 Real-Time Enterprise Features
+	✔ Multi-tenant support, ✔ Audit logging, ✔ Soft delete, ✔ Data encryption, ✔ SSO integration, ✔ LDAP integration
+	✔ Bulk upload, ✔ Excel export, ✔ Activity history, ✔ Approval workflows, ✔ Employee self-service portal
+
+🧪 Testing Strategy
+	JUnit 5
+	Mockito
+	TestContainers
+	Integration tests
+	Contract testing (Spring Cloud Contract)
+	Angular unit tests
+	Cypress E2E
+
+🚀 DevOps Architecture
+	Dockerized services
+	Kubernetes deployment
+	CI/CD (GitHub Actions / Jenkins)
+	Centralized logging (ELK)
+	Monitoring (Prometheus + Grafana)
+	Distributed tracing (Zipkin)
+
+📌 Non-Functional Requirements
+| Requirement       | Solution           |
+| ----------------- | ------------------ |
+| Scalability       | Horizontal scaling |
+| Security          | OAuth2 + JWT       |
+| High Availability | Kubernetes         |
+| Observability     | Micrometer         |
+| Performance       | Redis caching      |
+
+
+📦 Optional Enhancements
+	AI-based attrition prediction
+	Resume parser
+	Skill recommendation engine
+	Employee performance analytics
+
+🎯 Final Enterprise Architecture Flow
+	Angular → API Gateway
+	Gateway → Auth Validation
+	Gateway → Target Microservice
+	Service → DB
+	Event → Kafka
+	Consumer Services process

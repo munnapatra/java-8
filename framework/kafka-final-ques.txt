@@ -1,0 +1,270 @@
+🔥 1. Kafka Architecture (Deep Understanding)
+--------------------------------------------------------------------------------------------
+Q1. What is Apache Kafka? Why was it created?
+--------------------------------------------------------------------------------------------
+✅ Apache Kafka is a distributed event streaming platform used to:
+	Publish and subscribe to streams of events
+	Store events durably
+	Process events in real time
+	It works as a high-throughput, fault-tolerant, scalable message broker built on a distributed commit log architecture.
+
+✅ Why Was Kafka Created?
+	Kafka was originally developed at LinkedIn to solve:
+		1️⃣ High Throughput Problem: Traditional systems couldn’t handle millions of events per second.
+		2️⃣ Real-Time Data Processing: Batch systems were slow. They needed near real-time pipelines.
+		3️⃣ Decoupling Microservices: Services needed asynchronous communication.
+		4️⃣ Scalability: Needed horizontal scaling across machines.
+		5️⃣ Durability & Fault Tolerance: Data should not be lost if a server crashes.
+
+--------------------------------------------------------------------------------------------
+Explain Kafka architecture in detail.
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+What is a Topic?
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+What is a Partition? Why is it important?
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+What is a Broker?
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+What is a Consumer Group?
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+What is ISR (In-Sync Replica)?
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+What is Leader and Follower in Kafka?
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+What is Controller in Kafka?
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+How does Kafka achieve high throughput?
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+How does Kafka handle fault tolerance?
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+What happens if a broker goes down?
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+What happens if leader partition crashes?
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+How is leader election done?
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+What is replication factor? Best practices?
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+What happens if replication factor = 1?
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+What is rack awareness?
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+How does Kafka ensure durability?
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+What is min.insync.replicas?
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+What happens if min.insync.replicas is not satisfied?
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+
+⚡ 2. Producer Deep Dive
+How does Kafka Producer work internally?
+What is RecordAccumulator?
+What is batch.size?
+What is linger.ms?
+What is acks=0,1,all?
+What is idempotent producer?
+What is enable.idempotence?
+What is max.in.flight.requests?
+What happens if producer retries?
+How ordering is maintained?
+Advanced Producer Scenarios
+How to handle duplicate messages?
+How to ensure exactly-once from producer side?
+How does partitioning work?
+What is default partitioner?
+What if key is null?
+How to create custom partitioner?
+What happens if producer buffer is full?
+What is compression in Kafka?
+Which compression is best (gzip/snappy/lz4/zstd)?
+When should you use synchronous send?
+
+🧠 3. Consumer Deep Dive
+How does Kafka consumer work?
+What is polling mechanism?
+What is offset?
+Where offsets are stored?
+What is auto-commit?
+Difference between auto commit and manual commit?
+What is commitSync vs commitAsync?
+What happens if consumer crashes before commit?
+What is consumer lag?
+How to monitor consumer lag?
+Advanced Consumer
+What is rebalance?
+When rebalance happens?
+What is eager vs cooperative rebalance?
+What is partition assignment strategy?
+What are assignment strategies (Range, RoundRobin, Sticky)?
+What is max.poll.interval.ms?
+What happens if processing takes long?
+How to handle slow consumer?
+What is dead letter topic?
+How to retry failed messages?
+
+💥 4. Delivery Semantics (Very Important)
+What is At Most Once?
+What is At Least Once?
+What is Exactly Once?
+How does Kafka implement Exactly Once?
+What are transactional producers?
+What is transactional.id?
+What is read_committed?
+What is isolation.level in consumer?
+Difference between idempotence and transactions?
+Real scenario to implement exactly once in microservices?
+
+🔥 5. Kafka Streams & Processing
+What is Kafka Streams?
+Difference between Streams and Consumer API?
+What is KStream?
+What is KTable?
+Difference between KStream and KTable?
+What is GlobalKTable?
+What is windowing?
+What is state store?
+What is RocksDB?
+What is changelog topic?
+
+⚙️ 6. Kafka in Spring Boot (Very Important for Java Dev)
+How to configure Kafka in Spring Boot?
+What is @KafkaListener?
+How to configure concurrency?
+How to configure retry?
+What is SeekToCurrentErrorHandler?
+How to configure Dead Letter Topic in Spring Kafka?
+How to implement manual acknowledgment?
+How to handle deserialization errors?
+How to implement transactional Kafka with Spring?
+How to integrate Kafka with database transaction?
+
+🏗 7. Kafka Design & Architecture Scenarios
+Design an Order Processing system using Kafka.
+How to design Event-Driven Microservices using Kafka?
+How to ensure idempotency in consumers?
+How to prevent duplicate processing?
+How to design high throughput system (1M messages/sec)?
+How to scale Kafka cluster?
+How many partitions should you create?
+How to design retry strategy?
+How to implement delayed messages?
+How to implement request-response over Kafka?
+
+📦 8. Performance Tuning
+How to improve producer throughput?
+How to improve consumer throughput?
+Important Kafka tuning properties?
+How to reduce latency?
+How to tune JVM for Kafka?
+What is zero-copy?
+What is page cache?
+How Kafka uses OS page cache?
+What is log segment?
+How retention works?
+
+🔐 9. Security
+What is SASL?
+What is SSL in Kafka?
+What is ACL?
+How to secure Kafka cluster?
+Difference between SASL_PLAINTEXT and SASL_SSL?
+
+☁️ 10. Kafka in Production
+How to monitor Kafka?
+Important Kafka metrics?
+How to handle disk full?
+How to upgrade Kafka cluster?
+What is rolling upgrade?
+How to migrate from Zookeeper to KRaft?
+What is KRaft mode?
+What is log compaction?
+Difference between delete and compact policy?
+How to debug consumer lag issue?
+
+🧩 11. Real Production Problems
+Producer sending duplicates — how to fix?
+Consumer rebalancing continuously — why?
+Messages are out of order — why?
+High CPU in broker — possible reasons?
+Consumer not reading messages — possible causes?
+Offset reset scenario?
+Data loss scenario in Kafka?
+Broker crash during write — what happens?
+Network partition scenario?
+How to do disaster recovery?
+
+🎯 12. Comparison Questions
+Kafka vs RabbitMQ?
+Kafka vs ActiveMQ?
+Kafka vs Pulsar?
+When NOT to use Kafka?
+Kafka vs REST for microservices communication?
+
+🏆 13. Scenario-Based Architecture Questions
+Design payment system using Kafka.
+How to implement Saga using Kafka?
+How to ensure ordering across microservices?
+Multi-region Kafka design?
+How to handle schema evolution?
+
+📜 14. Schema Registry & Serialization
+What is Schema Registry?
+What is Avro?
+What is Protobuf?
+JSON vs Avro?
+What is backward compatibility?
+What is forward compatibility?
+How schema evolution works?
+What happens if schema changes?
+How to prevent breaking changes?
+How to version events?
+
+🎯 15. Advanced Internals (Architect Level)
+How Kafka stores messages on disk?
+What is log file structure?
+What is high watermark?
+What is LEO (Log End Offset)?
+How fetch request works?
+How replica synchronization works?
+What is controller quorum?
+What is KRaft quorum?
+What is snapshot in KRaft?
+How metadata is stored in KRaft?
+
+🧠 16. Coding Questions
+Write producer code in Java.
+Write consumer code in Java.
+Implement idempotent consumer.
+Implement retry with exponential backoff.
+Implement DLT using Spring Kafka.
+Implement Kafka transaction in Spring Boot.
+Write custom partitioner.
+Implement exactly-once pipeline.
+Implement batch consumer.
+Implement Kafka interceptor.
+
+🔥 BONUS: HR + Experience-Based Questions
+Explain Kafka architecture of your current project.
+How many partitions you used and why?
+What production issue you faced?
+How did you tune Kafka?
+How did you ensure no data loss?

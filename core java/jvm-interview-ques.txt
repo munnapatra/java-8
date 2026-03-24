@@ -1,16 +1,11 @@
 📌1. JVM Memory Architecture (Core & Advanced)
 ➡️FUll JMV concept
 ====================================================================================================================
-	Step 1️⃣: JVM Startup & Initialization
+Step 1️⃣: JVM Startup & Initialization
 		When JVM starts, it initializes: Class Loader Subsystem, Runtime Data Areas, Execution Engine, JNI & Native Libraries
-		Operating System
-			 ↓
-		JVM Process Created
-			 ↓
-		JVM Internal Components Initialized
 
-	Step 2️⃣: Class Loader Subsystem (Very Important)
-		What Happens: JVM loads .class files into memory using Class Loaders.
+Step 2️⃣: Class Loader Subsystem (Very Important)
+		JVM loads .class files into memory using Class Loaders.
 		Types of Class Loaders:
 			Bootstrap ClassLoader
 			   ↓
@@ -18,7 +13,7 @@
 			   ↓
 			Application ClassLoader
 
-		Phases of Class Loading ( .class → Class Object → Ready for Execution)
+		Phases of Class Loading
 			1.Loading: Reads .class bytecode, Creates Class object in Method Area
 			2.Linking:
 				Verification → bytecode safety checks
@@ -31,72 +26,77 @@
 				Executes static blocks
 				Assigns actual static values
 
-	Method Area Stores:
-		1. Class Metadata: Fully qualified class name, Package name, Access modifiers, Superclass information, Interfaces implemented
-		2. Method Metadata: Method name, Return type, Parameter types, Bytecode of methods, Access flags (public, static, etc.)
-		3. Field Metadata: Field names, Field types, Access modifiers
-		4. Runtime Constant Pool: 
-			Literals ("abc", 100)
-			Symbolic references to: Classes, Methods, Fields
-			Important: Runtime constant pool is per-class, not global.
-		5. Static Variables: Class-level variables, Initialized during class initialization
-		6. Method Bytecode: Instructions used by Interpreter / JIT
+		Method Area Stores:
+			1. Class Metadata: 
+				Fully qualified class name, Package name, Access modifiers
+				Superclass information, Interfaces implemented
+				
+			2. Method Metadata: 
+				Method name, Return type, Parameter types
+				Bytecode of methods, Access flags (public, static, etc.)
+				
+			3. Field Metadata: Field names, Field types, Access modifiers
+			
+			4. Runtime Constant Pool: 
+				Literals ("abc", 100)
+				Symbolic references to: Classes, Methods, Fields
+				Important: Runtime constant pool is per-class, not global.
+				
+			5. Static Variables: Class-level variables, Initialized during class initialization
+			
+			6. Method Bytecode: Instructions used by Interpreter / JIT
 
-	Step 3️⃣: Runtime Memory Areas Creation : At this point JVM creates memory areas:
+	Step 3️⃣: Runtime Memory Areas Creation : 
 		Shared Areas: Method Area → class metadata, Heap → objects & arrays
 		Per-Thread Areas: Java Stack, PC Register, Native Method Stack
 
 	Step 4️⃣: Main Thread Starts: JVM looks for: public static void main(String[] args)
-		Creates main thread, Pushes main() frame onto stack, PC Register points to first instruction
+		Creates main thread, Pushes main() frame into stack, PC Register points to first instruction
 
-	Step 5️⃣: Execution Engine Takes Over: Execution Engine consists of:
+	Step 5️⃣: Execution Engine Takes Over => Execution Engine consists of:
 		Execution Engine
 		 ├── Interpreter
 		 ├── JIT Compiler
 		 └── Garbage Collector
 
-	Step 6️⃣: Interpreter Executes Bytecode : (Bytecode → Interpreter → CPU)
-		Interpreter Behavior: 
-			Reads bytecode line-by-line
-			Executes instructions one at a time
-			Fast startup, slower execution
-			Problem: Repeated execution of same code is slow
+		✔Interpreter Executes Bytecode : (Bytecode → Interpreter → CPU)
+				Reads bytecode line-by-line
+				Executes instructions one at a time
+				Fast startup, slower execution
+				Problem: Repeated execution of same code is slow
 
-	Step 7️⃣: HotSpot Detection (Critical)
-		JVM monitors execution and identifies: Frequently executed methods, Frequently executed loops
-		These are called Hot Methods.
+		✔HotSpot Detection (Critical)
+			JVM monitors execution and identifies: Frequently executed methods, Frequently executed loops
+			These are called Hot Methods.
 
-	Step 8️⃣: JIT Compiler Optimization
-		What JIT Does: Compiles hot bytecode into native machine code, Stores it in Code Cache, Skips interpretation next time
-		Hot Bytecode
-		   ↓
-		JIT Compilation
-		   ↓
-		Native Code (Code Cache)
-		   ↓
-		Direct CPU Execution
+		✔JIT Compiler Optimization
+			Compiles hot bytecode into native machine code, Stores it in Code Cache, Skips interpretation next time
 
-		JIT Optimizations: 
-			1. Method inlining: Replaces a method call with the method body itself.
-				Before: int sum() { return a + b; } int x = sum(); || After: int x: a+b;
-			2. Loop unrolling: Executes multiple loop iterations in one cycle.
-				Before: for (int i=0; i<4; i++) work(); After: work(); work(); work(); work();
-			3. Dead code elimination: Removes code that never executes.
-			4. Escape analysis: Checks does an object escape the method or thread?
-				Case 1: No Escape: Object stays inside method, Can allocate on stack, No GC needed
-						void m() {
-						  Point p = new Point(1,2);
-						}
-				Case 2: Escapes: ❌ Must allocate on heap
-						Point p;
-						void m() {
-						  p = new Point(1,2);
-						}
-			5. Lock elision: Removes synchronization when it’s unnecessary.
-				synchronized(obj) { // code } => If object is thread-local, JIT removes lock.
+			JIT Optimizations: 
+				1. Method inlining: Replaces a method call with the method body itself.
+					Before: int sum() { return a + b; } int x = sum(); || After: int x: a+b;
+				2. Loop unrolling: Executes multiple loop iterations in one cycle.
+					Before: for (int i=0; i<4; i++) work(); After: work(); work(); work(); work();
+				3. Dead code elimination: Removes code that never executes.
+				4. Escape analysis: Checks does an object escape the method or thread?
+					Case 1: No Escape: Object stays inside method, Can allocate on stack, No GC needed
+							void m() {
+							  Point p = new Point(1,2);
+							}
+					Case 2: Escapes: ❌ Must allocate on heap
+							Point p;
+							void m() {
+							  p = new Point(1,2);
+							}
+				5. Lock elision: Removes synchronization when it’s unnecessary.
+					synchronized(obj) { // code } => If object is thread-local, JIT removes lock.
+		
+		✔Garbage Collection (GC)
+			When GC Runs: Heap fills up, Allocation pressure increases, JVM decides GC is needed
+			GC Process: Identify GC Roots, Mark reachable objects, Sweep / Compact unused memory, Possibly pause application threads (STW)
+			Types: Minor GC → Young Gen, Major GC → Old Gen, Full GC → Entire heap + metaspace
 
-	Step 🔟: Object Creation & Memory Allocation: ( MyObj obj = new MyObj(); )
-		What Happens: 
+	Step 6️⃣: Object Creation & Memory Allocation: ( MyObj obj = new MyObj(); )
 			Memory allocated in Heap (Eden)
 			Reference stored in Stack
 			Object header created: When JVM creates an object, it adds hidden metadata before actual data.
@@ -110,47 +110,36 @@
 				| 64-bit | 12–16 bytes |
 				Depends on: Compressed OOPs, JVM settings
 			Constructor executed
-		
-	Step 1️⃣1️⃣: Garbage Collection (GC)
-		When GC Runs: Heap fills up, Allocation pressure increases, JVM decides GC is needed
-		GC Process: Identify GC Roots, Mark reachable objects, Sweep / Compact unused memory, Possibly pause application threads (STW)
-		Types: Minor GC → Young Gen, Major GC → Old Gen, Full GC → Entire heap + metaspace
 
-	Step 1️⃣2️⃣: Multithreading & Synchronization
-		Threads have independent stacks
-		Shared heap objects
-		Java Memory Model ensures: Visibility, Ordering, Atomicity
-		Handled via: volatile, synchronized, Locks, Memory barriers
-
-	Step 1️⃣3️⃣: Native Code Execution (JNI)
+	Step 7️⃣: Native Code Execution (JNI)
 		If Java calls native code: native void callC();
 		Control moves to Native Method Stack, OS-level libraries used, Returns control to JVM
 
-	Step 1️⃣4️⃣: Exceptions & Errors Handling
-		Possible runtime issues: StackOverflowError, OOMError, ClassNotFoundException, NoClassDefFoundError, Segmentation fault (JNI)
-		JVM handles or terminates accordingly.
 
-	Step 1️⃣5️⃣: Program Termination
+	Step 8️⃣: Program Termination
 		JVM exits when: All non-daemon threads finish, System.exit() called, Fatal error occurs
 		Before exit: Shutdown hooks run, Final cleanup
 
-
-	1️⃣ What Is Garbage Collection?
-	Garbage Collection is the automatic process by which the JVM identifies objects that are no longer reachable
+➡️Questions
+====================================================================================================================
+🔹 Q0. What Is GC? Expain about it.
+====================================================================================================================
+1️⃣ What Is Garbage Collection?
+	GC is the automatic process by which the JVM identifies objects that are no longer reachable
 	and reclaims their memory from the heap.
 	Key idea: JVM does not delete objects, JVM reclaims memory
 
-	2️⃣ Where GC Operates: 
+2️⃣ Where GC Operates: 
 		GC operates on the Heap
 		GC itself is part of the Execution Engine
 		GC scans beyond heap to find references
 
-	3️⃣ When Does GC Start? (GC Triggers)
+3️⃣ When Does GC Start? (GC Triggers)
 	GC can be triggered when:
 		Eden space is full, Old Generation occupancy crosses threshold
 		Allocation failure, Metaspace pressure, Explicit System.gc() (not guaranteed)
 
-	4️⃣ GC Roots – Starting Point of GC (Most Important): GC does NOT scan entire heap blindly.
+4️⃣ GC Roots – GC does NOT scan entire heap blindly.
 	GC Roots Include:
 		Thread stacks (local variables)
 		Static variables (Method Area)
@@ -162,7 +151,7 @@
 	Reachable objects → Alive
 	Unreachable       → Garbage
 
-	5️⃣ Mark Phase (Reachability Analysis)
+5️⃣ Mark Phase (Reachability Analysis)
 	What Happens: GC starts from GC Roots, Traverses object graph, Marks all reachable objects as alive
 	Important: JVM uses reachability, not reference counting, Handles cyclic references correctly
 

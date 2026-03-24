@@ -1,0 +1,176 @@
+✅ The 12 Factors (Clear & Exam-Ready)
+--------------------------------------------------
+🔹1. Codebase: 
+	✔️Single codebase per application tracked in version control with many deploys(dev, test, prod)
+	❌ Multiple codebases for same app
+
+🔹2. Dependencies:
+	✔️Explicitly declare and isolate dependencies, Use build tools (Maven, Gradle, npm)
+	❌ Relying on system-installed packages
+
+🔹3. Config:
+	✔️Store config in environment variables like in (dev,test, prod properties)
+	✔️No hardcoded configs, examples: DB URL, credentials, API keys
+
+🔹4. Backing Services: 
+	✔️Application consumes over the network is known as a backing service.
+	✔️Treat DBs, message brokers, caches as attached resources
+	✔️Easily swap services without code change, Example: MySQL → PostgreSQL
+
+🔹5. Build, Release, Run:
+	✔️Strict separation: Build → compile, Release → config + build, Run → execute app
+	❌ Modifying code in runtime
+
+🔹6. Processes: 
+	✔️Execute the application as one or more stateless processes. In simple terms, the usage of sticky sessions must be avoided.
+	✔️App runs as stateless processes
+	✔️No session or local file storage
+	✔️State must be in DB/cache
+
+🔹7. Port Binding: This information that to which port our service will be listening to is also stored in the configuration file itself.
+	✔️App exposes services via a port
+	✔️Embedded web server (Tomcat, Netty)
+	❌ External web server dependency
+
+🔹8. Concurrency:
+	✔️Scale out using processes
+	✔️Not threads
+	✔️Example: multiple app instances behind load balancer
+
+🔹9. Disposability:
+	✔️Fast startup & graceful shutdown
+	✔️Handle SIGTERM properly
+	✔️Helps rolling deployments & autoscaling
+
+🔹10. Dev/Prod Parity:
+	✔️Keep environments as similar as possible
+	✔️Same DB type, same services
+	❌ “Works in dev, fails in prod”
+
+🔹11. Logs:
+	✔️Treat logs as event streams
+	✔️Write to stdout/stderr
+	✔️Use log aggregation tools (ELK, Splunk)
+
+🔹12. Admin Processes:
+	✔️Run admin/maintenance tasks as one-off processes
+	✔️Example: DB migration, cleanup jobs
+	
+
+✅ 10 Microservices Design Principles That Every Developer Should Know
+--------------------------------------------------
+🔹 1. Independent and Autonomous/Self-governing services:
+	✔️Each service should have its own resources(DB, business logic,..etc) to run.
+	✔️Should not dependent other services to perform any of its functions.
+	✔️Ensure each service can be developed, tested, deployed independently without affecting the other part of the system.
+	
+🔹 2. API aggregation:
+	✔️Service communicate throughout the system with other microservices without having a programming language barrier.
+	
+🔹 3. Flexibility:
+	✔️Makes your project more adaptable to possible future changes.
+	
+🔹 4. Scalability:
+	✔️Enables your application to get modified according to the increasing or decreasing traffic, data, and complexity without affecting the performance of the system.
+	
+🔹 5. Constant monitoring:
+	✔️Faults can be resolved at the earliest and your application can run smoothly.
+	✔️Logging and metrics, Distributed tracing, Health checks, Alerting and notifications
+	
+🔹 6. Failure Isolation/ Failure resilience:
+	✔️fault-tolerant approaches during the designing of microservices.
+	✔️Include Redundancy in order to have multiple instances present at the time of failure.
+	✔️Separation of Services in order to be isolated in case of failures.
+	✔️The microservices should Gracefully Degrade instead of crashing the whole service. 
+	✔️Each microservice should have Circuit Breakers in order to detect and isolate the failures.
+	
+🔹 7. Realtime Load balancing:
+	✔️Sometimes it may happen when a client sends the request to the server then the database has to retrieve the data from multiple microservices at the same time. At that point, the Load balancer comes into the picture and it defines how much amount of the Central Processing Unit or GPU is to be used for a particular service to fetch the data and finally how the client request should be passed.
+	
+🔹 8. Inclusion of DevOps:
+	✔️Set of techniques applied that is used to provide continuous support in order to collaborate, communicate and automate the development and operation with the help of operations teams.
+	
+🔹 9. Versioning:
+	✔️Versioning is a term used for updating to the latest versions of the services according to the latest tech stacks that are being used in present.
+	
+🔹 10. Availability:
+	✔️Availability straightway means the presence of microservices 24x7.
+
+✅ Microservices Design Principles
+--------------------------------------------------
+🔹 1. Single Responsibility Principle (SRP)
+	✔️Each microservice should focus on one business capability
+	❌ “UserService + OrderService + PaymentService” in one app
+	✅ Separate services per domain. Example:
+		✔️Order Service → order lifecycle only
+		✔️Payment Service → payment processing only
+
+🔹 2. Loose Coupling, High Cohesion
+	✔️Services should minimize dependencies on each other
+	✔️Internal logic should be strongly related
+	✅ Communicate via APIs/events
+	❌ Share database or internal classes
+	
+🔹 3. Independently Deployable
+	✔️A service can be deployed without redeploying others
+	✔️Enables faster releases and reduced risk
+	✔️Key Enablers: Separate CI/CD pipelines, Versioned APIs
+	
+🔹 4. Database per Service
+	✔️Each service owns its data
+	✔️No direct DB access from another service
+	❌ OrderService reading UserService DB
+	✅ Communicate via REST / events
+	
+🔹 5. API-First Design
+	✔️APIs are contracts
+	✔️Clearly defined request/response models
+	✔️Best Practices: OpenAPI / Swagger, Backward compatibility, Versioning (/v1/orders)
+
+🔹 6. Smart Endpoints, Dumb Pipes
+	✔️Business logic stays inside services
+	✔️Communication channels remain simple
+	❌ Heavy ESB with logic
+	✅ REST / Messaging (Kafka, RabbitMQ)
+
+🔹 7. Decentralized Governance
+	✔️Teams choose tools & tech per service
+	✔️Avoid one-size-fits-all stack, Example: ️Service A → Java + Spring Boot, ️Service B → Node.js
+	✔️Common standards only for security & observability
+
+🔹 8. Fault Isolation & Resilience
+	✔️Failure in one service must not cascade
+	✔️Patterns: Circuit Breaker, Timeout, Retry with backoff, Bulkhead
+	✔️Libraries: Resilience4j, Netflix OSS
+
+🔹 9. Stateless Services
+	✔️Services should not store session state
+	✔️Enables horizontal scaling
+	✅ Store state in DB / Cache (Redis)
+	❌ In-memory session storage
+
+🔹 10. Event-Driven Communication (When Needed)
+	✔️Use events for loose coupling
+	✔️Improves scalability, Example: ✔️OrderPlacedEvent → Payment, Inventory, Notification
+
+🔹 11. Observability First
+	✔️Monitoring is not optional
+	✔️Must-have: Centralized logging, Metrics, Distributed tracing
+	✔️Tools: Prometheus, Grafana, Zipkin / Jaeger
+
+🔹 12. Security by Design
+	✔️Zero-trust model
+	✔️Secure communication between services
+	✔️Practices: OAuth2 / JWT, mTLS, API Gateway
+
+🔹 13. Automated Testing
+	✔️Testing pyramid is critical
+	✔️Types: Unit tests, Contract tests, Integration tests
+
+🔹 14. Infrastructure Automation
+	✔️Infrastructure as Code (IaC)
+	✔️Tools: Docker, Terraform, Kubernetes: Platforms like Kubernetes make scaling and resilience practical.
+
+🔹 15. Design for Failure
+	✔️Assume failures will happen
+	✔️Handle partial failures gracefully

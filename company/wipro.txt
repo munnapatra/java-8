@@ -1,0 +1,301 @@
+wipro
+------------------
+🟦 Coding Questions 
+1. Write a Java 8 stream code to group employees by department and get the highest salary per department.
+2: How can you Remove all occurrences of an element from a List in Java ?
+3: How can you find a missing number in list ? Please write a program
+4: Find the average marks of students for each department
+5: List of employees working in HR Department
+6: Get unique numbers from the list of integers using Streams.
+7: Write a Java function to check if a string is a palindrome.
+8: Given two strings, determine if one is an anagram of the other
+9: Using the Stream API, how would you write a program to find duplicate characters in a given string?
+10: String str = "aabcx1@cd" : Remove special characters, spaces and numbers and then print the count of each alphabet
+11: String abc = "mY nAme iS mUnEeB"; : Change the case of all charachters and print the output.
+13: Given a string you have to count number of pallindromes and print them
+14: Given an array and you have to print it in sorted order using Java 8 and also print the count of each number
+15: Remove duplicate from the list of string
+
+🟦 Core Java
+-----------------
+How do you explain Java’s multithreading model to someone new to concurrency?
+--------------------------------------------------------------------------------------
+1. Thread: A thread is an independent path of execution within a program. Java allows multiple threads to run concurrently.
+
+2. Two common ways of Thread creation:
+	   Extend `Thread` class
+	   Implement `Runnable` (preferred)
+
+3. Thread Lifecycle: `New → Runnable → Running → Waiting/Blocked → Terminated`
+
+4. Concurrency vs Parallelism
+	   Concurrency: Multiple tasks progress together (CPU switches between threads).
+	   Parallelism: Multiple tasks run at the same time on multiple cores.
+
+5. Thread Coordination / Synchronization
+   To avoid race conditions when multiple threads access shared data: `synchronized`, `Lock`, `volatile`, `Atomic` classes
+
+6. Thread Management Utilities
+   Java provides high-level APIs in `java.util.concurrent`:
+		   `ExecutorService` (thread pools)
+		   `Future / CompletableFuture`
+		   `BlockingQueue`
+
+7. Best Practice
+   Prefer ExecutorService + thread pools instead of manually creating threads for better scalability and resource management.
+
+--------------------------------------------------------------------------------------
+Beyond the basics, what are impactful use cases of functional interfaces in Java?
+--------------------------------------------------------------------------------------
+1. Lambda Expressions (Cleaner Code)
+   Functional interfaces enable lambdas to replace anonymous classes. Example: `Runnable`, `Comparator`.
+
+2. Stream API Operations
+   Used heavily in streams for functional-style data processing.
+
+   `Predicate` → filtering
+   `Function` → mapping
+   `Consumer` → iteration
+   `Supplier` → lazy value generation
+
+3. Strategy Pattern Implementation
+   Behavior can be passed as a function instead of creating multiple classes.
+   Improves flexibility and reduces boilerplate.
+
+4. Event Handling / Callbacks
+   Functional interfaces simplify callback implementations in async or event-driven systems.
+
+5. Asynchronous Programming
+   Used with `CompletableFuture` for non-blocking workflows (`thenApply`, `thenAccept`, etc.).
+
+6. Custom Business Rules / Validation
+   Define reusable rule logic like `Predicate<T>` for filtering or validating domain objects.
+
+7. Dependency Injection of Behavior
+   Allows injecting logic (not just objects), improving testability and configurability.
+
+Key Benefit:
+Functional interfaces enable functional programming style, cleaner APIs, and more flexible system design.
+
+--------------------------------------------------------------------------------------
+Common pitfalls around the synchronized keyword in Java concurrency?
+--------------------------------------------------------------------------------------
+ynchronizing large blocks or entire methods reduces concurrency and throughput.
+
+--------------------------------------------------------------------------------------
+How do you use the Optional class?
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+Explain difference between == and equals method
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+Describe how ConcurrentHashMap works and how it differs from HashMap in terms of concurrency handling.
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+How does JVM work with Hashmap
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+Can you explain the key features introduced in Java 8 and provide real-life scenarios where they can be applied?
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+What does a well-structured exception handling approach look like in Java?
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+Design and implement a data structure for Least Recently Used (LRU) cache. 
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+Q1. Java 8 features
+--------------------------------------------------------------------------------------
+Q2. Garbage collector changes in java 11
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+Explain HashMap internals. What changed after Java 8?
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+Difference between ArrayList & CopyOnWriteArrayList.
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+How does Stream API handle lazy evaluation?
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+What are common pitfalls in multithreading?
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+How JVM loads classes?
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+String vs StringBuilder Vs StringBuffer
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+Java virtual machine
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+
+Memory leak and steps to avoid memory leak
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+Pros and cons of stream API
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+Explain lifecycle of thread
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+Explain use of the volatile key
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+Which opps concept is used in lambda expression
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+About searialization
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+@Transient explain
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+In hashmap when the time complexity is more 
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+6. Changes in hashmap after java 8
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+7. Features of java 8 you have implemented 
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+8. Map vs flatmap 
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+9. How to create custom annotation.
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+10. How to create custom compile and runtime exceptional
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+Difference between Comparable and Comparator
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+Difference between final, finally, finalize
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+How can you lambda expression to initiate a funtional interface
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+How do you handle nullpointer exception
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+Difference between synchronized block and Lock
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+Q2. How do you accumulate heap to the jvm and what values do you pass?
+--------------------------------------------------------------------------------------
+Ans. To accumulate heap to the JVM, specify the initial and maximum heap size using -Xms and -Xmx flags respectively.
+Use -Xms flag to specify the initial heap size, e.g. -Xms512m for 512 MB.
+Use -Xmx flag to specify the maximum heap size, e.g. -Xmx1024m for 1 GB.
+
+Example: java -Xms512m -Xmx1024m YourClassName
+
+-----------------------------------------------------------------------------------
+🟦 Spring boot And microservice
+-----------------------------------------------------------------------------------
+Q1. Internal architecture of Spring boot, how enable autoconfiguration works
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+Preferred strategies/tools for implementing distributed cache in Java microservices?
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+Best practices for handling schema changes in a live, high-traffic production environment?
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+Critical security vulnerabilities in REST APIs and how do you mitigate them?
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+How would you explain Docker and containerization to a team new to it?
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+How does Spring Boot handle security?
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+Purpose of Spring Initializr?
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+Q.Key considerations for transaction management when adding items to a cart.
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+Q. Implement a Spring Boot service for managing bank accounts with deposits/withdrawals. 
+	Show this implementation in a single Java class. Provide a simple one-file Java Spring Boot app for deposits/withdrawals. Create a Spring Boot REST API to update account balance based on transactions.
+	--------------------------------------------------------------------------------------
+	--------------------------------------------------------------------------------------
+Q. What is a Dockerfile?
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+How would you connect to a database in your package?
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+Explain GitHub Actions.
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+Difference between spring and spring boot, advantages of spring boot
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+Explain @SpringBootApplication
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+How can you customize or exclude auto configuration while using this @SpringBootApplication annotation
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+Best practices for optimizing the performance of a spring boot application
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+How you handle exception in your spring boot project
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+Can you walk throught the process of creating and using custom exceptions in a spring boot application
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+How you would desing an exception hierarchy in a large spring boot application to improve maintainability and error tracking
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+Do you know can we handle exceptions from asynchronous methods in Spring boot
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+How do you map exceptions to different HTTP status code in a RESTFul spring boot application
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+About CI.CD pipeline and the best deployemnt strategies
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+12. Why we moved to spring boot instead of spring.
+13. Deployment process you follow 
+14. Plugins used for sonar check 
+15. Spring profile 
+16. About jenkins
+17. Microservices benifits vs monolithic 
+18. How microservices communicate.
+Which tool did you use to monitor applications in your cuurent project
+Explain how you implemented JWT authentication
+What do you know about Microservice architecture
+About Feign client
+@Transactional explain
+If spring initializer not available how you will create a spring boot application manually
+Explain Bean scopes and provide example
+What is Pageable and Sort in spring data jpa
+Design pattern: sington, abstract
+Example where we can use singleton pattern
+Circuit breaker design pattern
+How would you configure a circuit breaker for a service  that shows periodic spikes in failure reates
+
+🟦 SQl
+-----------------
+How do you balance normalization in relational vs. NoSQL databases?
+Checkpoints in DBMS
+Explain What is an index in database along with its pros and cons
+Explain the difference between store procedure and function
+Write a query to print 2nd highest salary
+What are views and sql
+
+🟦 Angular
+-----------------
+Few features of Javascript
+Use of window object
+About implicit objects in JSP
+Difference between Interceptor and filter, when to use which
+

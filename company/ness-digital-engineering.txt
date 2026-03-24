@@ -1,0 +1,92 @@
+Ness Digital Engineering
+-------------------------------
+@Qualifier Vs @Primary
+Explain Java 8 built in Funtional interface
+What is FlatMap all about
+What will happen if equals method is not implemented ?
+In what scenarios same hascode is generated
+ConcurrentHashMap Vs HashMap
+Hashmap in 7 vs 8
+@RequestMapping Vs @GetMapping
+How to configure multiple DBs in spring boot
+How to call store procedure using data jpa
+
+How to desing custom pipe in angular
+ngFor Vs ngForOf
+ng-class Vs ng-style
+
+Annotation used in service class in Junit
+Find emp and emp-mgr from emp table
+Synchronized method or block
+
+Different lifecycle hookups in angular
+Questions about functional interface
+In detail about optional class
+How to configure actuator in spring boot
+How cache is maintained in your application
+
+1. Core Java (Advanced)
+Explain Java 8 features used in your project.
+Difference: HashMap vs ConcurrentHashMap.
+How does JVM memory model work?
+What is CompletableFuture?
+Difference: Runnable vs Callable.
+Explain Garbage Collection tuning.
+
+2. Spring / Spring Boot
+How does Spring Boot auto-configuration work?
+Difference: @Component vs @Service vs @Repository.
+What is Spring AOP? Use case?
+How do you handle transaction management?
+How to implement exception handling globally?
+What is Spring Security flow (JWT)?
+
+3. Microservices
+What is service discovery?
+How do you implement API Gateway?
+Difference: monolith vs microservices.
+How do you handle distributed transactions?
+What is Circuit Breaker (Resilience4j)?
+How do you secure microservices?
+
+4. REST API Design
+What are REST best practices?
+Difference: PUT vs PATCH.
+How do you handle versioning of APIs?
+How do you design high throughput APIs?
+
+5. SQL / Database
+Write query for 2nd highest salary.
+Difference: Index vs Partitioning.
+What is normalization vs denormalization?
+How do you optimize slow queries?
+
+6. Frontend (Angular / React)
+Explain component lifecycle.
+What is lazy loading?
+Difference: Observable vs Promise.
+What is state management (Redux/NgRx)?
+What is change detection in Angular?
+
+7. System Design (Important for 7+ yrs)
+Design a high throughput REST API.
+Design a search system (Solr/Elastic).
+How do you handle scalability and caching?
+Explain load balancing strategies.
+
+8. Messaging / Integration
+Difference: Kafka vs RabbitMQ.
+What is event-driven architecture?
+How do you ensure message reliability?
+
+9. DevOps / Cloud
+What is CI/CD pipeline?
+Docker vs Kubernetes?
+How do you deploy microservices?
+What is blue-green deployment?
+
+10. Behavioral / Project
+Explain your current project architecture.
+Biggest production issue you solved.
+How do you handle on-call support?
+Why do you want to join Ness?

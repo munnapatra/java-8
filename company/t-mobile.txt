@@ -1,0 +1,1556 @@
+T-Mobile
+------------------------------------------------------------------------------------------------
+🔹 Q6. How does Spring Boot handle dependency injection internally?
+------------------------------------------------------------------------------------------------
+2️⃣ Core components involved
+🧠 1. ApplicationContext (IoC Container)
+Central container managing beans
+Responsible for: Creating beans, Wiring dependencies, Managing lifecycle
+
+In Spring Boot: SpringApplication.run() creates the ApplicationContext
+	Chooses: 
+		AnnotationConfigServletWebServerApplicationContext (web)
+		AnnotationConfigApplicationContext (non-web)
+
+3️⃣ Bean discovery (Component Scanning)
+How Spring finds beans : @SpringBootApplication = @Configuration + @EnableAutoConfiguration + @ComponentScan
+Spring scans: The package of App, All sub-packages
+Annotations that register beans: @Component, @Service, @Repository, @Controller, @RestController, @Configuration. @Bean
+
+4️⃣ Bean Definition phase (metadata, not objects yet)
+Spring creates BeanDefinitions containing: 
+	Bean class, Scope (singleton, prototype), Dependencies
+	Init & destroy methods
+	📌 No objects are created yet.
+
+5️⃣ Bean instantiation & DI process (important)
+Step-by-step:
+	1. Instantiate bean:  Uses constructor (preferred)
+	2. Resolve dependencies: By type (@Autowired), By name (@Qualifier)
+	3. Inject dependencies: Constructor injection, Setter injection, Field injection
+	4. Aware interfaces
+	5. BeanPostProcessors
+	6. @PostConstruct
+	7. Bean ready to use
+
+6️⃣ How injection actually happens: public OrderService(PaymentService paymentService){this.paymentService = paymentService;}
+	Spring sees constructor, Finds a bean of type PaymentService, Resolves it from context, Injects it during instantiation
+	📌 If exactly one matching bean exists → OK
+	📌 If zero → failure
+	📌 If multiple → ambiguity
+
+
+------------------------------------------------------------------------------------------------
+🔹 Q7. What would you do if a bean is not getting injected?
+------------------------------------------------------------------------------------------------
+🔍 1. Check component scanning
+🔍 2. Missing stereotype annotation
+🔍 3. Multiple beans of same type (ambiguity): Fix with @Qualifier, @Primary
+🔍 4. Circular dependency: A → B → A Use @Lazy
+🔍 5. Bean creation failure
+🔍 6. Scope mismatch: Injecting prototype into singleton incorrectly. Fix with: @Lookup or ObjectProvider<T>
+🔍 7. Conditional beans not loading: @ConditionalOnProperty, @Profile
+🔍 8. Using new instead of Spring
+🔍 9. Final / static injection issues: static fields cannot be injected, final fields require constructor injection
+🔍 10. Debug like a pro 🛠️
+
+------------------------------------------------------------------------------------------------
+🔹 Q8. How does Spring Boot handle REST API requests?
+------------------------------------------------------------------------------------------------
+👇 Step-by-step internal flow
+🔹 1. Embedded web server receives request
+	Spring Boot auto-configures an embedded server: Apache Tomcat (default), Jetty, Undertow
+	The server: Accepts HTTP connection, Parses request, Hands it to Spring
+
+🔹 2. DispatcherServlet (Front Controller)
+	This is the heart of Spring MVC.
+	Responsibilities: Central entry point, Delegates to correct controller, Manages request lifecycle
+
+🔹 3. Handler Mapping
+	Spring uses HandlerMapping to: Match URL + HTTP method, Find controller method
+	Example:
+		@GetMapping("/api/orders/{id}")
+		public Order getOrder(@PathVariable Long id) {}
+
+🔹 4. Handler Adapter
+	Invokes the matched method: Resolves parameters, Converts request body, Handles validation
+	Uses: Jackson for JSON → Object, HttpMessageConverters
+
+🔹 5. Controller execution
+	Your business logic runs: Calls service layer, Calls DB / external APIs
+
+🔹 6. Response handling
+	Return value converted to JSON, HTTP status set, Headers written
+	Then response goes back to: DispatcherServlet, Embedded server, Client
+
+🚀 Filter → Interceptor → Controller → Interceptor → Filter
+Filters: Authentication, logging | Interceptors: Authorization, metrics | AOP: Transactions, tracing
+
+------------------------------------------------------------------------------------------------
+🔹 Q9. What would you do to optimize response times for slow APIs?
+------------------------------------------------------------------------------------------------
+🔍 Identify WHERE it’s slow (don’t guess)
+	Measure: Total response time, DB time, External API time, Serialization time
+	Tools: Micrometer + Prometheus, APMs (Datadog, New Relic), Logs with timings
+	📌 Never optimize blindly.
+
+🚀 Optimization checklist (in priority order)
+✅ 1. Database optimization (most common bottleneck)
+	Add proper indexes, Avoid SELECT *, Use pagination, Fix N+1 queries, Use projections
+	
+✅ 2. Use caching (huge win)
+	Use: Redis, Caffeine
+	Cache: Read-heavy endpoints, Expensive calculations
+	
+✅ 3. Reduce object creation & JSON cost
+	Use DTOs, Avoid deep object graphs, Disable unused Jackson features, Compress responses (gzip)
+
+✅ 4. Async & non-blocking calls: For heavy IO: @Async, WebClient, Virtual Threads (Java 21+)
+
+✅ 5. Connection pooling (critical)
+	DB: HikariCP (default), Tune pool size
+	External APIs: HTTP connection pooling, Timeouts
+	
+✅ 6. Tune thread pools
+	Web server thread pool, Async executor pool
+	Avoid: Blocking calls on request threads, Long-running tasks in controllers
+	
+✅ 7. Avoid unnecessary work: Remove excessive logging, Disable debug logs, Short-circuit validations
+
+✅ 8. Use proper HTTP semantics: ETag, Cache-Control, 304 responses
+
+✅ 9. GC & JVM tuning (when needed)
+	Symptoms: Latency spikes, CPU high during GC
+	Fix: Use G1 or ZGC, Proper heap sizing
+	
+✅ 10. Scale smartly: Horizontal scaling, Load balancers, Circuit breakers (Resilience4j)
+
+------------------------------------------------------------------------------------------------
+🔹 Q10. How does Spring Boot auto-configuration decide which beans to create?  What would you do to override an unwanted auto-configuration?
+------------------------------------------------------------------------------------------------
+Spring Boot auto-configuration is conditional bean creation based on what’s on the classpath, existing beans, properties, and environment.
+🔹 Step 1: @SpringBootApplication = @Configuration + @ComponentScan + @EnableAutoConfiguration
+🔹 Step 2: @EnableAutoConfiguration: “Load auto-configuration classes from the classpath.”
+	Spring Boot scans: META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
+	(Older versions used spring.factories)
+	Each entry points to an AutoConfiguration class, for example: DataSourceAutoConfiguration, WebMvcAutoConfiguration
+	
+🔹 Step 3: Conditions decide whether a config activates
+	Each auto-configuration class is guarded by conditions.
+	Important conditional annotations (🔥 very important) :
+	✅ @ConditionalOnClass
+		Create bean only if a class exists on classpath: @ConditionalOnClass(DataSource.class)
+	
+	✅ @ConditionalOnMissingBean
+		Create bean only if user didn’t define one: @ConditionalOnMissingBean(DataSource.class)
+	
+	✅ @ConditionalOnProperty
+		Create bean based on property value: @ConditionalOnProperty(name = "spring.cache.type", havingValue = "redis")
+
+	✅ @ConditionalOnWebApplication: Web vs non-web environment
+
+	✅ @ConditionalOnBean: Only if another bean exists
+
+🧠 How to override an unwanted auto-configuration
+
+	✅ Option 1: Define your own bean (BEST & RECOMMENDED): 👍 Clean, Safe, Preferred
+
+	✅ Option 2: Disable via properties: 
+		spring.autoconfigure.exclude= org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+
+	✅ Option 3: Exclude in @SpringBootApplication( exclude = DataSourceAutoConfiguration.class)
+		Use when: You never want that auto-config, Microservices with no DB
+	
+	✅ Option 4: Use properties to control behavior (smart override)
+		Instead of disabling completely, change how it behaves: spring.jackson.serialization.write-dates-as-timestamps=false	
+		Spring Boot: Still creates bean, But with your settings
+		📌 Often better than exclusion.
+
+	✅ Option 5: Profiles (environment-specific override)
+		@Profile("dev")
+		@Bean
+		DataSource h2DataSource() { ... }
+
+		@Profile("prod")
+		@Bean
+		DataSource mysqlDataSource() { ... }
+
+🔥How to DEBUG auto-configuration (pro tip 🛠️) : 
+	Enable auto-config report: debug=true
+	Spring Boot prints: Positive matches, Negative matches
+	You can see exactly why a bean was or wasn’t created.
+	🔥 This is gold in real debugging.
+
+------------------------------------------------------------------------------------------------
+🔹 Q11. How does Java handle multithreading with synchronized and locks? What strategies would you use to avoid deadlock?
+------------------------------------------------------------------------------------------------
+✅synchronized — intrinsic locking (monitor-based)
+	🔹 What it is: Built into the JVM, Uses object monitors, Automatically acquired & released
+	🔹 How it works internally: 
+		Every Java object has a monitor
+		Thread enters synchronized block → acquires monitor
+		Other threads → BLOCKED
+		Monitor released when: 
+			Method/block exits
+			Exception is thrown
+
+	🔹 Characteristics: ✅ Simple, ✅ JVM-optimized (biased / lightweight locks)
+		❌ No timeout, ❌ No try-lock, ❌ Not interruptible while waiting
+
+✅Lock (ReentrantLock) — explicit locking
+🔹 What it is: Part of java.util.concurrent.locks, More control than synchronized
+🔹 Example: Lock lock = new ReentrantLock();
+🔹 Extra capabilities: 
+	✔️ tryLock() (avoid blocking forever)
+	✔️ Timeout-based locking
+	✔️ Interruptible locks
+	✔️ Fair locking
+	✔️ Multiple condition variables
+
+🔹 Tradeoff: ✅ Powerful, ❌ Easy to misuse (forget unlock → bug)
+
+✅ What is a deadlock? ☠️: Deadlock happens when threads wait forever for each other.
+	🔹 Strategies to avoid deadlock (REAL WORLD)
+		✅ Strategy 1: Lock ordering (BEST & MOST IMPORTANT): Always acquire locks in fixed global order.
+		✅ Strategy 2: Minimize lock scope
+		✅ Strategy 3: Prefer higher-level concurrency utilities
+			Avoid manual locking when possible.
+			Use: ConcurrentHashMap, AtomicInteger, Semaphore, ExecutorService
+			Example: AtomicInteger count = new AtomicInteger(); count.incrementAndGet();
+		✅ Strategy 4: Use tryLock() with timeout (VERY PRACTICAL)
+			✔️ Thread backs off, ✔️ No infinite waiting, ✔️ System stays responsive
+
+		✅ Strategy 5: Avoid nested locks when possible: Nested locks are the #1 deadlock cause.
+		✅ Strategy 6: Avoid calling external systems inside locks
+		✅ Strategy 7: Use thread dumps to detect early
+
+------------------------------------------------------------------------------------------------
+🔹 Q12. How does Spring Boot handle transactions? What would you do if a transaction unexpectedly rolls back?
+------------------------------------------------------------------------------------------------
+1️⃣ How Spring Boot handles transactions (internals)
+	Spring Boot manages transactions using AOP proxies on top of the Spring transaction abstraction, delegating actual commit/rollback to the underlying transaction manager (JPA, JDBC, etc.).
+2️⃣ Core building blocks
+	🧠 1. @Transactional:
+			Spring interprets this as: Start transaction, Execute method, Commit if success, Roll back if failure
+	🧠 2. AOP Proxy (VERY IMPORTANT)
+			Spring does not put transaction code inside your method.
+			Instead: Creates a proxy, Proxy wraps your method call, Proxy starts & ends transaction
+			📌 If the proxy is bypassed → NO TRANSACTION
+	🧠 3. PlatformTransactionManager
+			This is the real worker.
+			Examples:
+				DataSourceTransactionManager → JDBC
+				JpaTransactionManager → JPA/Hibernate
+				JtaTransactionManager → distributed TX
+				Spring Boot auto-configures the right one.
+3️⃣ Transaction lifecycle (step-by-step)
+	When a transactional method is called:
+		1. Proxy intercepts call
+		2. TransactionManager: Opens DB connection, Sets auto-commit = false
+		3. Business logic runs
+		4. If no exception → COMMIT
+		5. If exception → ROLLBACK
+		6. Connection released
+
+4️⃣ Default rollback rules (CRITICAL)
+	By default, Spring rolls back on:
+	if RuntimeException				✅ Yes Rollback
+	if Error						✅ Yes Rollback
+	if Checked Exception (Exception)❌ No Rollback
+		Example: throw new IOException(); // ❌ NO rollback by default
+	
+	Override rollback behavior: @Transactional(rollbackFor = Exception.class)
+
+5️⃣ Propagation & isolation (quick overview)
+🔹 Propagation (how TX joins)
+	REQUIRED (default) → join or create
+	REQUIRES_NEW → suspend existing, start new
+	NESTED → savepoint-based
+
+🔹 Isolation (DB-level)
+	READ_COMMITTED (most common)
+	REPEATABLE_READ
+	SERIALIZABLE
+
+🚨 What if a transaction unexpectedly rolls back? 
+🔍 1. Look for UnexpectedRollbackException in log
+	✅ Classic error: Transaction silently rolled back because it has been marked as rollback-only
+	
+🔍 2. Hidden RuntimeException (MOST COMMON) : 
+	✅ Fix: Don’t swallow exceptions, Or use REQUIRES_NEW for isolated work
+	
+🔍 3. Checked exception thrown (rollback not happening when expected)
+	✅ Fix: @Transactional(rollbackFor = Exception.class)
+
+🔍 4. Self-invocation (VERY COMMON INTERVIEW TRAP)
+	Why? Method call happens inside same class, Proxy is bypassed
+	✅ Fix: Move method to another bean Or call via injected self proxy
+
+🔍 5. Wrong propagation
+	Result: Inner rolls back, Outer still commits
+	Surprise rollback/commit behavior = propagation issue.
+
+🔍 6. Transaction marked rollback-only programmatically
+	TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+
+🔍 7. Database constraint violation
+	Examples: Unique key violation, FK constraint, Not-null violation, Hibernate throws: ConstraintViolationException
+	➡️ Transaction marked rollback-only immediately.
+
+🔍 8. Timeout exceeded; @Transactional(timeout = 5) => If DB call > 5s → rollback.
+
+🔍 9. Multiple transaction managers
+	Common in: Multiple data sources, JPA + JDBC mix
+	Wrong manager → rollback surprises.
+
+🔍 10. Enable transaction logs (PRO TIP)
+	logging.level.org.springframework.transaction=TRACE
+	logging.level.org.hibernate.engine.transaction=DEBUG
+	You’ll see: When TX starts, When marked rollback-only, Who caused it
+
+
+4️⃣ How method execution is handled (step-by-step)
+
+Let’s trace exactly what happens when someone calls: orderService.placeOrder();
+	🔹 Step 1: Caller hits the PROXY (not your class): 	
+		Caller → OrderService$$SpringCGLIB$$0.placeOrder()
+		❌ Your method is NOT called yet
+		✅ Proxy intercepts first
+	
+	🔹 Step 2: TransactionInterceptor is invoked:
+		Internally: TransactionInterceptor.invoke()
+		It: 
+			Reads @Transactional
+			Determines: Propagation = REQUIRED, Isolation = DEFAULT
+			Gets PlatformTransactionManager
+			
+	🔹 Step 3: Transaction is started
+		Internally: TransactionManager.getTransaction()
+		For JPA: DB connection acquired, auto-commit = false, Transaction bound to thread (ThreadLocal)
+		
+	🔹 Step 4: Proxy calls your REAL method : OrderService.placeOrder()   ← YOUR CODE
+	
+	🔹 Step 5A: If NO exception happens: Proxy does: COMMIT
+	🔹 Step 5B: If orderRepository.save() throws RuntimeException
+		Spring immediately: mark transaction as rollback-only then 
+		Then: ROLLBACK, throw exception to caller
+		No commit attempt.
+	🔹 Step 6: Connection cleanup: Connection returned to pool, ThreadLocal cleared
+
+6️⃣ How to PROVE which proxy you got (practical trick)
+Add this temporarily: 
+
+	@Autowired
+	private ApplicationContext context;
+
+	@PostConstruct
+	public void checkProxy() {
+		Object bean = context.getBean(OrderService.class);
+		System.out.println(bean.getClass());
+	}
+Output examples: CGLIB class com.example.OrderService$$SpringCGLIB$$0
+
+------------------------------------------------------------------------------------------------
+🔹 Q13. How does Angular's component lifecycle work? What would you do if you need to refresh data when input changes?
+------------------------------------------------------------------------------------------------
+2️⃣ Component lifecycle sequence (most used hooks)
+
+Here’s the order you should remember 👇
+
+🔹 1. constructor() : Component instance is created, Dependency Injection happens, ❌ DOM not ready, ❌ Inputs NOT set
+		constructor(private service: DataService) {}
+		📌 Use only for DI & simple setup.
+
+🔹 2. ngOnChanges(): Runs whenever an @Input() value changes and Runs before ngOnInit(), Receives SimpleChanges
+
+		ngOnChanges(changes: SimpleChanges) {
+		  console.log(changes);
+		}
+
+🔹 3. ngOnInit() (MOST IMPORTANT): Runs once, Inputs are initialized, Component is ready
+		📌 Use for: Initial API calls, Subscriptions, Setup logic
+
+🔹 4. ngDoCheck(): Runs on every change detection, Advanced usage, Rarely needed
+
+🔹 5. View / Content hooks: DOM & child components available
+		ngAfterContentInit
+		ngAfterViewInit
+
+🔹 6. ngOnDestroy(): Runs before component is destroyed, Cleanup logic
+
+
+❌ What NOT to do in ngOnInit: Logic dependent on future @Input() changes, DOM manipulation that needs child views
+
+4️⃣ Follow-up: Refresh data when @Input() changes 🔄
+This is VERY common in real apps.
+
+🎯 Real scenario
+<app-user-details [userId]="selectedUserId"></app-user-details>
+
+Whenever selectedUserId changes 👉 You want to reload user data.
+If userId changes later → no refresh
+
+✅ CORRECT Solution #1: ngOnChanges() (recommended): ✔️ Reacts to every input change, ✔️ Clean & explicit
+	@Input() userId!: string;
+
+	ngOnChanges(changes: SimpleChanges) {
+	  if (changes['userId'] && !changes['userId'].firstChange) {
+		this.loadUser(changes['userId'].currentValue);
+	  }
+	}
+
+✅ CORRECT Solution #2: Input setter (very clean): ✔️ No lifecycle hook needed, ✔️ Immediate reaction, ✔️ Great for simple cases
+	private _userId!: string;
+
+	@Input()
+	set userId(value: string) {
+	  this._userId = value;
+	  this.loadUser(value);
+	}
+
+✅ CORRECT Solution #3: RxJS + ngOnInit (advanced): ✔️ Cancel previous requests, ✔️ Best performance, ✔️ Production-grade
+	Best when: Multiple inputs, Debounce needed, Streams involved
+	private userId$ = new BehaviorSubject<string>(''); 
+		
+	@Input()
+	set userId(value: string) {
+	  this.userId$.next(value);
+	}
+
+	ngOnInit() {
+	  this.userId$
+		.pipe(
+		  filter(Boolean),
+		  switchMap(id => this.service.getUser(id))
+		)
+		.subscribe(data => this.user = data);
+	}
+
+5️⃣ What NOT to do (important) : ❌ Don’t reload data in: ngDoCheck() (performance killer),  ngAfterViewChecked() (runs too often)
+
+------------------------------------------------------------------------------------------------
+🔹 Q14. How does Angular handle dependency injection and what benefits does it provide? What would you do if two components need different versions of the same service?
+------------------------------------------------------------------------------------------------
+Angular uses a hierarchical dependency injection system where injectors form a tree that mirrors the component tree.
+2️⃣ Core pieces of Angular DI
+🔹 1. Injector : Responsible for creating and providing dependencies, Maintains a map of tokens → instances
+				Angular has multiple injectors, not just one.
+
+🔹 2. Provider: Defines how to create a dependency. { provide: UserService, useClass: UserService }
+		Other provider types: useClass, useValue, useFactory, useExisting
+
+🔹 3. Injection Token: 
+		Usually: A class (UserService) Or InjectionToken<T> (for configs / interfaces)
+
+3️⃣ Injector hierarchy (THIS IS THE KEY): Angular injectors are hierarchical:
+
+Root Injector
+   ↓
+Module Injector
+   ↓
+Component Injector
+   ↓
+Child Component Injector
+
+🧠 Resolution rule: Angular looks for a dependency starting from the current injector and walks UP the tree until it finds a provider.
+
+4️⃣ Where services can be provided
+	✅ Root level (singleton app-wide): ✔️ One instance, ✔️ Shared everywhere, ✔️ Tree-shakable
+		@Injectable({ providedIn: 'root' })
+		export class UserService {}
+
+	✅ Module level: ✔️ One instance per module injector
+		@NgModule({
+		  providers: [UserService]
+		})
+		export class UserModule {}
+
+	✅ Component level (VERY IMPORTANT): ✔️ New instance for that component, ✔️ Child components inherit it
+		@Component({
+		  selector: 'app-a',
+		  providers: [UserService]
+		})
+		export class ComponentA {}
+
+
+5️⃣ Benefits of Angular DI
+🌟 1. Loose coupling: Components depend on abstractions, Easy to change implementations
+🌟 2. Testability: providers: [{ provide: UserService, useMock: MockUserService }], Mocking becomes trivial.
+🌟 3. Lifecycle control: Service lifecycle tied to injector, Auto-cleanup when component destroyed
+🌟 4. Configuration flexibility: Different providers per environment or component
+
+6️⃣  Two components need DIFFERENT versions of the same service
+This is exactly why Angular DI is hierarchical 👍
+🎯 Real scenario:  Both share the same base API
+	AdminComponent needs AdminUserService
+	UserComponent needs UserUserService
+
+✅ Solution 1: Component-level providers (BEST & MOST COMMON)
+	@Component({
+	  selector: 'app-admin',
+	  providers: [
+		{ provide: UserService, useClass: AdminUserService }
+	  ]
+	})
+	export class AdminComponent {}
+
+	@Component({
+	  selector: 'app-user',
+	  providers: [
+		{ provide: UserService, useClass: RegularUserService }
+	  ]
+	})
+	export class UserComponent {}
+
+Result: Same token (UserService), Different implementations, Zero conflict
+
+🧠 Angular resolves the closest provider first
+
+✅ Solution 2: Use useFactory for dynamic versions: ✔️ Runtime decision, ✔️ Powerful, ❌ More complex
+	providers: [
+	  {
+		provide: UserService,
+		useFactory: (role: RoleService) => role.isAdmin() ? new AdminUserService() : new UserUserService(),
+		deps: [RoleService]
+	  }
+	]
+
+✅ Solution 3: InjectionToken (clean & explicit): ✔️ Very explicit, ✔️ No ambiguity
+	export const ADMIN_USER_SERVICE = new InjectionToken<UserService>('ADMIN_USER_SERVICE');
+	providers: [
+	  { provide: ADMIN_USER_SERVICE, useClass: AdminUserService }
+	]
+	constructor(@Inject(ADMIN_USER_SERVICE) service: UserService) {}
+
+❌ What NOT to do: 
+	Don’t create services with new
+	Don’t store state in root services when versions differ
+	Don’t rely on flags inside a singleton service
+
+------------------------------------------------------------------------------------------------
+🔹 Q15. How does Angular change detection mechanism work? What would you do if frequent checks degrade performance?
+------------------------------------------------------------------------------------------------
+1️⃣ How Angular change detection works (under the hood)
+At a high level: Angular uses a tree-based change detection mechanism that re-evaluates component bindings whenever it thinks “something might have changed.”
+
+2️⃣ What triggers change detection: Angular relies on Zone.js to know when to run change detection.
+Common triggers: 
+	User events (click, input), HTTP responses, Timers (setTimeout, setInterval)
+	Promises / async tasks, Observable emissions, When any of these happen:
+	Zone.js → Angular → Change Detection
+	
+3️⃣ How a change detection cycle works
+Step-by-step:
+	1. An async event completes
+	2. Zone.js notifies Angular
+	3. Angular starts change detection at the root
+	4. Traverses the entire component tree
+	5. For each component:
+		Re-evaluates template expressions
+		Checks bindings
+	6. DOM updates happen if values changed
+
+📌 Angular does not know what changed — it just checks everything (by default).
+
+4️⃣ ChangeDetectionStrategy modes
+🔹 Default strategy (default): changeDetection: ChangeDetectionStrategy.Default
+	Runs on every async event
+	Checks: Component, All children
+	
+🔹 OnPush strategy (PERFORMANCE BOOST 🚀) changeDetection: ChangeDetectionStrategy.OnPush
+	Angular checks the component only if:
+		@Input() reference changes
+		Event occurs inside component
+		Observable emits (via async pipe)
+		Manual trigger (markForCheck)
+	✔️ Predictable, ✔️ Fast, ✔️ Recommended for most components
+
+5️⃣ Why frequent change detection degrades performance
+Common reasons: Large component trees, Heavy template expressions, Functions in templates, Frequent timers / polling
+				Uncontrolled Observables, Default change detection everywhere
+
+Symptoms: UI lag, High CPU usage, Slow typing / scrolling
+	
+
+🚨 What to do when frequent checks hurt performance 🔥
+✅ 1. Switch to OnPush (BIGGEST WIN)
+	@Component({
+	  selector: 'app-user',
+	  changeDetection: ChangeDetectionStrategy.OnPush
+	})
+	export class UserComponent {}
+
+	Then: Use immutable objects, Replace objects instead of mutating
+	❌ Bad: this.user.name = 'John';
+	✅ Good: this.user = { ...this.user, name: 'John' };
+
+✅ 2. Use async pipe instead of manual subscriptions: ✔️ Auto unsubscribe, ✔️ Triggers change detection correctly
+	❌ Bad: this.sub = this.service.data$.subscribe(data => { this.data = data;});
+	✅ Good:
+		<div *ngIf="data$ | async as data">
+		  {{ data.name }}
+		</div>
+
+✅ 3. Remove functions from templates (HUGE hidden cost): Compute once in component.
+	❌ Bad: <p>{{ calculateTotal() }}</p>,  Runs every change detection cycle.
+	✅ Good: <p>{{ total }}</p>
+
+✅ 4. Detach change detection for heavy components: ⚠️ Advanced — use carefully.
+	constructor(private cdr: ChangeDetectorRef) {}
+
+	ngOnInit() {
+	  this.cdr.detach();
+	}
+	
+	Manually re-attach: this.cdr.detectChanges();
+
+✅ 5. Use trackBy in *ngFor
+	❌ Bad: <li *ngFor="let item of items">{{ item.name }}</li>
+	✅ Good: <li *ngFor="let item of items; trackBy: trackById">
+
+		trackById(index: number, item: Item) {
+		  return item.id;
+		}
+
+✅ 6. Run non-UI code outside Angular zone:  Angular won’t run change detection every time.
+	this.ngZone.runOutsideAngular(() => {
+	  setInterval(() => {
+		heavyComputation();
+	  }, 1000);
+	});
+
+✅ 7. Reduce Observable emissions: Debounce user input, Throttle events, Use distinctUntilChanged()
+
+7️⃣ Angular Signals (Angular 16+) 🚀: 
+	Signals bring fine-grained reactivity: Only affected views update, No full tree traversal
+
+	count = signal(0);
+
+	increment() {
+	  this.count.update(v => v + 1);
+	}
+
+📌 This dramatically reduces change detection overhead.
+
+------------------------------------------------------------------------------------------------
+🔹 Q16. How does Angular handle two-way data binding with ngModel? What could you do if binding causes performance issues?
+------------------------------------------------------------------------------------------------
+1️⃣ How Angular handles two-way data binding with ngModel
+At a high level: ngModel is syntactic sugar that combines property binding and event binding.
+
+2️⃣ The “banana in a box” syntax : <input [(ngModel)]="username">
+Angular expands this into: <input [ngModel]="username" (ngModelChange)="username = $event">
+
+What actually happens: 
+	Property binding: username → input.value
+	Event binding: input.value change → username
+	Every update triggers change detection
+
+3️⃣ Internal flow (step-by-step)
+	1. User types in input
+	2. input event fires
+	3. ngModelChange emits new value
+	4. Component property updates
+	5. Angular runs change detection
+	6. Template re-evaluates bindings
+	📌 This happens on every keystroke.
+
+4️⃣ Why ngModel can cause performance issues 🚨
+	Common problem scenarios: Large forms, Used *ngFor, Default change detection everywhere, Heavy template expressions
+	Symptoms: Input lag, UI freezes while typing, High CPU usage, Slow mobile experience
+
+🔥 What to do if ngModel causes performance issues
+	✅ 1. Avoid ngModel in large or complex forms (BEST PRACTICE): Use Reactive Forms instead.
+		❌ Template-driven (slow at scale): <input [(ngModel)]="user.name">
+		✅ Reactive Forms (faster, controlled): <input formControlName="name">
+			this.form = new FormGroup({
+			  name: new FormControl('')
+			});
+		✔️ Explicit control, Better performance, Easier validation, 
+		📌 Angular team recommendation for serious apps
+
+✅ 2. Use OnPush change detection: Only checks when reference changes, Reduces unnecessary re-checks
+	@Component({
+	  changeDetection: ChangeDetectionStrategy.OnPush
+	})
+	export class ProfileComponent {}
+
+✅ 3. Debounce user input: Instead of reacting on every keystroke:
+	<input [ngModel]="query" (ngModelChange)="onChange($event)">
+
+	onChange(value: string) {
+	  this.subject.next(value);
+	}
+
+	this.subject.pipe(debounceTime(300)).subscribe(...)
+	✔️ Fewer updates, ✔️ Better UX
+
+✅ 4. Avoid ngModel inside *ngFor: Very expensive
+
+	<div *ngFor="let item of items">
+	  <input [(ngModel)]="item.value">
+	</div>
+	Why: Each input triggers full change detection, Multiplied by list size
+
+	✅ Better: Use trackBy, Use reactive forms with FormArray
+
+✅ 5. Use one-way binding when possible
+	Ask yourself: “Do I really need two-way binding?”
+	❌ Overkill: <input [(ngModel)]="searchText">
+	✅ Simpler & faster: <input (input)="searchText = $event.target.value">
+	✔️ More explicit, Less magic, Easier to optimize
+
+✅ 6. Run heavy logic outside Angular zone: Angular won’t trigger change detection unnecessarily.
+	this.ngZone.runOutsideAngular(() => {
+	  heavyProcessing();
+	});
+
+7️⃣ When ngModel is actually OK 👍
+	Use it when: Small forms, Simple inputs, Prototypes, Admin tools, No performance pressure
+	Avoid it when: Large enterprise apps, Mobile apps, Data-heavy UIs, High-frequency updates
+
+------------------------------------------------------------------------------------------------
+🔹 Q17. How does a GitLab CI/CD pipeline work? What would you do to fix a failing pipeline job?
+------------------------------------------------------------------------------------------------
+1️⃣ How a GitLab CI/CD pipeline works (end to end)
+At a high level: 
+	GitLab CI/CD executes a series of automated jobs defined in .gitlab-ci.yml,
+	triggered by events like commits or merge requests, using GitLab Runners.
+
+2️⃣ Core building blocks
+🔹 1. .gitlab-ci.yml : The pipeline definition file (lives at repo root).
+		stages:
+		  - build
+		  - test
+		  - deploy
+		This file defines: Stages, Jobs, Scripts, Conditions, Artifacts, Caches
+		
+🔹 2. Pipeline
+		A pipeline is created when: Code is pushed, Merge Request is opened, Manual trigger, Scheduled trigger
+		Each pipeline contains stages, and each stage contains jobs.
+
+🔹 3. Stages: Stages run sequentially.
+		
+		stages:
+		  - build
+		  - test
+		  - deploy
+		test runs only if build succeeds
+		deploy runs only if test succeeds
+
+🔹 4. Jobs : 
+		Jobs run in parallel within the same stage.
+		Each job: Runs in isolation, Has its own environment, Can produce artifacts
+		build-job:
+		  stage: build
+		  script:
+			- mvn clean package
+
+🔹 5. GitLab Runner (VERY IMPORTANT) : A GitLab Runner executes jobs.
+		Types: Shell runner, Docker runner (most common), Kubernetes runner
+		If no runner is available → job stays pending.
+
+🔹 6. Execution environment: 
+		Most pipelines use Docker images: image: maven:3.9-eclipse-temurin-17
+		Each job: Pulls image, Executes script, Discards container afterward
+
+3️⃣ Typical pipeline flow
+	Developer pushes code => GitLab creates pipeline => Runner picks up job
+	Job executes script => Artifacts stored => Pipeline succeeds or fails
+	Deployment (optional)
+
+4️⃣ What causes a pipeline job to FAIL? 
+
+Common reasons: 
+	Compilation error, Test failure, Wrong Docker image, Missing environment variable, Permission issues, Runner not available
+	Timeout, Script error (exit 1)
+
+🚨 How to fix a failing pipeline job (REAL checklist) : This is the production-grade debugging flow 👇
+✅ Step 1: 
+	Open job logs (always first) : Click the failed job → read from the TOP, not the bottom.
+	Look for: First error, Stack trace, Missing command
+	📌 The first failure is usually the real cause.
+
+✅ Step 2: Identify failure type quickly
+	| Symptom           | Likely issue             |
+	| ----------------- | ------------------------ |
+	| Job pending       | No runner / tag mismatch |
+	| Command not found | Wrong image              |
+	| Tests failing     | Code or environment      |
+	| Permission denied | Runner user / file perms |
+	| Timeout           | Long-running task        |
+
+✅ Step 3: Check the execution image
+	Many failures come from this. image: node:18
+	❌ But pipeline runs: mvn clean install
+	➡️ Maven not installed → FAIL
+
+✅ Fix: image: maven:3.9-eclipse-temurin-17
+
+✅ Step 4: Reproduce locally (CRITICAL)
+	Run the same command locally or via Docker:
+	docker run -it maven:3.9-eclipse-temurin-17 bash
+	If it fails locally → not a CI problem.
+
+✅ Step 5: Check variables & secrets
+	Most prod failures come from missing variables.
+	Check: CI/CD → Variables, Masked / protected flags
+	Environment scope: 
+	Common failures: DATABASE_URL not found, AWS_ACCESS_KEY_ID missing
+
+✅ Step 6: Check artifacts & dependencies
+	If a later job depends on earlier output:
+	artifacts:
+	  paths:
+		- target/*.ja
+	If missing → downstream job fails.
+
+✅ Step 7: Runner issues
+	If job is stuck or flaky: Runner offline, Wrong tags, Disk full, Docker daemon down
+	Check: Settings → CI/CD → Runners
+
+✅ Step 8: Timeout & resource limits
+	Default timeout = 1 hour.
+	job:
+		timeout: 20m
+	Or:
+		Increase memory
+	Optimize build
+
+✅ Step 9: Retry intelligently
+
+	Retry only after understanding the failure
+	Flaky test? → fix test, don’t rely on retry
+
+
+------------------------------------------------------------------------------------------------
+🔹 Q18. How do you handle branch-based deployment in GitLab? What would you do to deploy a hotfix without affecting other branches?
+------------------------------------------------------------------------------------------------
+1️⃣ How branch-based deployment works in GitLab
+At a high level: GitLab CI/CD lets you control which branches deploy to which environments using branch rules (only, except, rules) and environments.
+
+2️⃣ Typical branch → environment mapping (industry standard)
+| Branch            | Environment             |
+| ----------------- | ----------------------- |
+| `feature/*`       | ❌ No deploy             |
+| `develop`         | Dev                     |
+| `release/*`       | QA / UAT                |
+| `main` / `master` | Production              |
+| `hotfix/*`        | Production (controlled) |
+This mapping is enforced inside .gitlab-ci.yml.
+
+3️⃣ How GitLab decides what to deploy
+GitLab evaluates rules in this order:
+1. Pipeline is triggered (push, MR, manual)
+2. GitLab reads .gitlab-ci.yml
+3. rules: are evaluated
+4. Matching job(s) run
+5. Environment is deployed
+
+4️⃣ Example: Branch-based deployment pipeline
+.gitlab-ci.yml
+	stages:
+	  - build
+	  - deploy
+
+	build:
+	  stage: build
+	  script:
+		- mvn clean package
+	  artifacts:
+		paths:
+		  - target/app.jar
+
+	Deploy to DEV (only develop branch)
+	deploy-dev:
+	  stage: deploy
+	  environment: dev
+	  script:
+		- ./deploy.sh dev
+	  rules:
+		- if: '$CI_COMMIT_BRANCH == "develop"'
+
+	Deploy to PROD (only main branch)
+	deploy-prod:
+	  stage: deploy
+	  environment: production
+	  script:
+		- ./deploy.sh prod
+	  rules:
+		- if: '$CI_COMMIT_BRANCH == "main"'
+
+✔️ Branch decides environment
+✔️ No accidental cross-deployments
+
+🔥 Deploying a HOTFIX without affecting other branches
+✅ Correct hotfix strategy (industry standard)
+🔹 Step 1: Create hotfix branch from main
+	git checkout main
+	git pull
+	git checkout -b hotfix/critical-payment-bug
+
+	Why from main: Matches production state, No unfinished features
+
+🔹 Step 2: Apply minimal fix
+	git commit -am "Fix payment null pointer"
+	git push origin hotfix/critical-payment-bug
+
+🔹 Step 3: Configure hotfix deployment job (manual & safe)
+	deploy-hotfix:
+	  stage: deploy
+	  environment: production
+	  script:
+		- ./deploy.sh prod
+	  rules:
+		- if: '$CI_COMMIT_BRANCH =~ /^hotfix\/.*$/'
+		  when: manual
+
+	✔️ Only hotfix/* branches
+	✔️ Manual approval required
+	✔️ No auto-deploy surprises
+
+🔹 Step 4: Run hotfix deployment manually
+	GitLab UI → Pipelines
+	Click Deploy for hotfix job
+
+🔹 Step 5: Merge hotfix back safely
+	After successful deploy:
+		git checkout main
+		git merge hotfix/critical-payment-bug
+		git checkout develop
+		git merge hotfix/critical-payment-bug
+
+	✔️ Production fixed
+	✔️ No regression
+	✔️ Branches back in sync
+
+6️⃣ Extra safety measures (recommended in prod)
+🔒 1. Protected branches: Protect main => Only maintainers can deploy
+
+------------------------------------------------------------------------------------------------
+🔹 Q19. How does indexing improve query performance? What would you do if a query still performs poorly despite indexes?
+------------------------------------------------------------------------------------------------
+1️⃣ How indexing improves query performance
+🧠 Core idea : An index is a data structure that lets the database find rows without scanning the entire table.
+Without an index → full table scan
+With an index → logarithmic search
+
+2️⃣ What happens WITHOUT an index (slow) : SELECT * FROM orders WHERE order_id = 123;
+If orders has 10 million rows and no index: DB checks every row, O(N) complexity, Disk I/O heavy, Slow response
+
+3️⃣ What happens WITH an index (fast): CREATE INDEX idx_orders_order_id ON orders(order_id);
+Now: DB uses a B-tree (or similar), Finds row in O(log N) Minimal disk reads
+➡️ Huge performance improvement
+
+4️⃣ Types of indexes (quick but important)
+🔹 Primary index: Created automatically on primary key, Unique, Fast lookups
+
+🔹 Secondary (non-clustered) index: Created manually, Can be unique or non-unique
+
+🔹 Composite index: CREATE INDEX idx_orders_user_status ON orders(user_id, status);
+	⚠️ Order matters: (user_id, status) ≠ (status, user_id)
+
+5️⃣ How the optimizer uses indexes
+	The query planner decides: Which index to use, Whether index scan is cheaper than table scan, Join order
+	You can see this using: EXPLAIN ANALYZE
+
+
+😬 Query is STILL slow despite indexes : This happens a lot. Here’s the real checklist.
+🔍 1. Check if the index is actually being used (MOST IMPORTANT)
+	Run: EXPLAIN ANALYZE SELECT ...
+	Red flags 🚩: Seq Scan (Postgres), Full Table Scan (MySQL/Oracle), Index not mentioned
+	Common reasons index is ignored: Function on column, Type mismatch, Low selectivity, Wrong index order
+
+🔍 2. Functions on indexed columns (index killer)
+	❌ Bad: SELECT * FROM users WHERE LOWER(email) = 'abc@test.com'; => Index on email is NOT used.
+	✅ Fix: Store normalized data, Or create functional index:
+		CREATE INDEX idx_users_email_lower ON users (LOWER(email));
+
+🔍 3. Low selectivity columns
+	Index on: status (ACTIVE / INACTIVE)
+	If 90% rows are ACTIVE: Index lookup + table fetch is expensive, DB prefers full scan
+	✅ Fix: Composite index => (status, created_date)
+
+🔍 4. Wrong composite index order (VERY COMMON)
+	Query: WHERE user_id = ? AND status = ?
+	Index: (status, user_id) ❌
+	Correct: (user_id, status) ✅
+	🧠 Left-most prefix rule
+
+🔍 5. Too many rows returned
+	Even with index: SELECT * FROM orders WHERE created_date >= '2020-01-01';
+	If millions of rows match: Index doesn’t help much, Data transfer becomes bottleneck
+	✅ Fix: Pagination, Narrow conditions, Summary tables
+
+🔍 6. SELECT * (hidden performance killer)
+	❌ Bad: SELECT * FROM orders WHERE order_id = 123;
+	Even with index: DB still fetches full row from table
+	✅ Fix: SELECT order_id, total FROM orders WHERE order_id = 123;
+	Or use covering index: CREATE INDEX idx_orders_cover ON orders(order_id, total);
+
+🔍 7. Joins causing the slowdown
+	Indexes on individual tables may exist, but join columns are not indexed.
+	❌ orders.user_id → users.id (no index)
+	✅ Fix: Index both sides of join => CREATE INDEX idx_orders_user_id ON orders(user_id);
+
+🔍 8. Outdated statistics
+	Optimizer relies on stats. If stats are stale: Bad execution plan, Index ignored
+	✅ Fix: ANALYZE; -- or VACUUM ANALYZE;
+
+🔍 9. Disk / memory bottleneck
+	Sometimes the problem is not SQL: Slow disk, Insufficient buffer cache, High I/O wait
+	Check: Query time vs I/O wait, DB cache hit ratio
+
+🔍 10. Index overload (too many indexes)
+	Too many indexes cause: Slow writes, Slower planning, Cache pressure, Indexes help reads but hurt writes.
+
+7️⃣ Real-world example 🧪
+	❌ Problem: Query slow despite index on created_at.
+	Root cause: WHERE DATE(created_at) = '2025-01-01'
+	✅ Fix; WHERE created_at >= '2025-01-01' AND created_at < '2025-01-02'
+
+------------------------------------------------------------------------------------------------
+🔹 Q20. How does a join operation work internally in SQL? What would you do to optimize queries with multiple joins?
+------------------------------------------------------------------------------------------------
+1️⃣ How a JOIN works internally in SQL
+🧠 Big idea : A JOIN combines rows from two or more tables based on a join condition, and the database engine chooses an algorithm to do this efficiently.
+
+2️⃣ Core JOIN algorithms (what engines actually do)
+	🔹 1. Nested Loop Join (NLJ)
+		How it works: For each row in table A Scan table B for matching rows
+			for rowA in A:
+			  for rowB in B:
+				if match → output
+
+		When used: Small tables, Index available on inner table
+		Performance: O(N × M) without index, Fast with index lookup
+
+	🔹 2. Hash Join (very common)
+		How it works: Build a hash table on the smaller input, Probe it using rows from the larger input
+		build hash(B.key)
+		for row in A:
+		  find hash(row.key)
+
+		When used: Equality joins (=), Large datasets, No suitable index
+		Performance: O(N + M), Memory intensive
+
+	🔹 3. Merge Join
+		How it works: Both inputs sorted on join key, Walk through both like merge-sort
+		When used: Join keys already sorted (index), Range joins (<, >)
+		Performance: O(N + M), Sorting cost if not pre-sorted
+	
+3️⃣ How the optimizer chooses a join strategy
+	The query optimizer considers: Table size, Index availability, Join condition type, Statistics, Memory availability
+	You can see this via: EXPLAIN ANALYZE
+
+4️⃣ Join order matters (very important)
+	For: A JOIN B JOIN C
+		The DB might execute:
+		(A JOIN B) JOIN C
+		(B JOIN C) JOIN A
+	The optimizer chooses the cheapest order.
+
+🔥 Optimizing queries with multiple JOINs
+	✅ 1. Index join columns (BOTH sides)
+		❌ Bad : orders.customer_id → customers.id (no index)
+		✅ Good :
+			CREATE INDEX idx_orders_customer ON orders(customer_id);
+		CREATE INDEX idx_customers_id ON customers(id);
+
+	✅ 2. Reduce rows BEFORE joining (huge impact)
+		❌ Bad: SELECT * FROM orders o JOIN customers c ON ... WHERE o.created_at >= '2020-01-01';
+		✅ Better: SELECT * FROM ( SELECT * FROM orders WHERE created_at >= '2020-01-01' ) o JOIN customers c ON ...
+		Or rely on optimizer, but ensure predicates are selective.
+
+	✅ 3. Avoid SELECT * in joins
+		❌ Bad: SELECT * FROM orders o JOIN customers c ... JOIN payments p ... : Brings huge rows.
+		✅ Good: SELECT o.id, c.name, p.amount
+
+	✅ 4. Choose the right JOIN type
+		❌ Unnecessary OUTER JOINs: LEFT JOIN
+		If inner join is sufficient: INNER JOIN
+		OUTER JOINs limit optimizer freedom.
+
+	✅ 5. Filter in JOIN condition vs WHERE (semantics matter)
+		❌ Wrong (turns LEFT JOIN into INNER JOIN): LEFT JOIN payments p ON o.id = p.order_id WHERE p.status = 'SUCCESS'
+		✅ Correct: LEFT JOIN payments p ON o.id = p.order_id AND p.status = 'SUCCESS'
+
+	✅ 6. Fix data type mismatches
+		❌ orders.customer_id (INT), customers.id (VARCHAR): Indexes won’t be used properly.
+
+	✅ 7. Check for join explosion (cardinality issues)
+		Joining many-to-many tables can create row explosion.
+		Example: orders × order_items × discounts
+		Fix: Aggregate early, Use subqueries / CTEs
+
+	✅ 8. Use covering indexes for join + filter
+		CREATE INDEX idx_orders_cover ON orders(customer_id, created_at, total);
+		Reduces table lookups.
+
+	✅ 9. Refresh statistics : 	Outdated stats = bad join order., ANALYZE;
+	✅ 10. Break complex queries when needed
+		Sometimes: One giant query is worse, Two simpler queries + app-side join is faster
+
+
+------------------------------------------------------------------------------------------------
+🔹 Q21. How does sharding work in a NoSQL database? What would you do if one shard becomes a hotspot?
+------------------------------------------------------------------------------------------------
+1️⃣ How sharding works in a NoSQL database
+🧠 Core idea : Sharding splits a large dataset horizontally across multiple nodes (shards), so each shard holds only a subset of the data and traffic.
+
+2️⃣ The sharding components
+	🔹 Shard key: A field (or fields) used to decide where data lives.
+		Examples: user_id, order_id, tenant_id, (user_id, created_at) (compound)
+		📌 Shard key choice is EVERYTHING.
+
+	🔹 Shard: A subset of the total data, Runs on one or more nodes, Often replicated for fault tolerance
+	🔹 Router / Coordinator: Receives queries, Figures out which shard(s) to hit, Aggregates results
+		(Example: query router, coordinator node, mongos-like layer)
+
+3️⃣ Common sharding strategies
+	🔹 1. Hash-based sharding (most common): hash(shard_key) % N → shard
+		✅ Even data distribution
+		❌ Harder range queries
+		Used when: High write/read throughput, Uniform access needed
+
+	🔹 2. Range-based sharding: user_id 1–1M   → shard 1, user_id 1M–2M  → shard 2
+		✅ Efficient range queries
+		❌ Hotspot risk
+		Used when: Time-based queries, Ordered scans matter, 
+
+	🔹 3. Directory-based sharding: Lookup table maps key → shard
+		✅ Flexible
+		❌ Extra lookup, operational complexity
+
+4️⃣ What happens during a read/write
+	Write flow: Client sends write with shard key, Router computes shard, Write goes to one shard only
+	Read flow: 
+		With shard key → single shard (fast)
+		Without shard key → scatter-gather across all shards (slow)
+	📌 Always include the shard key in queries if possible.
+
+5️⃣ What is a shard hotspot? 🔥
+	A hotspot happens when: 
+		One shard receives disproportionate traffic
+		CPU / disk / network spikes on that shard
+		Other shards are mostly idle
+	Common causes: Poor shard key, Time-based keys (created_at), Sequential IDs, One “celebrity” tenant/user
+
+🚨 What to do if one shard becomes a hotspot
+	✅ 1. Fix the shard key (BEST but hardest)
+		❌ Bad shard key created_at: All new writes go to the “latest” shard.
+		✅ Better shard key: hash(user_id) or (user_id, created_at)
+		📌 Sometimes requires resharding (expensive but correct).
+
+	✅ 2. Use hashed shard keys (quick win)
+		If using range sharding: Switch to hashed shard key, Distributes writes evenly
+		Tradeoff: Loses range query efficiency
+
+	✅ 3. Add write sharding (salting the key)
+		Problem: tenant_id = 42 → 90% of traffic
+		Solution: key salting, shard_key = tenant_id + random(1..N)
+		Example: 42-1, 42-2, 42-3
+		✔️ Distributes load, ❌ Requires fan-out reads
+
+	✅ 4. Split the hot shard (horizontal scaling)
+		Increase number of shards, Rebalance data, Move chunk(s) to new nodes
+		Works well if: Hotspot is data-size driven, Not purely access-pattern driven
+
+	✅ 5. Cache aggressively (VERY effective)
+		Use: Redis, In-memory cache
+		Cache: Hot keys, Read-heavy queries
+		📌 Often eliminates hotspot traffic entirely.
+
+	✅ 6. Isolate hot tenants/users (multi-tenant systems)
+		If one tenant dominates: Move them to a dedicated shard / cluster, “Noisy neighbor” isolation
+		Common in SaaS systems.
+
+	✅ 7. Rate-limit or queue writes
+		For extreme spikes: Apply backpressure, Buffer writes via queue/stream, Prevents shard meltdown.
+
+	✅ 8. Avoid scatter-gather queries
+		Ensure: Queries include shard key, Secondary indexes support common access patterns
+		Scatter-gather = hidden hotspot creator.
+		
+------------------------------------------------------------------------------------------------
+🔹 Q22. How does Kafka handle partitions and offsets? What would you do if a consumer falls behind?
+------------------------------------------------------------------------------------------------
+1️⃣ How Kafka handles partitions and offsets
+At a high level: Kafka scales and orders data using partitions, and tracks consumption progress using offsets.
+
+2️⃣ Partitions (how Kafka scales)
+🔹 What is a partition? 
+	An append-only, ordered log
+	A topic is split into multiple partitions
+	Each partition lives on one broker (with replicas)
+	Topic: orders
+	  ├─ Partition 0
+	  ├─ Partition 1
+	  └─ Partition 2
+
+🔹 Why partitions matter
+	Parallelism: multiple consumers can read in parallel
+	Ordering guarantee: order is guaranteed within a partition
+	Scalability: more partitions → more throughput
+	📌 Ordering is NOT guaranteed across partitions.
+
+3️⃣ Offsets (how Kafka tracks progress)
+🔹 What is an offset? A monotonically increasing number, Identifies a record’s position in a partition
+	Partition 0:
+	offset 0 → record A
+	offset 1 → record B
+	offset 2 → record C
+
+🔹 Key point: Kafka does NOT track “which message was read” — it tracks the offset the consumer committed.
+
+4️⃣ Consumer groups & offset storage
+🔹 Consumer group: Multiple consumers share a group id, Each partition is assigned to only one consumer in the group
+	Group G1:
+	  Consumer C1 → Partition 0
+	  Consumer C2 → Partition 1
+
+🔹 Offset storage: 	Offsets are stored in Kafka itself, Internal topic: __consumer_offsets
+	Offsets are: Per topic, Per partition, Per consumer group
+
+5️⃣ Commit strategies (VERY IMPORTANT)
+🔹 Auto-commit: enable.auto.commit=true
+	✔️ Simple
+	❌ Risky (commit before processing finishes)
+
+🔹 Manual commit (recommended): consumer.commitSync(); 	✔️ At-least-once semantics, More control
+
+6️⃣ What does “consumer falling behind” mean? 🚨
+	A consumer is behind when: Producer writes faster than consumer processes
+	You’ll see: Growing consumer lag, Increased processing latency, Potential data backlog
+	📌 Lag = latest offset – committed offset
+
+🔥 What to do if a consumer falls behind
+🔍 Step 1: Measure consumer lag (always first)
+	Use: Kafka metrics, Burrow, Prometheus + Grafana
+
+	kafka-consumer-groups.sh \
+	  --bootstrap-server localhost:9092 \
+	  --describe \
+	  --group my-consumer-group
+	If lag keeps increasing → real problem.
+
+✅ Strategy 1: Scale consumers (MOST COMMON FIX)
+	Rule to remember 🧠: Max parallelism = number of partitions
+	If: Topic has 6 partitions, Consumer group has 2 consumers
+	➡️ Increase consumers to up to 6
+
+✅ Strategy 2: Increase partitions (if scaling hits a limit)
+	If: Consumers already == partitions, Still lagging
+	Then: Increase partitions → rebalance → more parallelism
+	⚠️ Tradeoffs: Ordering changes, Key distribution impact
+
+✅ Strategy 3: Optimize consumer processing logic
+	Common bottlenecks: Slow DB writes, External API calls, Synchronous processing
+	Fixes: Batch processing, Async I/O, Connection pooling, caching
+	📌 Kafka is usually fast — your code isn’t 🙂
+
+✅ Strategy 4: Tune consumer configs (BIG IMPACT)
+	Key configs: 
+		max.poll.records=500
+		fetch.min.bytes=1048576
+		fetch.max.wait.ms=500
+
+	Also: Increase session.timeout.ms if processing is slow, Increase max.poll.interval.ms for long processing
+
+✅ Strategy 5: Pause & resume consumption
+	If downstream is slow:
+		consumer.pause(partitions);
+		// process backlog
+		consumer.resume(partitions);
+	Prevents crashes and rebalances.
+
+✅ Strategy 6: Add retry topics / dead-letter topics (DLT)
+	If some messages are slow or failing: Don’t block the main flow, Send problematic records to retry/DLT
+	✔️ Keeps consumer moving, Prevents backlog buildup
+
+✅ Strategy 7: Reset offsets (LAST RESORT)
+	If lag is unmanageable and data can be skipped:
+	kafka-consumer-groups.sh \
+	  --reset-offsets \
+	  --to-latest \
+	  --execute
+
+	⚠️ Data loss risk, Use only when business allows it.
+
+✅ Strategy 8: Isolate hot keys / partitions
+	Problem: One key → one partition → one consumer overloaded
+	Fix: Better key choice, Key salting, Repartition topic
+
+
+------------------------------------------------------------------------------------------------
+🔹 Q23. How does managed acknowledgment work in ActiveMQ? What would you do to implement exactly-once processing?
+------------------------------------------------------------------------------------------------
+1️⃣ How managed acknowledgment works in ActiveMQ (JMS)
+At a high level: Managed acknowledgment means the JMS client (or container like Spring) controls when a message is acknowledged, and ActiveMQ uses that acknowledgment to decide whether to delete or redeliver the message.
+ActiveMQ implements the JMS specification, so acknowledgment is a consumer-side concept, not broker-side magic.
+
+2️⃣ Message lifecycle in ActiveMQ (simplified)
+Producer → Broker → Consumer → Acknowledge → Message removed
+If no acknowledgment happens: Consumer crashes → Message redelivered
+
+3️⃣ JMS acknowledgment modes (CRITICAL): ActiveMQ supports all JMS ack modes.
+
+🔹 1. AUTO_ACKNOWLEDGE (default, container-managed)
+	session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+	How it works: JMS automatically acknowledges after onMessage() returns successfully, If exception occurs → message is redelivered
+	✔️ Simple, ❌ Less control
+	📌 Spring @JmsListener uses this by default
+
+🔹 2. CLIENT_ACKNOWLEDGE (manual)
+	session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+	public void onMessage(Message msg) {
+		process(msg);
+		msg.acknowledge(); // YOU control it
+	}
+	Important: acknowledge() acknowledges all messages consumed so far in the session
+	✔️ More control, ❌ Easy to misuse
+
+🔹 3. DUPS_OK_ACKNOWLEDGE (performance over safety) 
+	Lazy acknowledgment, Broker may redeliver duplicates
+	❌ Not for exactly-once, ✔️ High throughput use cases
+
+🔹 4. Transacted Session (MOST IMPORTANT)
+	session = connection.createSession(true, Session.SESSION_TRANSACTED);
+	How it works: 
+		session.commit() → ACK messages
+		session.rollback() → messages redelivered
+	✔️ Strong guarantee, Predictable, Foundation for exactly-once
+
+4️⃣ What “managed acknowledgment” means in Spring / containers
+	In Spring JMS: The container manages acknowledgment
+	Based on: Exceptions, Transaction boundaries
+	Example:
+		@JmsListener(destination = "orders")
+		@Transactional
+		public void consume(Order order) {
+			process(order);
+		}
+
+	Flow: Message received, Transaction starts, process() executes, Commit → ACK, Exception → rollback → redelivery
+	📌 You never call acknowledge() manually here
+
+🔥 How to implement EXACTLY-ONCE processing
+🚨 Reality check (important): JMS + ActiveMQ alone does NOT give true exactly-once delivery.
+	What you can achieve: Exactly-once processing, At-least-once delivery + idempotent consumer
+	This is how production systems do it.
+
+6️⃣ Strategy 1: Use transactions (JMS + DB) — BEST PRACTICE
+Goal: Message is acknowledged only if business logic commits
+✅ Correct setup: Transacted JMS session, DB transaction, Commit both together
+Example (Spring):
+
+	@JmsListener(destination = "orders")
+	@Transactional
+	public void consume(Order order) {
+		if (orderAlreadyProcessed(order.getId())) {
+			return;
+		}
+
+		saveOrder(order);        // DB write
+		markProcessed(order);    // Idempotency table
+	}
+
+
+What happens: DB commit succeeds → message ACKed, Exception → DB rollback + message redelivery
+✔️ Safe, Deterministic
+
+7️⃣ Strategy 2: Idempotent consumer (MANDATORY for exactly-once)
+Because: Redelivery will happen, Network failures exist, Idempotency pattern
+Create a table:
+processed_messages (
+  message_id VARCHAR PRIMARY KEY
+)
+
+Flow: Read message, Check message_id, If exists → skip, Else: Process Insert message_id
+✔️ Handles duplicates, Simple, Industry standard
+
+
+9️⃣ Strategy 4: Dead Letter Queue (DLQ) + retries
+For poison messages: Retry N times, Then move to DLQ
+Prevents: Infinite redelivery, Consumer blocking
+
+------------------------------------------------------------------------------------------------
+🔹 Q24. How does Kafka guarantee message ordering within a partition? What would you do to preserve order across multiple partitions?
+------------------------------------------------------------------------------------------------
+1️⃣ How Kafka guarantees message ordering within a partition
+At a high level: Kafka guarantees strict ordering only within a single partition, never across partitions.
+
+2️⃣ Internal mechanics: why ordering is guaranteed
+🔹 1. Append-only log ; Each partition is an append-only log file:
+	Partition 0:
+	offset 0 → event A
+	offset 1 → event B
+	offset 2 → event C
+	Records are always appended at the end, No reordering, no inserts in the middle
+
+🔹 2. Single writer per partition
+	At any moment: A partition has one leader broker, Writes go sequentially to that leader, This eliminates race conditions.
+
+🔹 3. Offsets enforce order: 
+	Each record gets: A monotonically increasing offset, Consumers read offsets in increasing order, Consumers cannot skip ahead unless they explicitly seek.
+
+🔹 4. Single consumer per partition per group
+	Within a consumer group: Only one consumer reads a given partition
+	So: No concurrent reads, No reordering, 
+
+🔹 5. Producer ordering guarantees
+	Kafka producers: Send records in order per partition
+	Retries preserve order when: 
+		max.in.flight.requests.per.connection <= 5
+		enable.idempotence=true
+	📌 With idempotent producer → ordering is preserved even on retries.
+
+3️⃣ Example: ordering guaranteed (✅)
+	Key = orderId = 123
+→ Always goes to Partition 2
+→ Processed in exact order
+
+
+As long as:
+
+Same key
+
+Same partition
+
+Order is preserved end-to-end.
+
+4️⃣ Why Kafka does NOT guarantee ordering across partitions ❌
+
+Because:
+
+Partitions are independent
+
+Written and consumed in parallel
+
+Different brokers, different clocks, different speeds
+
+Partition 0: A → C
+Partition 1: B → D
+
+
+Global order:
+
+A, B, C, D ? ❌ impossible to guarantee
+
+
+Kafka intentionally trades global ordering for scalability.
+
+5️⃣ Follow-up: How to preserve order across multiple partitions 🔥
+
+This is where design choices matter.
+
+✅ Strategy 1: Use a single partition (STRONGEST guarantee)
+
+If global ordering is mandatory:
+
+Topic partitions = 1
+
+
+✔️ Perfect ordering
+❌ Limited throughput
+❌ Single consumer only
+
+Use only when:
+
+Low volume
+
+Financial ledgers
+
+Strict event sequencing
+
+✅ Strategy 2: Key-based partitioning (MOST COMMON & BEST)
+Idea
+
+Preserve ordering per entity, not globally
+
+producer.send(new ProducerRecord<>("orders", orderId, event));
+
+
+Result:
+
+Same orderId → same partition
+
+Order preserved per order
+
+✔️ Scalable
+✔️ Practical
+✔️ Industry standard
+
+Used for:
+
+Orders
+
+Users
+
+Accounts
+
+Transactions
+
+✅ Strategy 3: Partition by logical group
+
+Instead of random keys:
+
+Use business grouping key
+
+Examples:
+
+customer_id
+account_id
+tenant_id
+
+
+This preserves local ordering where it matters.
+
+✅ Strategy 4: Re-sequence at consumer side (ADVANCED)
+
+If you must combine multiple partitions:
+
+Approach
+
+Add sequence number or timestamp
+
+Buffer events
+
+Sort before processing
+
+(event_time, sequence_id)
+
+
+⚠️ Tradeoffs:
+
+Increased latency
+
+Memory usage
+
+Complex failure handling
+
+Used in:
+
+Analytics
+
+Stream processing frameworks
+
+✅ Strategy 5: Use Kafka Streams / Flink
+
+Stream processors can:
+
+Repartition
+
+Window
+
+Reorder within bounded windows
+
+Example:
+
+Order events within a time window
+
+Not truly global, but often sufficient
+
+------------------------------------------------------------------------------------------------
+🔹 Q25. How do dead-letter queues work? What would you do to handle poison messages safely?
+------------------------------------------------------------------------------------------------

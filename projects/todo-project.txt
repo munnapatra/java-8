@@ -1,0 +1,58 @@
+To-do Application
+-------------------------------
+/*CREATE TABLE users (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(100) NOT NULL UNIQUE,
+    email VARCHAR(150) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    phone_number VARCHAR(25) unique,
+    user_status boolean default true,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE todos (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    completed BOOLEAN DEFAULT FALSE,
+    user_id BIGINT NOT NULL,
+    time_line VARCHAR(10),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+*/
+
+Backend
+--------------------
+com.todoapp
+ ├── controller
+ │   ├── AuthController.java
+ │   ├── TodoController.java
+ │   └── UserController.java
+ │
+ ├── service
+ │   ├── AuthService.java
+ │   ├── TodoService.java
+ │   └── UserService.java
+ │
+ ├── repository
+ │   ├── UserRepository.java
+ │   └── TodoRepository.java
+ │
+ ├── model
+ │   ├── User.java
+ │   └── Todo.java
+ │
+ ├── security
+ │   ├── JwtFilter.java
+ │   ├── JwtUtil.java
+ │   └── SecurityConfig.java
+ │
+ └── dto
+     ├── LoginRequest.java
+     ├── TodoRequest.java
+     └── TodoResponse.java
+
+JwtFilter, AuthService, TodoService, UserService, LoginRequest, TodoRequest, TodoResponse complete code

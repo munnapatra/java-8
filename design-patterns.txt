@@ -1,0 +1,37 @@
+Microservices design patterns
+
+Decomposition Patterns: Break monoliths into bounded services aligned with business domains.
+	Decomposition By Bussiness Capability
+	Decomposition By Subdomain
+	Decomposition By Transactions
+	Strangller Pattern
+	Bulkhead Pattern
+	Sidecar Pattern
+	
+Integration Pattern: 
+	API gateway
+	Aggregator Pattern
+	Proxy pattern
+	Gateway Routing Pattern
+	Chained Microservice Pattern
+	Branch Pattern
+	Client side UI Composition pattern
+	
+Database Patterns:
+	Database Per Service
+	Shared Database per service
+	CQRS
+	Event sourcing
+	Saga pattern
+	
+Observabilty Patterns:
+	Log Aggregation
+	Performance metrics
+	Distributed Tracing
+	Health Checking
+
+Cross-cutting Patterns:
+	External Configuration
+	Service Discovery pattern
+	Circuit Breaker Pattern
+	Blue green deployent Pattern

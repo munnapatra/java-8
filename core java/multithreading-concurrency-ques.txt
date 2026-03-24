@@ -1,9 +1,8 @@
 =============================================================================================================
 🔹 Q1. What is the difference between process and thread? Why is Java considered a multi-threaded language?
 =============================================================================================================
-🎯Difference Between Process and Thread
-	🔹 Process: A process is an independent program in execution with its own memory space and system resources.
-	🔹 Thread: A thread is a lightweight execution unit inside a process that shares the process’s memory and resources.
+🔹 Process: An independent program in execution with its own memory space and system resources.
+🔹 Thread: A thread is a lightweight execution unit inside a process that shares the process’s memory and resources.
 	
 	🔧 Code Perspective
 		JVM Process
@@ -14,51 +13,23 @@
 		All these threads share heap memory but have separate stacks.
 
 🎯Why Is Java Considered a Multi-Threaded Language?
-	🔹 Reason 1: Built-in Thread Support: 
-		Java provides first-class APIs for multithreading: 
-			Thread, Runnable, Callable, Executor Framework, ForkJoinPool, CompletableFuture
-
-	🔹 Reason 2: JVM Itself Is Multi-Threaded
-		Even a simple Java program creates multiple threads internally:
-			public class Demo {
-				public static void main(String[] args) {
-					System.out.println("Hello");
-				}
-			}
-		Behind the scenes, JVM runs: Main thread, Garbage Collector thread, JIT compiler thread, Signal handler threads
-		👉 Multithreading is intrinsic to JVM, not optional.
-
-	🔹 Reason 3: Shared Memory Model
-		Java supports shared-memory concurrency, enabling:
-			Fast inter-thread communication, High-performance parallelism
+	🔹1: Built-in Thread Support: Thread, Runnable, Callable, Executor Framework, ForkJoinPool, CompletableFuture
+	🔹2: JVM Itself Is Multi-Threaded: Main thread, Garbage Collector thread, JIT compiler thread, Signal handler threads
+	🔹3: Shared Memory Model: Fast inter-thread communication, High-performance parallelism
 			With built-in synchronization: synchronized, volatile, Locks, Atomic variables
-
-	🔹 Reason 4: Rich Concurrency Utilities
-		Java’s java.util.concurrent package provides:
-			Thread pools, Concurrent collections, Lock-free algorithms, High-level async programming
-		This makes Java suitable for:
-			High-throughput servers, Real-time systems, Distributed systems
-
-	🔹 Reason 5: Platform Independence: 
-		Java threads map to native OS threads, so Java programs: 
-			Scale across CPU cores, Use true parallelism, 	Behave consistently across platforms
+	🔹4: Platform Independence: Java threads map to native OS threads
+			So Java programs: Scale across CPU cores, Use true parallelism, Behave consistently across platforms
 
 =============================================================================================================
 🔹 Q2. What are the benefits and drawbacks of multithreading?
 =============================================================================================================
 ✅ Benefits of Multithreading
 	1️⃣ Better CPU Utilization & Parallelism
-		Multithreading allows applications to use multiple CPU cores simultaneously, instead of wasting idle CPU time.
+		Use multiple CPU cores simultaneously, instead of wasting idle CPU time.
 		👉 Example: One thread waits for DB, Another processes data, Another handles user requests
-			ExecutorService executor = Executors.newFixedThreadPool(4);
-			executor.submit(() -> processOrder());
-			executor.submit(() -> sendEmail());
-			executor.submit(() -> generateInvoice());
-		✔ Result: Higher throughput
 
 	2️⃣ Improved Application Responsiveness
 		Time-consuming tasks can run in background, keeping the main flow responsive.
-		👉 Common use cases: UI applications, Web servers, Microservices, CompletableFuture.runAsync(() -> generateReport());
 		✔ Users don’t feel the delay
 
 	3️⃣ Higher Throughput for Server Applications
@@ -67,8 +38,7 @@
 			 └── 200+ Worker Threads
 		✔ More requests per second, Better scalability
 
-	4️⃣ Efficient Resource Sharing
-		Threads share: Heap memory, Open files, Network connections
+	4️⃣ Efficient Resource Sharing => Threads share Heap memory, Open files, Network connections
 		This makes inter-task communication faster than inter-process communication.
 			synchronized(cache) {
 				cache.put(key, value);
@@ -80,14 +50,11 @@
 			BlockingQueue<Task> queue = new LinkedBlockingQueue<>();
 
 	6️⃣ JVM-Level Optimization
-		The JVM is optimized for concurrency: Adaptive thread scheduling, Optimized locks, 
-		Lock elision & biased locking (earlier versions)
+		The JVM is optimized for concurrency: Adaptive thread scheduling, Optimized locks, Lock elision & biased locking (earlier versions)
 		✔ Performance tuned by JVM itself
 
-❌ Drawbacks of Multithreading: This is where senior engineers shine 👇
-	1️⃣ Increased Complexity
-		Multithreaded code is: Harder to write, Harder to reason about, Harder to debug
-		👉 Bugs are often non-deterministic.
+❌ Drawbacks of Multithreading: 
+	1️⃣ Increased Complexity: Harder to write, Harder to reason about, Harder to debug, Bugs are often non-deterministic.
 	
 	2️⃣ Concurrency Bugs (Very Dangerous)
 		| Bug Type          | Description                     |
@@ -98,23 +65,16 @@
 		| Starvation        | Thread never gets CPU           |
 		| Visibility issues | Stale data due to CPU cache     |
 
-	3️⃣ Performance Overhead
-		Threads introduce overhead: Context switching, Lock contention, Cache invalidation
+	3️⃣ Performance Overhead => Threads introduce overhead: Context switching, Lock contention, Cache invalidation
 		⚠ Too many threads can degrade performance.
 
 	4️⃣ Difficult Debugging & Testing
-		Problems may: Appear only in production, Disappear during debugging, Depend on CPU timing
-		✔ Hard to reproduce consistently
+		Problems may: Appear only in production, Disappear during debugging, Depend on CPU timing, Hard to reproduce consistently
 
-	5️⃣ Risk of Data Corruption: 	Since threads share memory: One bad thread can corrupt shared state, Crash entire JVM
+	5️⃣ Risk of Data Corruption => Since threads share memory: One bad thread can corrupt shared state, Crash entire JVM
 			sharedList.add(item); // unsafe without synchronization
 
-	6️⃣ Deadlocks & Resource Contention: Improper locking can halt entire application.
-			Thread A → lock1 → waiting for lock2  
-			Thread B → lock2 → waiting for lock1
-
-	7️⃣ Memory Issues: ThreadLocal leaks in thread pools, Stack memory per thread, Increased GC pressure
-		⚠ Too many threads = OutOfMemoryError
+	6⃣ Memory Issues: ThreadLocal leaks in thread pools, Stack memory per thread, Increased GC pressure, Too many threads = OutOfMemoryError
 
 =============================================================================================================
 🔹 Q3. Explain Thread vs Runnable. Which one do you prefer and why?
@@ -132,34 +92,17 @@
 	| Testability      | Low                         | High                 |
 
 2️⃣ Why Runnable Is Better (Senior Perspective)
-	✅ 1. Supports Inheritance: Java supports single inheritance.
-			class OrderService extends BaseService implements Runnable {
-				public void run() {
-					processOrder();
-				}
-			}
-		👉 Impossible with Thread.
-
+	✅ 1. Supports Inheritance
 	✅ 2. Separation of Concerns (Very Important)
 		Runnable separates: What to run → Runnable, How to run → Thread / Executor, This is clean OOP design.
 
 	✅ 3. Works with Executor Framework: Executors accept Runnable, not Thread.
-			ExecutorService executor = Executors.newFixedThreadPool(5);
-			executor.submit(() -> processOrder());
-		👉 This is how real production systems work.
-
-	✅ 4. Better Reusability
-		Same Runnable can be executed by: Multiple threads, Different executors, Async frameworks
-
-	✅ 5. Lambda Friendly (Java 8+): Cleaner, concise, modern Java.
-			new Thread(() -> System.out.println("Lambda Runnable")).start();
-
-	✅ 6. Easier Testing
-		Runnable logic can be: Unit tested without threads, Mocked and reused
+	✅ 4. Better Reusability => Same Runnable can be executed by: Multiple threads, Different executors, Async frameworks
+	✅ 5. Lambda Friendly (Java 8+)
+	✅ 6. Easier Testing: Runnable logic can be unit tested without threads, Mocked and reused
 
 3️⃣ When Would You Use Thread?
-	Rare, but valid cases:
-		✔ When you need to: Override thread behavior, Customize thread lifecycle, Create specialized thread types
+	Rare, but valid cases: Override thread behavior, Customize thread lifecycle, Create specialized thread types
 		Example:
 				class LoggingThread extends Thread {
 					public void run() {
@@ -172,67 +115,33 @@
 =============================================================================================================
 🔹 Q4. Difference between start() and run() methods.
 =============================================================================================================
-1️⃣ start() vs run() — Core Difference
+1️⃣ Core Difference
 	✅ start(): Creates a new thread, Tells the JVM to schedule the thread, Internally calls run() in a new call stack
 	✅ run(): Contains the task logic, Executes like a normal method call, Runs in the current thread
 
-2️⃣ Code Example (Most Important): 👉 This single example is enough to explain the entire concept in an interview.
-		class Demo extends Thread {
-			public void run() {
-				System.out.println(Thread.currentThread().getName());
-			}
-
-			public static void main(String[] args) {
-				Demo t = new Demo();
-
-				t.run();   // ❌ NOT a new thread
-				t.start(); // ✅ New thread created
-			}
-		}
-	🔍 Output: 
-		main
-		Thread-0
-
-3️⃣ What Happens Internally?
+2️⃣ What Happens Internally?
 	▶ When start() is called: 
-		JVM creates a new native thread, Allocates a new call stack
-		Registers thread with OS scheduler
-		JVM invokes run() asynchronously
-				main thread stack
-				new thread stack → run()
+		JVM creates a new native thread, Allocates a new call stack, Registers thread with OS scheduler, JVM invokes run() asynchronously
+			main thread stack
+			new thread stack → run()
 
 	▶ When run() is called: No new thread, No new stack, Just a normal method call
-		main thread stack → run()
+			main thread stack → run()
 
-4️⃣ Why You Should Never Call run() Directly
-	new Thread(task).run(); // ❌ common beginner mistake
-	Problems: No parallel execution, No concurrency, Misleading code, Performance bugs in production
-
-5️⃣ Why Can’t We Call start() Twice?
+3️⃣ Why Can’t We Call start() Twice? Reason: A thread’s lifecycle can start only once, JVM does not allow reusing terminated threads
 		Thread t = new Thread();
 		t.start();
 		t.start(); // ❌ IllegalThreadStateException
 
-	▶ Reason: A thread’s lifecycle can start only once, JVM does not allow reusing terminated threads
-
-
 =============================================================================================================
 🔹 Q5. What are daemon threads? Give real-world use cases.
 =============================================================================================================
-1️⃣ What Are Daemon Threads?
-	A daemon thread is a background service thread in Java that:
-		Runs in the background, Provides supporting services to user threads, Does not prevent JVM from exiting
-		👉 When all user (non-daemon) threads finish, the JVM terminates automatically, even if daemon threads are still running.
+1️⃣ A daemon thread is a background service thread in Java that runs in the background and provides supporting services to user threads, Does not prevent JVM from exiting. When all user (non-daemon) threads finish, the JVM terminates automatically, even if daemon threads are still running.
 
 2️⃣ How to Create a Daemon Thread
-		Thread t = new Thread(() -> {
-			while (true) {
-				System.out.println("Daemon running...");
-			}
-		});
-		t.setDaemon(true); // must be before start()
+		Thread t = new Thread(() -> { while (true) { System.out.println("Daemon running..."); }});
+		t.setDaemon(true); // must be before start() otherwise throws IllegalThreadStateException.
 		t.start();
-		⚠ Calling setDaemon(true) after start() throws IllegalThreadStateException.
 
 3️⃣ JVM Behavior with Daemon Threads
 	User Threads running → JVM alive  
@@ -278,15 +187,13 @@
 🔹 Q6. How does JVM decide thread scheduling? Is thread scheduling platform dependent?
 =============================================================================================================
 1️⃣ JVM does not directly schedule threads. It delegates scheduling to the underlying operating system.
-	▶  What JVM Actually Does
-		The JVM: Creates Java threads, Maps them to native OS threads
+	▶  The JVM creates Java threads, Maps them to native OS threads
 		Sets thread properties like: Priority, Daemon status, Hands control to the OS scheduler
 		👉 After that, OS decides: Which thread runs, For how long, On which CPU core
 
-	▶ JVM Uses Preemptive Scheduling
-		Modern JVMs rely on preemptive multitasking, meaning:
-			A running thread can be paused by OS, CPU time is shared via time slicing, Threads don’t cooperate voluntarily
-		This prevents one thread from monopolizing the CPU.
+	▶ Modern JVMs rely on preemptive multitasking, meaning a running thread can be paused by OS
+      CPU time is shared via time slicing, Threads don’t cooperate voluntarily
+	  This prevents one thread from monopolizing the CPU.
 		
 2️⃣ What Factors Influence Thread Scheduling?
 	Even though JVM doesn’t schedule directly, these factors matter:
@@ -302,17 +209,13 @@
 			Examples: Linux → Completely Fair Scheduler (CFS), Windows → Priority-based scheduler
 
 3️⃣ Is Thread Scheduling Platform Dependent?
-	✅ YES — Absolutely: This is the correct and expected answer.
-	🔹 Why It’s Platform Dependent? Because: JVM relies on native OS threads, Different OSes use different scheduling algorithms
-		Priority handling varies across platforms
-		🔸 Example: Thread Priority Behavior
-			t1.setPriority(Thread.MIN_PRIORITY);
-			t2.setPriority(Thread.MAX_PRIORITY);
-			
+	✅ YES — JVM relies on native OS threads, Different OS use different scheduling algorithms
+        	Priority handling varies across platforms
+
 =============================================================================================================
 🔹 Q7. What is context switching? Explain green threads vs native threads.
 =============================================================================================================
-1️⃣  Context switching is the process of saving the state of one running thread and restoring the state of another,
+1️⃣  Context switching is the process of saving the state of one running thread and restoring the state of another thread,
    so the CPU can switch execution between them.
 
 	🔧 What Gets Saved & Restored?
@@ -334,7 +237,7 @@
 
 2️⃣ Green Threads vs Native Threads: This is about who manages the threads — JVM or OS.
 	🟢 Green Threads: 
-		🔹 What Are Green Threads? Green threads are user-level threads managed entirely by the JVM, not by the operating system.
+		🔹 Green threads are user-level threads managed entirely by the JVM, not by the operating system.
 			JVM schedules threads, OS sees only ONE process
 		
 		🔹 Characteristics: 
@@ -348,7 +251,7 @@
 
 
 	🔵 Native Threads
-		🔹 What Are Native Threads? Native threads are OS-level threads. Each Java thread maps to a native OS thread.
+		🔹 Native threads are OS-level threads. Each Java thread maps to a native OS thread.
 			Java Thread ↔ OS Thread
 		
 		🔹 Characteristics
@@ -376,7 +279,8 @@
 			t.setPriority(Thread.MAX_PRIORITY);
 
 2️⃣ What Is the Purpose of Thread Priority?
-	The idea is: Higher priority → more CPU time, Lower priority → less CPU time
+	Higher priority → more CPU time
+	Lower priority → less CPU time
 	👉 But this is only a suggestion, not a guarantee.
 
 3️⃣ Does Thread Priority Really Work?
@@ -384,8 +288,7 @@
 	🔹 Correct Technical Answer: Thread priority behavior is platform dependent and should not be relied upon for correctness.
 
 4️⃣ Why Thread Priority Is Unreliable
-	🔸 1. JVM Delegates Scheduling to OS: The JVM maps Java threads to native OS threads and passes the priority to the OS scheduler.
-		 What happens next depends on: OS scheduling algorithm, OS priority mapping, CPU availability
+	🔸 1. JVM Delegates Scheduling to OS and its depends on OS scheduling algorithm, OS priority mapping, CPU availability
 
 	🔸 2. Platform-Dependent Behavior:
 			| OS      | Priority Handling           |
@@ -396,13 +299,7 @@
 		👉 Same Java code → different behavior on different OSes.
 
 	🔸 3. No Execution Order Guarantee
-			Thread t1 = new Thread(() -> System.out.println("Low"));
-			Thread t2 = new Thread(() -> System.out.println("High"));
-			t1.setPriority(Thread.MIN_PRIORITY);
-			t2.setPriority(Thread.MAX_PRIORITY);
-			t1.start();
-			t2.start();
-		✔ Output is non-deterministic, ❌ No guarantee t2 runs first
+			✔ Output is non-deterministic, ❌ Order No guarantee
 
 	🔸 4. Risk of Starvation: 
 			High-priority threads can starve lower-priority threads
@@ -417,18 +314,14 @@
 	Even then → don’t depend on it.
 
 6️⃣ What Should Be Used Instead (Senior Best Practice)
-	Instead of thread priority, use: ExecutorService, Thread pools, Proper task queues, Back-pressure mechanisms, Concurrency utilities
+	Instead of thread priority use ExecutorService, Thread pools, Proper task queues, Back-pressure mechanisms, Concurrency utilities
 	Example: ExecutorService executor = Executors.newFixedThreadPool(4);
 	This gives: Predictable behavior, Better scalability, OS-agnostic execution
 	
 =============================================================================================================
 🔹 Q9. Explain thread lifecycle with states. Difference between NEW, RUNNABLE, BLOCKED, WAITING, TIMED_WAITING, TERMINATED.
 =============================================================================================================
-1️⃣  A thread lifecycle represents the different states a thread goes through from creation to termination
-	as defined by Thread.State in Java.
-	Java defines 6 thread states: NEW, RUNNABLE, BLOCKED, WAITING, TIMED_WAITING, TERMINATED
-
-2️⃣ Thread Lifecycle Diagram (Mental Model)
+1️⃣ Thread Lifecycle Diagram (Mental Model)
 	NEW
 	 │ start()
 	 ▼
@@ -444,44 +337,42 @@
 				 ▼
 			TERMINATED
 
-3️⃣ Thread States Explained (With Causes & Examples)
-	🔵 1. NEW: Meaning => Thread object is created, start() has not been called
-			Thread t = new Thread(() -> {}); // t is in NEW state
-			Key Point: No system resources allocated, Cannot be scheduled
-	
-	🟢 2. RUNNABLE: Meaning => Thread is ready to run or running, JVM has handed thread to OS scheduler
+2️⃣ Thread States Explained (With Causes & Examples)
+	🔵 1. NEW: Thread object is created, start() has not been called, No system resources allocated, Cannot be scheduled
+			Thread t = new Thread(() -> {});
+			
+	🟢 2. RUNNABLE: Thread is ready to run or running, JVM has handed thread to OS scheduler
 			t.start(); // enters RUNNABLE
 			Important: Java does NOT distinguish between: Ready and Running, Both are RUNNABLE.
-			Interview Tip: “RUNNABLE means eligible to run, not necessarily running.”
+			Tip: “RUNNABLE means eligible to run, not necessarily running.”
 
-	🔴 3. BLOCKED: Meaning => Thread is waiting to acquire a monitor lock, Happens only with synchronized
+	🔴 3. BLOCKED: Thread is waiting to acquire a monitor lock, Happens only with synchronized
 			synchronized(lock) {
 				// another thread holding lock
 			}
 			Causes: Thread tries to enter synchronized block/method, Lock held by another thread
 			Key Difference: BLOCKED → waiting for lock, WAITING → waiting for signal
 
-	🟡 4. WAITING: Meaning => Thread waits indefinitely for another thread’s action
-			Causes
+	🟡 4. WAITING: Thread waits indefinitely for another thread’s action
+			Causes:
 					obj.wait();
 					thread.join();
 					LockSupport.park();
 			How It Leaves WAITING: notify(), notifyAll(), Target thread finishes (for join)
 
-	🟠 5. TIMED_WAITING: Meaning => Thread waits for a specified time
-			Causes
+	🟠 5. TIMED_WAITING: Thread waits for a specified time and After Timeout Thread returns to RUNNABLE automatically
+			Causes:
 					Thread.sleep(1000);
 					obj.wait(1000);
 					thread.join(1000);
 					lock.tryLock(1, TimeUnit.SECONDS);
 
-			After Timeout: Thread returns to RUNNABLE automatically
-
-	⚫ 6. TERMINATED: Meaning => Thread execution is complete, run() method exits, // run() finished
+	⚫ 6. TERMINATED: Thread execution is complete, run() method exits
 			Important: Cannot be restarted, Calling start() again → IllegalThreadStateException
 
 4️⃣ When Does a Thread Enter the BLOCKED State?
-	A thread enters the BLOCKED state only when it is trying to acquire an intrinsic (monitor) lock that is already held by another thread. 👉 BLOCKED = waiting for a monitor lock
+	A thread is trying to acquire an intrinsic (monitor) lock that is already held by another thread.
+	👉 BLOCKED = waiting for a monitor lock
 	🔹 The Only Cause of BLOCKED State
 		✔ Attempting to enter a synchronized block or method, Lock is already owned by another thread
 				synchronized (lock) {
@@ -516,8 +407,7 @@
 				}
 				thread.interrupt();
 
-			➡ The thread: Wakes up, Throws InterruptedException, Moves to RUNNABLE
-			✔ No notify() involved
+			➡ The thread: Wakes up, Throws InterruptedException, Moves to RUNNABLE, No notify() involved
 	
 	🔹 2. Spurious Wakeups: The JVM is allowed to wake up a waiting thread without any notify.
 			This is rare, but legal per Java spec. 👉 That’s why this is mandatory:
@@ -2597,8 +2487,7 @@ Key Differences Explained (Interviewers Care About These)
 =============================================================================================================
 🔹 Q39. What is ReadWriteLock? When to use ReadWriteLock?
 =============================================================================================================
-1️⃣ What Is ReadWriteLock?
-	ReadWriteLock is a lock that maintains two separate locks:
+1️⃣  ReadWriteLock is a lock that maintains two separate locks:
 		a read lock for read-only access
 		a write lock for exclusive write access
 		👉 Multiple threads can read concurrently, but writes are exclusive.
@@ -2617,34 +2506,6 @@ Key Differences Explained (Interviewers Care About These)
 		Only one thread can hold the write lock
 		While a writer holds the lock: No readers allowed
 		While readers hold the lock: Writers must wait
-
-4️⃣ Simple Example Using ReentrantReadWriteLock
-
-		class Cache {
-			private final ReadWriteLock rwLock = new ReentrantReadWriteLock();
-			private final Lock readLock = rwLock.readLock();
-			private final Lock writeLock = rwLock.writeLock();
-
-			private int data;
-
-			public int read() {
-				readLock.lock();
-				try {
-					return data;
-				} finally {
-					readLock.unlock();
-				}
-			}
-
-			public void write(int value) {
-				writeLock.lock();
-				try {
-					data = value;
-				} finally {
-					writeLock.unlock();
-				}
-			}
-		}
 
 	✔ Behavior: Many threads can call read() at the same time, Only one thread can call write(), Writes block both readers and writers
 
@@ -2875,10 +2736,6 @@ Key Differences Explained (Interviewers Care About These)
 	Very rarely: One-off background thread, JVM startup tasks, Low-level framework code
 	🎯 Interview line: “Application code should almost never create threads directly.”
 
-
-=============================================================================================================
-🔹 Q42. Difference between Executor, ExecutorService, ScheduledExecutorService.
-=============================================================================================================
 =============================================================================================================
 🔹 Q43. Expalin all types of thread pools: Fixed, Cached, Single, Scheduled
 =============================================================================================================
@@ -3356,30 +3213,21 @@ Runnable represents a task that does not return a result and cannot throw checke
 =============================================================================================================
 🔹 Q52. Difference between thenApply vs thenCompose and thenAccept vs thenRun.
 =============================================================================================================
-1️⃣ thenApply vs thenCompose: 👉 This is about what your function returns.
+1️⃣ thenApply vs thenCompose: 
 	🔹 thenApply — transform the result
-		📌 What it does: Takes the result of a stage, Transforms it, Returns a new value
+		📌 Takes the result of a stage, Transforms it, Returns a new value
 
 			CompletableFuture<Integer> cf =
 				CompletableFuture.supplyAsync(() -> 10)
 					.thenApply(x -> x * 2); // transforms value
 			System.out.println(cf.join()); // 20
 
-	🔥 Important detail: If your function returns a CompletableFuture, you’ll get nested futures ❌
-			CompletableFuture<CompletableFuture<Integer>> cf =
-				CompletableFuture.supplyAsync(() -> 10)
-					.thenApply(x -> CompletableFuture.supplyAsync(() -> x * 2));
-
-		👉 Usually not what you want.
-
 	🔹 thenCompose — flatten async operations
-		📌 What it does: Takes the result of a stage, Calls another async operation, Flattens the result
+		📌 Takes the result of a stage, Calls another async operation, Flattens the result
 
 				CompletableFuture<Integer> cf =
 					CompletableFuture.supplyAsync(() -> 10)
-						.thenCompose(x ->
-							CompletableFuture.supplyAsync(() -> x * 2)
-						);
+						.thenCompose(x -> CompletableFuture.supplyAsync(() -> x * 2));
 				System.out.println(cf.join()); // 20
 
 		
@@ -3399,19 +3247,18 @@ Runnable represents a task that does not return a result and cannot throw checke
 | Input            | Value                    | Value                    |
 | Function returns | Value                    | CompletableFuture        |
 | Output           | CompletableFuture<Value> | CompletableFuture<Value> |
-| Nesting          | ❌ Possible               | ❌ No                  |
 | Use case         | Data transformation      | Async chaining           |
 
 
-2️⃣ thenAccept vs thenRun: 👉 This is about whether you need the result or not.
+2️⃣ thenAccept vs thenRun:
 	🔹 thenAccept — consume the result
-		📌 What it does: Takes the result, Performs a side-effect, Returns CompletableFuture<Void>
+		📌 Takes the result, Performs a side-effect, Returns CompletableFuture<Void>
 			CompletableFuture<Void> cf =
 				CompletableFuture.supplyAsync(() -> "Hello")
 					.thenAccept(msg -> System.out.println(msg));
 
 	🔹 thenRun — run without result
-		📌 What it does: Does not receive the result, Just runs some logic, Returns CompletableFuture<Void>
+		📌 Does not receive the result, Just runs some logic, Returns CompletableFuture<Void>
 			CompletableFuture<Void> cf =
 				CompletableFuture.supplyAsync(() -> "Hello")
 					.thenRun(() -> System.out.println("Done"));
@@ -3421,7 +3268,7 @@ Runnable represents a task that does not return a result and cannot throw checke
 🔥 thenAccept vs thenRun Summary
 | Aspect           | thenAccept               | thenRun                 |
 | ---------------- | ------------------------ | ----------------------- |
-| Access to result | ✅ Yes                    | ❌ No                    |
+| Access to result |  Yes                     |   No                    |
 | Return type      | CompletableFuture<Void>  | CompletableFuture<Void> |
 | Use case         | Logging, saving, sending | Notifications, cleanup  |
 
@@ -3429,16 +3276,13 @@ Runnable represents a task that does not return a result and cannot throw checke
 =============================================================================================================
 🔹 Q54. What thread executes CompletableFuture by default?
 =============================================================================================================
-1️⃣ What Thread Executes CompletableFuture by Default?
-	By default, CompletableFuture async tasks run on the ForkJoinPool.commonPool().
+1️⃣  By default, CompletableFuture async tasks run on the ForkJoinPool.commonPool().
 	This applies to: supplyAsync(), runAsync(), thenApplyAsync(), thenComposeAsync(), thenAcceptAsync(), etc.
 
 		CompletableFuture.supplyAsync(() -> {
 			System.out.println(Thread.currentThread().getName());
 			return 42;
 		});
-
-
 	👉 Output will look like: ForkJoinPool.commonPool-worker-1
 
 2️⃣ What Is ForkJoinPool.commonPool()?
@@ -3496,61 +3340,14 @@ Runnable represents a task that does not return a result and cannot throw checke
 	In CompletableFuture, the difference between async and non-async methods is NOT about parallelism — it’s about which thread executes the next stage.
 
 2️⃣ Non-Async Methods (thenApply, thenCompose, thenAccept, thenRun)
-	🔹 How They Execute: They run in the same thread that completes the previous stage.
-		
-				CompletableFuture
-					.supplyAsync(() -> {
-						System.out.println(Thread.currentThread().getName());
-						return 10;
-					})
-					.thenApply(x -> {
-						System.out.println(Thread.currentThread().getName());
-						return x * 2;
-					});
-
-				Output (example)
-				ForkJoinPool.commonPool-worker-1
-				ForkJoinPool.commonPool-worker-1
-
-		✔ No thread switch, ✔ Lower overhead, ❌ Can block important threads if logic is heavy
-
-	🧠 Key Insight
-		If previous stage completes on:
-			main thread → next stage runs on main thread
-			ForkJoinPool thread → next stage runs there
-			custom executor thread → next stage runs there
-
-	🎯 Interview line: “Non-async stages inherit the thread of the completing stage.”
-
 3️⃣ Async Methods (thenApplyAsync, thenComposeAsync, thenAcceptAsync, thenRunAsync)
-	🔹 How They Execute: They always run in a different thread, obtained from an executor.
 
-				CompletableFuture
-					.supplyAsync(() -> {
-						System.out.println(Thread.currentThread().getName());
-						return 10;
-					})
-					.thenApplyAsync(x -> {
-						System.out.println(Thread.currentThread().getName());
-						return x * 2;
-					});
-
-				Output (example)
-				ForkJoinPool.commonPool-worker-1
-				ForkJoinPool.commonPool-worker-3
-				
-			✔ Forces thread switch, ✔ Prevents blocking previous thread, ❌ Slight scheduling overhead
-
-🔑 Default Executor: If no executor is supplied: Uses ForkJoinPool.commonPool()
-		You can override it: .thenApplyAsync(fn, customExecutor);
-		
 5️⃣ When Should You Use Which?
-	✅ Use Non-Async When: Logic is small and fast, No blocking I/O, You want minimal overhead, Continuation is lightweight
-			.thenApply(x -> x + 1)
+	✅ Use Non-Async When: 
+		Logic is small and fast, No blocking I/O, You want minimal overhead, Continuation is lightweight
 
-	✅ Use Async When: Logic is CPU-heavy or blocking, You don’t want to block completion thread, You need explicit thread control
-			.thenApplyAsync(x -> heavyComputation(), executor)	
-
+	✅ Use Async When: 
+		Logic is CPU-heavy or blocking, You don’t want to block completion thread, You need explicit thread control
 			
 =============================================================================================================
 🔹 Q56. Why HashMap not thread safe? Difference between HashMap and ConcurrentHashMap. 

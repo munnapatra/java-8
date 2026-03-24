@@ -1,0 +1,1171 @@
+✅ Java Memory Model and Concurrency
+volatile keyword: I explained that it ensures variable visibility across threads and prevents instruction reordering. I admitted limited hands-on experience.
+synchronized keyword: I explained its role in ensuring mutually exclusive access to shared resources.
+String Pool: Discussed immutability and JVM’s memory optimization via the string pool.
+✅ Difference Between ArrayList and LinkedList in Java
++----------------------------+-----------------------------+------------------------------+
+| Aspect                    | ArrayList                   | LinkedList                  |
++----------------------------+-----------------------------+------------------------------+
+| Underlying Data Structure | Dynamic array (resizable)   | Doubly linked list          |
+| Memory Usage              | Less (contiguous array)     | More (data + 2 pointers)    |
+| Access Time (get/index)   | Fast (O(1) random access)   | Slow (O(n) traversal)       |
+| Insertion at End          | Fast (O(1) amortized)       | Fast (O(1) if tail kept)    |
+| Insertion in Middle       | Slow (O(n) due to shifting) | Fast (O(n) to locate node)  |
+| Deletion from Middle      | Slow (O(n) due to shifting) | Faster (O(n) + unlink)      |
+| Search Performance        | Fast with index, else O(n)  | Always O(n)                 |
+| Thread Safety             | Not thread-safe             | Not thread-safe             |
+| When to Use               | Frequent reads/index access | Frequent inserts/deletes    |
++----------------------------+-----------------------------+------------------------------+
+🧠 Short Verbal Explanation for Interviews
+“ArrayList uses a dynamic array internally, which makes it very fast for random access using indices—like get(i). But adding/removing elements in the middle of the list can be costly due to element shifting.
+On the other hand, LinkedList uses a doubly linked list, which makes insertion and deletion in the middle efficient, as there's no shifting—but accessing elements by index is slow because it has to traverse the list node by node."
+
+Example:
+List<String> arrayList = new ArrayList<>();
+List<String> linkedList = new LinkedList<>();
+arrayList.add("A");  // fast
+linkedList.add("A"); // also fast
+arrayList.get(0);    // O(1) - fast
+linkedList.get(0);   // O(1) - fast for head, but O(n) for index in general
+🆚 Java 8 vs Java 17 — Key Feature Comparison Explained
+During the interview, I was expected to clearly articulate the standout features introduced in both Java 8 and Java 17. Below is a concise yet practical comparison, which not only helped me review the differences but also strengthened my confidence in understanding Java’s evolution.
+
+☕ Java 8 Features (Released: March 2014)
+✅ Stream API
+Java 8 introduced the powerful Stream API for processing sequences of elements with functional-style operations like map, filter, and reduce.
+
+List<String> names = List.of("Alice", "Bob", "Charlie");
+names.stream()
+     .filter(name -> name.startsWith("A"))
+     .forEach(System.out::println);
+✅ Lambda Expressions
+Lambdas enable treating functionality as method arguments, making the code cleaner and more concise.
+
+Runnable r = () -> System.out.println("Running a thread");
+✅ Optional Class
+Optional<T> was introduced to avoid NullPointerException and signal the possibility of a missing value in a clear way.
+
+Optional<String> name = Optional.ofNullable(getName());
+name.ifPresent(System.out::println);
+✅ New Date/Time API (java.time)
+Replaces the outdated Date and Calendar classes with immutable and thread-safe types.
+
+LocalDate today = LocalDate.now();
+LocalDate birthday = LocalDate.of(1990, Month.JULY, 25);
+✅ Default Methods in Interfaces
+Interfaces can now contain method implementations using the default keyword, allowing evolution without breaking existing implementations.
+
+interface Logger {
+    default void log(String message) {
+        System.out.println("Log: " + message);
+    }
+}
+🆕 Java 17 Features (Released: September 2021 — LTS)
+✅ Sealed Classes
+Sealed classes restrict which classes can extend or implement them, supporting more secure and maintainable hierarchies.
+
+public sealed class Animal permits Dog, Cat {}
+final class Dog extends Animal {}
+final class Cat extends Animal {}
+✅ Pattern Matching for Switch (Preview)
+Provides a cleaner way to handle type-based logic within switch expressions.
+
+static String handle(Object obj) {
+    return switch (obj) {
+        case Integer i -> "Integer: " + i;
+        case String s  -> "String: " + s;
+        default        -> "Unknown";
+    };
+}
+✅ Text Blocks
+Multi-line string literals using triple quotes (""") reduce the need for escape sequences and preserve formatting.
+
+String json = """
+    {
+      "name": "John",
+      "age": 30
+    }
+    """;
+✅ Records
+Simplifies data carrier classes by generating boilerplate like constructors, getters, equals(), hashCode(), and toString().
+
+public record Person(String name, int age) {}
+✅ Enhanced NullPointerExceptions
+From Java 14 onward (default in 17), exceptions show detailed messages indicating what was null, which speeds up debugging.
+
+Cannot invoke "Person.getName()" because "person" is null
+🔍 Side-by-Side Summary
+| Feature                          | Java 8 ✅  | Java 17 ✅      |
+|----------------------------------|------------|------------------|
+| Stream API                       | ✅         | —                |
+| Lambda Expressions               | ✅         | —                |
+| Optional                         | ✅         | —                |
+| Date/Time API                    | ✅         | —                |
+| Default Methods in Interfaces    | ✅         | —                |
+| Sealed Classes                   | —          | ✅               |
+| Pattern Matching for Switch      | —          | ✅ (preview)     |
+| Text Blocks                      | —          | ✅               |
+| Records                          | —          | ✅               |
+| Enhanced NullPointerExceptions   | —          | ✅               |
+This comparison not only shows technical growth but also reflects how Java has steadily moved toward more expressive, safer, and more concise code paradigms. Make sure you’re comfortable using each in real code scenarios — they often show up in senior-level interviews.
+
+💻 Hands-on Coding Challenges
+🧮 Stream API Exercise 1: Calculate Average Grade
+List<Student> students = Arrays.asList(
+    new Student("Alice", 85.0),
+    new Student("Bob", 90.5),
+    new Student("Charlie", 78.0),
+    new Student("David", 92.3)
+);
+double average = students.stream()
+                         .mapToDouble(Student::getGrade)
+                         .average()
+                         .orElse(0.0);
+📉 Stream API Exercise 2: Filter Students Below Average
+I was then asked to filter students whose grades are below the average calculated in the first task.
+
+      // Step 1: Calculate average grade
+        double average = students.stream()
+            .mapToDouble(s -> s.grade)
+            .average()
+            .orElse(0);
+
+        System.out.println("Average grade: " + average);
+
+        // Step 2: Filter students below average
+        List<Student> belowAverage = students.stream()
+            .filter(s -> s.grade < average)
+            .collect(Collectors.toList());
+✅ Unit Testing with Mockito — Real Interview Example
+The interviewer gave me a Spring Boot service class named StudentService, which internally used an autowired TeacherService. My task was to write a unit test for a method in StudentService that calls the save() method of TeacherService. They asked me to demonstrate the use of @Spy.
+
+🔸 Key Concepts
+@Mock: Creates a bare-bones mock – no behavior unless defined via when(...).thenReturn(...).
+@Spy: Wraps the real object – you can override specific methods while retaining the rest of the real behavior.
+✅ Given Code — StudentService.java
+@Service
+public class StudentService {
+
+@Autowired
+    private TeacherService teacherService;
+    public String registerTeacher(String name) {
+        Teacher teacher = new Teacher();
+        teacher.setName(name);
+        teacherService.save(teacher);
+        return "Teacher Registered";
+    }
+}
+🔸 Dependency — TeacherService.java
+@Service
+public class TeacherService {
+    public void save(Teacher teacher) {
+        // save logic here (e.g., repository call)
+        System.out.println("Saving teacher: " + teacher.getName());
+    }
+}
+✅ Unit Test Using @Spy (JUnit 5 + Mockito)
+@ExtendWith(MockitoExtension.class)
+class StudentServiceTest {
+    @Spy
+    private TeacherService teacherService; // real object, we can partially mock
+    @InjectMocks
+    private StudentService studentService; // injects spy into this
+    @Test
+    void testRegisterTeacher_callsSaveMethod() {
+        // Arrange
+        String teacherName = "Mr. Smith";
+        // Act
+        String result = studentService.registerTeacher(teacherName);
+        // Assert
+        verify(teacherService, times(1)).save(any(Teacher.class));
+        assertEquals("Teacher Registered", result);
+    }
+}
+✅ Summary
+This test case uses @Spy to verify that the real TeacherService.save() method is invoked exactly once, and also validates the return value from registerTeacher().
+
+✅ Pro Tip: Use @Mock when you want complete control over method behavior. Use @Spy when you want real logic but still want to verify or override specific calls.
+
+✅ Runnable vs Callable in Java
+During the interview, I was asked to explain the difference between Runnable and Callable. Here's a concise breakdown I prepared for the question:
+
++------------------------+-------------------------------+-----------------------------------------------+
+| Feature                | Runnable                      | Callable<V>                                   |
++------------------------+-------------------------------+-----------------------------------------------+
+| Introduced in          | Java 1.0                      | Java 5 (java.util.concurrent)                 |
+| Return Type            | void – does not return result | Returns a result of type V                    |
+| Exception Handling     | Cannot throw checked exceptions | Can throw checked exceptions                 |
+| Usage                  | Used with Thread or Executor  | Used with ExecutorService.submit()            |
+| Result Retrieval       | No return value               | Returns a Future<V> to get the result         |
+| Typical Use Case       | Fire-and-forget tasks         | Tasks needing a result or exception handling  |
++------------------------+-------------------------------+-----------------------------------------------+
+🔹 Runnable Example
+Runnable task = () -> System.out.println("Running a task");
+Thread thread = new Thread(task);
+thread.start();
+🔹 Callable Example
+
+Callable<String> task = () -> {
+    Thread.sleep(1000); // simulate some delay
+    return "Task result";
+};
+
+ExecutorService executor = Executors.newSingleThreadExecutor();
+Future<String> future = executor.submit(task);
+String result = future.get(); // blocks until result is available
+executor.shutdown();
+🔹 Summary
+Use Runnable when you don't need a result or exception handling. Use Callable when the task needs to return a value or might throw a checked exception.
+
+🌱 Spring Framework Expertise
+🔧 Core Spring Concepts
+IoC (Inversion of Control): Spring container managing bean lifecycle and dependency injection.
+AOP (Aspect-Oriented Programming): Used for cross-cutting concerns like logging, transactions, and security.
+🔖 Annotation Coverage
+Stereotype Annotations: @Controller, @Service, @Repository
+Dependency Injection: @Autowired, @Qualifier
+Configuration: @Configuration, @Bean, @Value, @PropertySource
+Transactions: @Transactional (including limitations on private methods—explained later)
+⚙️ Spring Boot Starters
+Discussed how starters like spring-boot-starter-web and spring-boot-starter-data-jpa simplify dependency management and reduce boilerplate.
+
+Excellent — Spring Actuator is a key topic, especially for a senior Java developer role. Let’s add a focused section about Spring Boot Actuator, its common endpoints, and how you’ve used it in your projects.
+
+🩺 Observability with Spring Boot Actuator
+The interviewer also asked whether I use Spring Boot Actuator and what endpoints I typically expose and monitor.
+
+🔍 What Is Spring Actuator?
+Spring Boot Actuator adds production-ready features to applications, helping monitor and manage the app through exposed endpoints without needing external tools.
+
+✅ Common Endpoints I Use
+I explained that I’ve worked with the following built-in actuator endpoints:
+
+| Endpoint             | Purpose                                                                 |
+|----------------------|-------------------------------------------------------------------------|
+| `/actuator/health`   | Shows app health status (can be extended to DB, disk, etc.)            |
+| `/actuator/info`     | Displays custom application metadata (e.g., version)                   |
+| `/actuator/metrics`  | Provides key metrics like JVM memory, GC, thread count                 |
+| `/actuator/env`      | Lists environment properties, useful for debugging                     |
+| `/actuator/loggers`  | Allows changing log levels dynamically via API                         |
+| `/actuator/beans`    | Lists all Spring beans in the context                                  |
+🛡️ Security Considerations
+I emphasized restricting access to sensitive endpoints using Spring Security.
+Typically expose only /health and /info publicly and protect the rest.
+⚙️ Configuration Example
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, loggers
+  endpoint:
+    health:
+      show-details: when-authorized
+📈 Integrations
+I mentioned integrating Actuator with:
+
+Prometheus for scraping /actuator/prometheus
+Grafana for visual dashboards
+Kubernetes liveness/readiness probes
+🗄️ Database and SQL Knowledge
+JPA / Hibernate
+Common Annotations: @Entity, @Table, @Id, @GeneratedValue
+Relationships: @OneToMany, @ManyToOne, @JoinColumn
+JPA vs Hibernate: ORM standards vs implementation specifics
+When using Spring Boot with spring-boot-starter-data-jpa, you're using JPA as your API layer and Hibernate as your engine by default. You write code against the standard JPA spec, but Hibernate handles the actual execution under the hood.
+
+🔍 Under the Hood
+Spring Boot’s spring-boot-starter-data-jpa transitively pulls in:
+
+jakarta.persistence (JPA specification)
+org.hibernate.orm:hibernate-core (Hibernate implementation)
+So unless you explicitly override it with something like EclipseLink, Hibernate is what runs behind the scenes to:
+
+generate SQL queries,
+manage the persistence context,
+perform entity mapping, and
+handle lazy/eager loading, cascade operations, etc.
+SQL Concepts
+During the interview, I was asked:
+
+Execution Plans: How to read and optimize query performance
+Joins: Differences between INNER, LEFT, and RIGHT joins
+Tables vs Views: Use cases and performance implications
+🌐 Global Exception Handling in Spring Boot
+During the interview, I was asked:
+
+“How do you handle exceptions globally in a Spring Boot application?”
+
+This is a fundamental question that often reveals how cleanly you separate concerns in your backend architecture.
+
+Spring Boot provides a very elegant way to handle exceptions globally using two annotations:
+
+@ControllerAdvice — to mark a global exception handler class.
+@ExceptionHandler — to define methods that handle specific exceptions.
+By using these together, you can keep your controller logic clean while delivering structured, meaningful error responses to the client.
+
+🔹 Step-by-Step: Custom Exception Handling
+1. Define a Custom Exception
+public class ResourceNotFoundException extends RuntimeException {
+    public ResourceNotFoundException(String message) {
+        super(message);
+    }
+}
+2. Create a Global Exception Handler
+@ControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<String> handleNotFound(ResourceNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleGeneralError(Exception ex) {
+        return new ResponseEntity<>("Internal Server Error: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+}
+3. Use the Custom Exception in Your Controller
+@GetMapping("/user/{id}")
+public User getUser(@PathVariable Long id) {
+    return userRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
+}
+4. Optional: Custom Error Response Structure
+To return structured error responses (especially useful in REST APIs), I often use a custom ErrorResponse class:
+
+Become a member
+And modify the handler method:
+
+@ExceptionHandler(ResourceNotFoundException.class)
+public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex) {
+    ErrorResponse error = new ErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND.value());
+    return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+}
+✅ Why It Matters
+This pattern is especially important in production-grade REST APIs and microservices. It:
+
+Ensures consistency in error responses.
+Reduces code duplication across controllers.
+Enhances client-side error handling (e.g., front-end apps can easily parse JSON error structures).
+🔄 Distributed Systems with Kafka
+Kafka Fundamentals
+Consumer Groups: Enable scalable, parallel consumption
+Partitions: Ensure scalability and message ordering
+Exactly-Once Semantics: Achieved using transactional producers and idempotence
+Delivery semantics: at-least-once, at-most-once, exactly-once
+https://medium.com/@emin_yuce/mastering-apache-kafka-for-distributed-systems-a-senior-java-developers-guide-d0d57b80ad84
+☁️ Cloud Architecture with Azure
+My Azure Experience
+I discussed working with:
+
+Azure Kubernetes Service (AKS)
+Cosmos DB
+Cloud-native design principles and scalability best practices
+The interviewer asked me if I had used any other Azure services, but I forgot to mention the additional ones I worked with, which include:
+You can follow that with a bullet list of services like:
+
+Azure Cosmos DB (for audit transactions)
+Azure Key Vault (for managing secrets)
+Azure Functions (triggered by file events)
+Azure Blob Storage (for storing uploaded or generated files)
+Azure Monitor & Log Analytics — centralized observability
+Azure Cache for Redis (to cache balance information in balance API and update it kafka event)
+🧠 Data Structures and Algorithms
+HashMap vs HashTable: Differences in thread safety and synchronization
+Collection selection: Based on read/write patterns
+Memory optimization: Best practices for handling large datasets
+🐳 Docker and Kubernetes in Java Development (on Azure)
+The interviewer was also interested in how I’ve used Docker and Kubernetes to containerize and orchestrate Java applications in real-world Azure projects.
+
+🧱 Docker in My Java Projects
+I containerize Spring Boot microservices using a Dockerfile.
+Familiar with multi-stage builds to reduce image size.
+Use of Docker Compose for local multi-container development (e.g., app + DB + Kafka).
+Environment-specific configs via profiles and .env files for seamless CI/CD integration.
+☸️ Kubernetes on Azure (AKS)
+Experience deploying microservices to Azure Kubernetes Service (AKS).
+Managed Helm charts for templated deployments.
+Used Horizontal Pod Autoscaling (HPA) for scaling based on CPU/memory.
+Set up readiness/liveness probes, resource quotas, and affinity rules.
+Implemented config maps, secrets, and persistent volumes for stateful services.
+Leveraged Azure DevOps and GitHub Actions for CI/CD pipelines to AKS.
+🔐 Observability & Security
+Integrated Prometheus and Grafana for monitoring.
+Applied Role-Based Access Control (RBAC) in cluster-level permissions.
+Used Azure Key Vault to securely inject credentials into containers.
+🔄 CI/CD with GitHub Actions and Jenkins
+The interviewer also explored my experience with continuous integration and deployment (CI/CD), focusing on pipeline configuration, script automation, and production readiness.
+
+🛠️ GitHub Actions
+Created workflows using .github/workflows/*.yml files to automate:
+Java build & test steps (mvn clean install)
+Code quality checks with Checkstyle, PMD, or SonarQube
+Docker image build and push to Azure Container Registry (ACR)
+Deployment to AKS or App Service via kubectl or az CLI
+Used matrix builds, job dependencies, and secrets management in workflows.
+Example snippet:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+      - name: Build with Maven
+        run: mvn clean verify
+⚙️ Jenkins Pipelines
+Maintained both declarative and scripted pipelines in Jenkinsfile.
+Integrated with GitHub via webhooks to trigger builds on PRs and merges.
+Configured shared Jenkins agents with Docker support and Maven caching.
+Automated:
+Static code analysis
+Integration testing using TestContainers
+Deployment to staging via kubectl or shell scripts
+Sample declarative pipeline:
+
+pipeline {
+    agent any
+    tools {
+        jdk 'JDK 17'
+        maven 'Maven 3.8'
+    }
+    stages {
+        stage('Build') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                sh './scripts/deploy.sh'
+            }
+        }
+    }
+}
+📜 Bash & YAML Scripting
+Wrote reusable Bash scripts for:
+Image tagging and pushing
+Kubernetes rollouts and health checks
+Configuration backups and restores
+Comfortable debugging YAML-based configurations for GitHub Actions, Kubernetes manifests, and Helm charts.
+📘 API Documentation with Swagger (OpenAPI)
+During the interview, I was also asked about my experience with Swagger, and why I use it in Java-based backend development.
+
+🤔 Why Use Swagger?
+I explained that Swagger (now known as OpenAPI Specification) is essential for:
+
+API Documentation: It automatically generates interactive, up-to-date API docs from Spring Boot controllers.
+Developer Collaboration: Frontend developers or 3rd-party clients can easily understand and test endpoints without backend support.
+Testing: Enables live testing of REST endpoints directly from the UI.
+Contract-First Development: Useful for designing APIs before implementation using tools like Swagger Editor.
+🧩 Swagger in My Spring Boot Projects
+I’ve integrated Swagger using Springdoc OpenAPI 3 in most of my microservices.
+Configuration involves adding the dependency and annotating controllers and models with metadata.
+Example configuration:
+
+<!-- pom.xml -->
+<dependency>
+  <groupId>org.springdoc</groupId>
+  <artifactId>springdoc-openapi-ui</artifactId>
+  <version>1.7.0</version>
+</dependency>
+Example controller annotations:
+
+@RestController
+@RequestMapping("/api/orders")
+@Tag(name = "Orders", description = "Order management APIs")
+public class OrderController {
+
+    @Operation(summary = "Get order by ID")
+    @ApiResponse(responseCode = "200", description = "Found the order")
+    @GetMapping("/{id}")
+    public ResponseEntity<Order> getOrder(@PathVariable Long id) {
+        // ...
+    }
+}
+🌍 Swagger UI
+Once integrated, Swagger UI is available at:
+
+http://localhost:8080/swagger-ui.html
+This gives stakeholders and developers a live view of all endpoints, request/response schemas, and testing capabilities.
+
+✅ Common Design Patterns I’ve Used as a Senior Java Engineer
+During my recent technical interview for a Senior Java Engineer position, I was asked which design patterns I’ve used in real-world projects. It was a great opportunity to reflect on how foundational patterns have influenced the architecture and maintainability of the systems I’ve built.
+
+Below are some of the most common design patterns I’ve applied in production:
+
+🔹 Singleton Pattern
+I frequently use the Singleton pattern in service layers, especially for utility classes and components like Logger or cache managers. In Spring Boot, this is often achieved effortlessly since Spring beans are singleton-scoped by default. This ensures that shared resources like configurations or database connection pools aren’t repeatedly instantiated.
+
+🔹 Factory and Builder Patterns
+In scenarios involving object creation based on different inputs (such as different data providers, shapes, or service types), I often rely on the Factory pattern. The Builder pattern has also been extremely helpful, especially when constructing complex objects with multiple optional parameters, such as request payloads in REST clients or entities in test setups. Tools like Lombok’s @Builder annotation simplify this process significantly.
+
+🔹 Strategy Pattern
+This is one of my go-to patterns when implementing interchangeable business logic. For example, in payment systems, I’ve used the Strategy pattern to dynamically select different payment gateways (Stripe, PayPal, etc.) based on user preferences or regional rules.
+
+🔹 Observer Pattern
+In event-driven architectures — particularly when working with Kafka — I’ve implemented the Observer pattern to decouple publishers from subscribers. Spring’s ApplicationEventPublisher also makes it easy to implement this pattern for triggering internal asynchronous events.
+
+🔹 Chain of Responsibility
+A common use case for this pattern in my experience is request filtering. I’ve implemented this with Spring Security filters and custom servlet filters, allowing each handler in the chain to decide whether or not to process a request, and whether to pass it down the chain.
+
+📋 Other Common Design Patterns in Java (Table Summary)
+Pattern             | Type        | Description                                                        | Real-World Java Examples
+--------------------|-------------|--------------------------------------------------------------------|----------------------------------------------------------
+Prototype           | Creational  | Clones existing objects instead of creating new ones               | Object.clone(), configuration cloning
+Abstract Factory    | Creational  | Creates families of related objects without specifying exact classes | UI components for different OS (e.g., Swing, AWT)
+Adapter             | Structural  | Converts one interface into another                                | InputStreamReader, API wrapping
+Decorator           | Structural  | Adds responsibilities dynamically without altering the base object | BufferedReader, HttpServletRequestWrapper
+Facade              | Structural  | Simplifies complex subsystems with a unified interface             | HibernateUtil, Spring Facade services
+Proxy               | Structural  | Acts as a placeholder to control access, add logging, or caching   | Spring AOP, SecurityProxy, CachingProxy
+Composite           | Structural  | Treats individual and composite objects uniformly                  | File system, tree structures
+Bridge              | Structural  | Decouples abstraction from implementation                          | UI framework with different rendering engines
+Template Method     | Behavioral  | Defines the skeleton of an algorithm, allowing step overrides      | HttpServlet.service(), JUnit TestCase
+Command             | Behavioral  | Encapsulates a request as an object (supports undo, logging, etc.)| Runnable, ScheduledExecutorService
+Mediator            | Behavioral  | Centralizes communication between objects                          | UI Controllers, Chat rooms, form validation managers
+State               | Behavioral  | Allows object to change behavior based on internal state           | Workflow engines, traffic light logic
+How does a microservice architecture utilize logging in a central way?
+In a microservices architecture, each service runs independently, possibly on different hosts, containers, or even cloud instances. This makes it challenging to track logs, especially during debugging or tracing user requests across services.
+
+To handle this, centralized logging is used.
+
+🔹 Key Concepts to Cover in Your Answer:
+1. Local Logging First
+Each microservice typically logs locally using libraries like:
+
+SLF4J + Logback or Log4j (Java)
+Winston (Node.js)
+Serilog (C#)
+Logs can be structured (JSON) or unstructured (plain text).
+
+2. Log Aggregation
+Local logs are shipped to a central log aggregator, such as:
+
+| Tool/Role             | Description                                 |
+|-----------------------|---------------------------------------------|
+| Fluentd, Filebeat, Logstash    | Collect logs from services                 |
+| Elasticsearch                  | Store and index logs                        |
+| Kibana, Grafana Loki UI        | Visualize and query logs                   |
+This stack is commonly known as the ELK stack (Elasticsearch, Logstash, Kibana) or EFK (Fluentd/Filebeat, Elasticsearch, Kibana).
+
+3. Distributed Tracing Support
+In addition to logging, modern microservices use correlation IDs or trace IDs to link logs across services.
+
+🔹 Tools like:
+
+Zipkin
+Jaeger
+OpenTelemetry
+…are used to trace requests across microservices and correlate logs to specific user journeys.
+
+You pass a unique ID (e.g., X-Request-ID) in headers and include it in every log line.
+
+4. Central Logging Benefits
+Simplifies monitoring and troubleshooting
+Enables full-text search
+Helps with auditing and security analysis
+Improves observability
+✅ Sample Short Answer (What to Say in the Interview)
+In microservices, each service logs independently, which makes debugging difficult. To handle this, we use centralized logging. Typically, logs are sent from each service (often via Fluentd or Filebeat) to a central log store like Elasticsearch. We then visualize and search logs using Kibana. We also add correlation IDs to trace requests across services. This helps us monitor issues, audit behaviors, and troubleshoot effectively across the entire distributed system.
+
+Liskov Substitution Principle and Interface Segregation Principle — Interview Deep Dive
+During my interview at EPAM for the Senior Java Engineer position, I was asked to explain two core SOLID principles: Liskov Substitution Principle (LSP) and Interface Segregation Principle (ISP). These questions were designed to assess my understanding of clean object-oriented design and my ability to avoid fragile architecture in real-world systems.
+
+✅ Liskov Substitution Principle (LSP)
+Definition:
+
+“Subtypes must be substitutable for their base types without altering the correctness of the program.”
+
+This principle ensures that if a class S is a subclass of class T, then objects of type T in a program can be replaced with objects of type S without breaking the behavior of the program.
+
+🔧 Common Violation Example:
+class Bird {
+    void fly() { System.out.println("Bird is flying"); }
+}
+class Ostrich extends Bird {
+    @Override
+    void fly() {
+        throw new UnsupportedOperationException("Ostriches can't fly!");
+    }
+}
+In this example, Ostrich violates LSP by overriding the fly() method in an invalid way. Substituting an Ostrich where a Bird is expected could result in a runtime failure.
+
+✅ Better Design:
+interface Bird { void eat(); }
+
+interface FlyingBird extends Bird { void fly(); }
+
+class Sparrow implements FlyingBird {
+    public void eat() {}
+    public void fly() {}
+}
+
+class Ostrich implements Bird {
+    public void eat() {}
+}
+Here, we avoid forcing non-flying birds to implement flying behavior, respecting the LSP and enabling safer polymorphism.
+
+✅ Interface Segregation Principle (ISP)
+Definition:
+
+“Clients should not be forced to depend on methods they do not use.”
+
+ISP emphasizes creating smaller, role-specific interfaces instead of large, monolithic ones.
+
+🔧 Common Violation Example:
+interface Worker {
+    void work();
+    void eat();
+}
+class Robot implements Worker {
+    public void work() {}
+    public void eat() {
+        throw new UnsupportedOperationException("Robots don't eat.");
+    }
+}
+The Robot is forced to implement eat() even though it doesn't need to — a clear violation of ISP.
+
+✅ Better Design:
+interface Workable {
+    void work();
+}
+
+interface Eatable {
+    void eat();
+}
+class Human implements Workable, Eatable {
+    public void work() {}
+    public void eat() {}
+}
+class Robot implements Workable {
+    public void work() {}
+}
+Now, each class implements only what it needs. This leads to more maintainable and decoupled code.
+
+🧠 My Takeaway
+These questions reminded me how essential these principles are not only in theory but in building scalable, bug-resistant, real-world systems. By adhering to LSP and ISP, we can create microservices and class hierarchies that are easier to test, extend, and reason about — something EPAM clearly values in its engineering culture.
+
+🌐 Why It Matters
+This section of the interview assessed my ability to:
+
+Build resilient, scalable cloud-native systems.
+Use infrastructure as code and declarative configs.
+Troubleshoot services in distributed, containerized environments.
+📌 Reflection and Lessons Learned
+✅ What Went Well
+Honesty about unknowns
+Shared real-world experience
+Expressed passion for continuous learning
+❗ Areas to Improve
+Deeper concurrency knowledge (e.g., atomic classes, thread pools)
+Practice with Java Stream API without IDE
+Better internal knowledge of Kafka mechanics
+💬 Final Thoughts
+This EPAM interview was one of the most thorough evaluations I’ve encountered. It assessed not just theoretical understanding but also hands-on skills, design thinking, and cloud readiness.
+
+Skills Expected from Senior Java Engineers Today
+Mastery of Java (especially Java 8+)
+Strong command over the Spring ecosystem
+Distributed systems knowledge (Kafka, microservices)
+Cloud-native architecture (preferably Azure)
+Practical database understanding
+Clean, testable code
+📚 Bonus: Why @Transactional Doesn't Work on Private Methods in Spring
+Spring’s @Transactional is powerful—but it won’t work on private methods. Here’s why:
+
+⚙️ How It Works
+Spring uses proxy-based AOP
+Only public methods are proxied
+Proxies can’t intercept calls made within the same class
+🔍 Non-working Example
+@Service
+public class OrderService {
+
+@Transactional
+    private void processOrder() {
+        // This won't trigger a transaction!
+    }
+    public void placeOrder() {
+        processOrder(); // Self-invocation - no proxy involved
+    }
+}
+✅ Correct Usage
+@Service
+public class OrderService {
+
+@Transactional
+    public void processOrder() {
+        // Transaction is applied here
+    }
+}
+💡 Workaround
+@Autowired
+private ApplicationContext context;
+
+public void placeOrder() {
+    context.getBean(OrderService.class).processOrder(); // Proxy invocation
+}
+🧠 Summary Table
+Case Transaction Applied Public Method ✅ Yes
+Private/Protected Method ❌ No
+Self-invocation ❌ No
+Cross-bean invocation ✅ Yes
+
+📌 Final Advice
+Understand Spring’s AOP proxying mechanism to avoid silent bugs. Use @Transactional correctly and design your service layers with this in mind.
+
+Git was not asked to me during interview, As a Senior Developer, it’s expected that you’re proficient in Git beyond just clone, commit, and push
+
+🚀 Git Features Every Senior Developer Should Master
+As a senior developer, using Git effectively is more than just knowing how to clone, commit, and push. You’re expected to understand and leverage Git’s powerful features to keep your team’s development workflow clean, efficient, and resilient.
+
+Below is a curated list of advanced Git features and concepts that have helped me debug faster, collaborate more smoothly, and maintain cleaner histories in real-world projects.
+
+🔹 Branching & Merging
+Creating feature branches and merging them cleanly is fundamental. I often use git branch and git merge to isolate work and combine it in a controlled manner.
+
+🔹 Rebase
+git rebase helps maintain a clean, linear commit history — especially useful before merging a feature branch. It rewrites the base of your branch to the latest commit in main (or dev), making code review much easier.
+
+🔹 Cherry-pick
+Need to pull a specific bug fix from another branch without merging everything else? git cherry-pick saves the day.
+
+🔹 Stash
+When I need to switch context quickly but don’t want to commit my changes, git stash lets me store them temporarily and pick up where I left off with git stash pop.
+
+🔹 Reflog
+Ever accidentally deleted a branch or lost a commit? git reflog is your Git time machine. It lets you recover lost history even after rebasing or resetting.
+
+🔹 Interactive Rebase
+With git rebase -i, I can squash, reorder, or reword commits before merging — perfect for cleaning up messy commit histories before opening a PR.
+
+🔹 Amend
+Need to update your last commit (e.g., forgot to add a file or fix a message)? git commit --amend allows you to make changes without creating a new commit.
+
+🔹 Reset vs Revert
+Understanding the difference between git reset (rewrites history) and git revert (creates a new inverse commit) is crucial for safely undoing changes, especially on shared branches.
+
+🔹 .gitignore
+A simple but essential tool to avoid tracking unnecessary files like logs, build outputs, or local configs.
+
+🔹 Git Hooks
+With Git hooks like pre-commit and pre-push, I can automate tasks such as running linters or tests before changes are accepted — ensuring code quality and consistency.
+
+🔹 Bisect
+Tracking down bugs introduced across many commits? git bisect uses binary search to efficiently pinpoint the exact commit that broke things.
+
+🔹 Submodules
+For projects that depend on other repositories, Git submodules let me include and manage external codebases while keeping them separate.
+
+🔹 Tagging
+Tagging specific commits helps with version control and releases. I use git tag to mark stable builds and production deployments.
+
+🔹 Git Log, Blame, and Diff
+These tools are my go-to for investigating who made changes, what changed, and when — perfect for debugging or code reviews.
+
+🧠 Bonus Concepts Every Senior Should Know:
+Rebase vs Merge — When to squash history or preserve commit timelines.
+Conflict Resolution — Efficiently resolving merge and rebase conflicts.
+GitFlow & Trunk-Based Development — Choosing and implementing the right branching strategy.
+GPG Commit Signing — Securing contributions in regulated or open-source environments.
+CI/CD Integration — Leveraging Git with GitHub Actions, GitLab CI, or Jenkins for automated pipelines.
+
+
+💡 Java Backend Developer (3–6 Years) :: Interview Questions Asked @ EPAM Systems 🚀
+🧠 Core Java & OOPs (Very Deep Questions)
+1️⃣ What are SOLID principles? Can you explain them with examples?
+ 2️⃣ Difference between abstraction and encapsulation — real-time examples.
+ 3️⃣ Explain immutability — how to make a class immutable in Java.
+ 4️⃣ How does HashMap work internally? What happens during resizing?
+ 5️⃣ What’s the difference between ConcurrentHashMap and Collections.synchronizedMap()?
+ 6️⃣ Explain thread lifecycle and difference between Thread.start() and run().
+ 7️⃣ What is the difference between ExecutorService and ForkJoinPool?
+ 8️⃣ How do you implement custom sorting using Comparator and Comparable?
+ 9️⃣ What is Java Memory Model (JMM) and volatile keyword?
+ 🔟 How do you handle memory leaks in Java?
+ 
+🌿 Spring Framework / Spring Boot
+1️⃣1️⃣ What is the lifecycle of a Spring Bean?
+ 1️⃣2️⃣ Difference between @Autowired and @Inject.
+ 1️⃣3️⃣ How does @Transactional work internally? (Propagation + Isolation)
+ 1️⃣4️⃣ What are Spring Boot Starters?
+ 1️⃣5️⃣ How to create custom annotations in Spring Boot?
+ 1️⃣6️⃣ What is the difference between ApplicationContext and BeanFactory?
+ 1️⃣7️⃣ Explain how Spring handles dependency injection using reflection.
+ 1️⃣8️⃣ What is the use of CommandLineRunner and ApplicationRunner?
+ 1️⃣9️⃣ How do you externalize configuration in Spring Boot?
+ 2️⃣0️⃣ What is Spring Boot Actuator and what endpoints are most used?
+ 
+🧩 Microservices Architecture
+2️⃣1️⃣ What is service discovery? How does Eureka/Consul handle it?
+ 2️⃣2️⃣ How do microservices communicate with each other? (REST, Kafka, gRPC)
+ 2️⃣3️⃣ What are common challenges in microservices and how do you solve them?
+ 2️⃣4️⃣ How do you secure microservices (OAuth2/JWT)?
+ 2️⃣5️⃣ What is distributed tracing? How do you implement it (Zipkin, Sleuth, OpenTelemetry)?
+ 2️⃣6️⃣ Explain Circuit Breaker, Retry, and Rate Limiting patterns.
+ 2️⃣7️⃣ How do you handle inter-service transactions? (Saga, 2PC)
+ 2️⃣8️⃣ What is API Gateway and its role in microservices?
+ 2️⃣9️⃣ Explain the role of Config Server in Spring Cloud.
+ 
+⚙️ Coding / Problem Solving (EPAM Always Asks)
+4️⃣1️⃣ Write a program to find the second highest number in an array.
+ 4️⃣2️⃣ Reverse a linked list iteratively and recursively.
+ 4️⃣3️⃣ Given a string, find the first non-repeated character.
+ 4️⃣4️⃣ Implement an LRU Cache in Java.
+ 4️⃣5️⃣ Find all pairs of integers whose sum equals a given target.
+ 4️⃣6️⃣ Implement producer-consumer using wait() and notify().
+ 4️⃣7️⃣ Write a REST API to return top 5 highest salaries by department.
+ 4️⃣8️⃣ Implement an Employee class and sort employees by salary, then name.
+ 4️⃣9️⃣ Given a list of transactions, calculate total by user ID using streams.
+ 5️⃣0️⃣ Implement rate limiting for API calls in Java.
+ 
+ 
+ Question asked 
+1. Difference between abstraction and encapsulation?
+2. Can we achieve encapsulation without abstraction. if yes then how?
+3. What is string constant pool and where the objects are stored ?
+4. Can interface have private method?
+5.what is the purpose of private method inside interface. If we don't access it from outside?
+6.Explain internal workings of hashmap?
+7. If 2 keys has same hash code how it store internally?
+8. How many type of class loader?
+9.What happened if 2 class loader loads the same classes?
+10. Explain solid principal?
+11. Can violating the open-closed principle still be beneficial in certain situation?
+12. Expalin exception hierarchy?
+13. Why java have checked and unchecked exception and can we have custom exception also?
+13.  Collection hierarchy 
+14. Why collection does not extend map interface?
+15 Can we store null in treeMap?
+16 Different between hashmap and TreeMap?
+17. Difference between microservices and monolithic?
+18. Can spring boot application run with @springbootapplication?
+19. What is dispatcher servlate?
+
+Java 11 new features
+Singleton class, how to create, thread safe singlton, 
+main method is public and static, can we ovveride this main method
+do you know about serialize data, why should'nt be serialize in text format
+what is transient
+how does gc work in java, algorith jmv use for garbage collection
+memory leak in gc
+yg and og expain
+how to endure the quality and  maintainlibility in code
+Suppose your spring boot application perform slower compare to development env
+how to integrate a rdbms database like mysql
+how to modify a spring boot application into serverless architecture
+how spring boot decide whihc server to use
+how to handle exception in spring boot rest application
+multiple bean of same type
+aspect orient programmig in spring boot
+
+
+EPAM Interview questions - as on April 2024
+Role -Full stack developer
+•Total experience in every skills..
+•What is your primary technology..
+•Started with primary technology related questions..
+•Programs were asked to write using your primary technology.
+•Program 1 - Find the number of zeroes and move the zeros to end of array.. {0,1,2,3,0,0,} 
+•Program 2 - Const ages = [10,10,20,30,60,60] -> different ways to find uniques items in the array, explain the solutions you use..
+•Guess the output of program..using inheritance concept...
+•Difference between static and sealed class..c#
+•Difference between finalise and dispose
+•Difference between STRING AND STRING BUILDER.
+
+EPAM Interview questions - as on April 2024
+Role -Full stack developer
+Angular:
+What is CORS..
+Lifecycle hooks in angular component..
+• How to declare a data when its shared with two or more components..
+How are observables different from promises...
+Ways of data binding..
+Explain how change detection works in angular..
+How data flow happens from UI to backend..
+
+EPAM Interview questions - as on April 2024
+·
+SQL:
+• Query to fetch top 3 values after arranging it in descending order.
+·
+Explain LINQ concept.
+·
+Entity framework.
+Others: (Common)
+• How unit tests coverage are maintained in your application?
+·
+What practise you have done for improving code quality.
+
+Find max lenght from array
+comparator vs comparabale
+how do ms communication happene
+ms advantages vs disadvantages
+exception handling
+map, fillter, flatmap, reduce
+solid principle
+Transaction management with propagation
+sql queries
+why are store procedures
+threadlocal, future, completeableFuture
+Aware interface
+Bean lifecycle
+How to inject prototype bean into singeton
+Different architecture in MS
+How to print even number using executorservice
+memory management improvement in java 8
+how to configure different ports for different env
+print a player's corresponding highest scorefrom his multiple score.
+terminal operator in java 8
+how to monitor ms
+
+Epam Interview Questions: Part 1
+Q1) What framework you are using and explain that: 
+Q2) Write a program declare array with 10 int num and remove the 3rd index element and print the updated array? 
+ Q3: Write a program, declare a string and find the occurrences of each and every string
+Q4) Write a program that generates and displays the Fibonacci sequence. 
+Q5) What is the difference between .equals and == in Java? 
+Q6) What will be the output of comparing s1 and s2 using the .equals() method and the == operator? 
+Q7) What is an Interface and an Abstract Class in Java? Briefly explain the differences between them
+     1. Interface
+Q8) What are the core Object-Oriented Programming (OOP) concepts in Java? 
+Q9) What is polymorphism and give examples from your automation? 
+Q10) Can we override a private method in Java? Why or why not? 
+Q11) Can we override a static variable in Java? 
+Q12) Can we declare a class as final in Java? 
+Q13) What is the difference between an Array and an ArrayList in Java? 
+Q14) What is a HashMap in Java, and how does it work? 
+Q15) What are the differences between an ArrayList and a LinkedList in Java? 
+Q16) What is the difference between a Set and a List in Java? 
+Q17) What are the commonly used classes that implement the List and Set interfaces in Java? 
+Q18) What are the return types of getWindowHandle() and getWindowHandles() in Selenium WebDriver, and what do they represent? 
+Q19) x-path axes/ what is following and following sibling
+
+1 round Medium: Theory + coding. [stream concept , Maven based qns like maven lifecycle, scope of spring, design pattern, Touch all collection concept like [Hashmap, ConcurrentMap, LinkedHashmap, Vector, List]],
+ Stream coding part [count occerance of word].
+
+2nd Round [More depth of java and springboot and also javascript as I mention in resume], Memory Management, exception Handling, try with multiple catch block, Transaction, Isolation, propagation. Coding I am not remember because I am not even understood the qns well and due to that I was blank in interview and mostly that I rejected.
+
+Garbage collection types and JVM internals SOLID principles (with no real-world application) ACID properties and CAP theorem (asked abstractly) Differences between HTTP protocol versions Thread lifecycle and lightweight threads No IDE was involved, and no hands-on coding was tested. The interviewer expected textbook definitions and buzzword-heavy answers over practical experience.
+
+first round technical- question around java 8 & 17 features. 2 coding question for sliding window concept. synchronization and concurrency questions internal working of hashmap with tree solid principal stream api question - using group by
+
+Interview questions [1]
+
+Question 1
+
+why required optional classes? java 17 - why sealed class final ?
+
+Technical Interview Question: 
+
+What are the oops concepts?
+What is polymorphism and what are the types of polymorphism
+Write code for compile-time and runtime polymorphism.
+What are singleton classes and the factory method?
+What is Exception and Explain Exception Hierarchy?
+What are throwable keywords and some questions related to try catch syntax?
+What is a volatile keyword?
+What is the difference between interface and abstract classes?
+What is Functional Interface
+What is JUnit
+Difference between Hashmap and ArrayList?
+Write code to add remove element from hashmap?
+Can we override possible in the same class?
+How many data structures did you familiar with?
+What is binary search ? Write a program to implement binary search?
+What is the time complexity of quicksort?
+How many types of collections is tier?
+What is stack ? give implementation of stack?
+Write a program to convert given input element n array [1,1,0,1] to [0,0,1,0] ?
+Write program to display numbers which are not in array suppose array size is 10;
+for example a={3,6,8,9};
+output a={1,2,4,5,7,10};
+What are types for implementing thread in java?
+Write a program to Reverse a String?
+WAP to take input as jay2 and output jayjay?
+
+1. What happens when a method or variable contains the static keyword?
+2. Explain Java Collections.
+3. Can you explain each keyword from the public static void main(String args[])>?
+4. Write a program to count the number of vowels occurring in all the substrings of a given String.
+5. Why does Java not support multiple inheritances?
+6. What are constructors? Write its types.
+7. Could you explain how the stack can be implemented using the array?
+8. What is the requirement traceability matrix?
+15. Can you explain the difference between ArrayList and Vector?
+18. Explain OOP concepts.
+19. State the difference between HashMap and HashTable.
+20. What is the purpose of the final, finally, and finalize keyword?
+16. Write a program to implement abstraction.
+
+EPAM
+Technical Questions: 
+Explain the concept of RESTful APIs and how they work. 
+Write a code snippet to reverse a string in a specific programming language. 
+Implement a stack or queue using an appropriate data structure. 
+Solve a coding problem involving arrays or linked lists. 
+Design a database schema for a specific scenario. 
+Discuss the differences between SQL and NoSQL databases. 
+Describe the SOLID principles and how they relate to software design. 
+
+Algorithm and Problem-Solving: 
+Solve a coding challenge involving searching, sorting, or recursion.
+Analyze the time complexity of a given algorithm. 
+Optimize an algorithm for improved time or space complexity.
+
+System Design and Architecture: 
+Design the architecture for a scalable web application. 
+Explain how you would handle user authentication and authorization. 
+Discuss the components of a microservices-based system. 
+
+Front-End Development: 
+Write code to create an interactive user interface using HTML, CSS, and JavaScript. 
+Explain the concept of virtual DOM and its advantages. 
+Discuss strategies for optimizing web performance and reducing load times. 
+
+Back-End Development: 
+Implement a REST API endpoint using a specific technology (e.g., Node.js, Django, Flask). 
+Handle data validation and error handling in API requests. 
+
+Database and Data Management: 
+Write SQL queries to retrieve or update data in a database. 
+Discuss strategies for database indexing and query optimization. 
+
+Behavioral and Soft Skills: 
+Describe a challenging situation you faced in a team project and how you resolved it. 
+Explain your approach to time management and prioritizing tasks. 
+Discuss your experience working in Agile or Scrum teams. 
+Describe a situation where you had to communicate technical concepts to a non-technical audience. 
+
+Cultural Fit and Motivation: 
+Why are you interested in working at EPAM? 
+How do you approach continuous learning and professional development? 
+What interests you about full-stack development, and what technologies do you enjoy working with the most? 
+Remember that EPAM's interview process may vary based on the specific role, team, and project you are being considered for. It's important to review the job description and research the company to understand their technology stack and project domains. Preparing thoroughly, practicing coding exercises, and reviewing your technical knowledge will help you perform well during the interview process.
+
+🔹 Coding Questions
+- Create Singleton class and make it thread-safe?
+- Write a program and implement all OOPS concepts?
+- Write a program to take an array of integer and then square it and then find number greater than 100 and then average it using Stream.
+- int[] a= {1,2,3,4,5,6,7,8} write a code to sum of all even numbers using Java8 only.
+- Sort an employee list based on name and department when id, name, salary, department are given.
+- print the 3rd duplicate char in a word;
+- print count of occurence of every fruit in given list using streams;
+- print employee details from employee table where the employee has max salary in his department
+
+🔹 Core Java & OOPs
+- What is SOLID Principles?
+- Explain OOPS concepts with example
+- Polymorphism types in detail
+- Exception Hierarchy
+- Difference between Abstract Class & Interface
+- Equals() and HashCode() contract
+- What is Stream API & its benefits?
+- Different methods available in Object class?
+- What is the difference between method overloading and method overriding?
+- What is a marker interface in java?
+- What is serialization in java?
+- What are Functional Interfaces in java?
+- What is the Default method in interface?
+- What is the difference b/w ArrayList and LinkedList in java?
+- How to create custom Exceptions in Java?
+- What is the difference between JDK, JRE, and JVM?
+- Explain the hashCode() and equals() contract. What happens if they are implemented incorrectly?
+- Describe the difference between an abstract class and an interface.
+- What are the four main principles of OOP?
+- Explain the difference between method overloading and overriding.
+- What is the final keyword, and how can it be used with variables, methods, and classes?
+- What is the difference between == and the equals() method?
+- What is encapsulation, and how do you achieve it?
+- Explain the difference between ArrayList and LinkedList. Which is better for certain operations and why?
+- What is the difference between HashMap and Hashtable? Can HashMap be used in a multi-threaded environment?
+- What is the difference between a Vector and an ArrayList?
+- How do you implement a thread-safe collection or a thread-safe singleton?
+What are the differences between fail-fast and fail-safe iterators? 
+Explain the concept of multithreading.
+What are the differences between a user thread and a daemon thread?
+How does Java's garbage collector work?
+What is a volatile variable? What is its use?
+How do you prevent deadlocks in a multithreaded Java application?
+How do you implement the Producer-Consumer problem?
+Explain Java 8 features like lambda expressions, streams, and Optional.
+What is the purpose of the Optional class in Java 8?
+What are the differences between a parallel stream and a sequential stream?
+What is a Method Reference?
+What are the new features in Java 15 or later versions?
+What is the purpose of the JavaDoc tool? 
+What is the difference between heap and stack memory in Java?
+How does the Just-In-Time (JIT) compiler work?
+What are the different types of exceptions in Java?
+How do you handle OutOfMemoryError?
+How would you tune the garbage collection process for better performance? 
+Explain the difference between JVM, JRE, and JDK.
+Discuss the final, static, and volatile keywords.
+Describe the principles of object-oriented programming (OOP) and how they are implemented in Java.
+Explain how exception handling works and the difference between checked and unchecked exceptions.
+What are the differences between String and StringBuilder/StringBuffer? 
+Collections and data structures
+Explain the internal working of a HashMap, including how hashCode() and equals() are used.
+Compare and contrast ArrayList vs. LinkedList, and when to use each.
+Explain the difference between Comparable and Comparator.
+Discuss ConcurrentHashMap and its advantages over HashTable.
+What is a blocking queue, and how can it be used for thread synchronization? 
+Multithreading and concurrency
+Explain the difference between a user thread and a daemon thread.
+Describe the Java Memory Model and its impact on multithreading.
+How does CountDownLatch work, and when would you use it?
+What is a thread pool, and what is the internal working of ThreadPoolExecutor?
+What is the difference between notify() and notifyAll()? 
+Design and architecture
+Explain your experience with microservices, including challenges and solutions.
+Discuss microservice design patterns like the Saga pattern, Circuit Breaker, and API Gateway.
+Describe different types of HTTP methods and their differences.
+How do you secure your APIs?
+Describe how you would simulate a concurrent modification exception using the Stream API. 
+Explain the concept of functional interfaces and method references.
+How do default and static methods work in Java 8 interfaces?
+Discuss changes in Java 8 for the HashMap and other collections.
+What is a parallel stream, and how does it work internally? 
+Tell me about a complex Java project you worked on. What were the challenges?
+Explain your experience with performance tuning and optimization.
+Describe a time you had to implement a design pattern. Which one, and why?
+What is the importance of writing clean, maintainable code?
+How do you secure your APIs?
+What are the differences between REST and RESTful web services? 
+Differentiate between Comparable and Comparator interfaces. (Explain their purpose and how to implement them.)
+Differentiate between Iterator and ListIterator.
+What are Queue and Deque? Give examples of their use.
+Explain the importance of hashCode() and equals() methods when using custom objects in collections.
+What are fail-fast and fail-safe iterators? Give examples.
+How can you handle ConcurrentModificationException when iterating over a collection?
+What is ConcurrentHashMap and how does it achieve thread-safety?
+Explain the concept of Generics in the context of the JCF.
+Hashmap Vs LinkedHashMap Vs TreeMap
+Explain the concept of Object-Oriented Programming (OOP) and its four pillars.
+
+🔹 Spring Boot
+- Different starter dependencies in pom.xml used in your project
+- What is @SpringBootApplication annotation?
+- What is the use of Actuator?
+- How to externalize config files in a SpringBoot project?
+- When to use @Bean vs @Component annotation?
+- How to remove tomcat server dependency from Java application, as it is present in starter-web dependency.
+- How to add another server dependency in a Java application?
+- Can Controller and Service classes be different packages in Java?
+How do you manage state in a web application?
+
+🔹 SQL
+- Find 2nd highest salary from a table in Oracle DB.
+- Difference between DELETE and DROP
+- SELECT * FROM employee e WHERE salary = ( SELECT MAX(salary) FROM employee  WHERE dept_id = e.dept_id);
+Select emp_id, emp_dep, salary from employee where salary = (Select max(salaary) from employee o
+
+

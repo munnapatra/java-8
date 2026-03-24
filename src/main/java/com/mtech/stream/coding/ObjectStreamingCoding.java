@@ -6,11 +6,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.mtech.models.Employee;
 import com.mtech.models.Node;
 import com.mtech.models.Student;
+import com.mtech.models.Transaction;
 
 public class ObjectStreamingCoding {
 	public static void main(String[] args) {
@@ -20,10 +22,11 @@ public class ObjectStreamingCoding {
 				.sorted(Comparator.comparing(Student::getScore).reversed())
 				.limit(3).toList();
 		System.out.println(top3Student);
-		
-		//2nd highest salary employee
-		Employee secndHighSalary = Employee
-		.getEmployees().stream().sorted(Comparator.comparing(Employee::getSalary).reversed()).skip(1).findFirst().get();
+
+		// 2nd highest salary employee
+		Employee secndHighSalary = Employee.getEmployees().stream()
+				.sorted(Comparator.comparing(Employee::getSalary).reversed())
+				.skip(1).findFirst().get();
 		System.out.println(secndHighSalary);
 
 		// Group employees by department and then by age.
@@ -49,7 +52,8 @@ public class ObjectStreamingCoding {
 		Map<String, Optional<Employee>> highestPaidEmpByDep = Employee
 				.getEmployees().stream()
 				.collect(Collectors.groupingBy(Employee::getDepartment,
-						Collectors.maxBy(Comparator.comparing(Employee::getSalary))));
+						Collectors.maxBy(
+								Comparator.comparing(Employee::getSalary))));
 		System.out.println(highestPaidEmpByDep);
 
 		// Detect cycles in a list of parent-child relationships.
@@ -60,6 +64,22 @@ public class ObjectStreamingCoding {
 				.anyMatch(node -> hasCycle(node, graph, new HashSet<>(),
 						new HashSet<>()));
 		System.out.println(cycleExists);
+
+		// Implement an Employee class and sort employees by salary, then name.
+		List<Employee> list = Employee.getEmployees().stream()
+				.sorted(Comparator.comparing(Employee::getSalary)
+						.thenComparing(Employee::getName))
+				.toList();
+		System.out.println(list);
+
+		// Given a list of transactions, calculate total by user ID using streams.
+		Map<Long, Double> collect2 = Transaction.getTransactions().stream()
+				.collect(Collectors.groupingBy(Transaction::getUserId,
+						Collectors.summingDouble(Transaction::getAmount)));
+		System.out.println(collect2);
+
+		Transaction.getTransactions().stream().collect(Collectors.toMap(
+				Transaction::getUserId, Transaction::getAmount, Double::sum));
 	}
 
 	public static boolean hasCycle(Integer node,

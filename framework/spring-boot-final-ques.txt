@@ -1,0 +1,153 @@
+🔥 1. Spring Boot Core Architecture
+What problem does Spring Boot solve compared to Spring Framework?
+Explain AutoConfiguration internally.
+How does @SpringBootApplication work internally?
+Difference between @Configuration and @SpringBootConfiguration.
+How does Spring Boot decide which AutoConfiguration to apply?
+What is spring.factories? (Boot 2) What replaced it in Boot 3?
+What is Conditional Annotation? Explain: @ConditionalOnClass, @ConditionalOnMissingBean, @ConditionalOnProperty
+How does Spring Boot starter work internally?
+Explain embedded server architecture (Tomcat/Jetty/Undertow).
+How to disable specific auto-configuration?
+
+⚙️ 2. Bean Lifecycle & Context
+Explain full bean lifecycle in Spring Boot.
+Difference between @PostConstruct and InitializingBean.
+How does @Lazy work?
+What happens if two beans of same type exist?
+Difference between @Primary and @Qualifier.
+Circular dependency – how does Spring resolve it?
+Why constructor injection is recommended?
+How to create prototype bean inside singleton?
+Explain ApplicationContext vs BeanFactory.
+How does Spring Boot handle multiple profiles?
+
+🌐 3. REST API & Web Layer
+Difference between @RestController and @Controller.
+How does @RequestMapping work internally?
+What is HandlerMapping and HandlerAdapter?
+How to implement API versioning?
+How to implement global exception handling?
+Difference between: @ControllerAdvice @RestControllerAdvice
+How to handle validation?
+What is BindingResult?
+How to customize HTTP message converters?
+How to handle large file uploads?
+
+🛡️ 4. Spring Boot Security (Very Important for 8+)
+How does Spring Security filter chain work?
+What is SecurityContext?
+JWT implementation steps?
+How to implement role-based & method-level security?
+Difference between: Authentication vs Authorization
+How to prevent CSRF?
+How to secure microservices?
+How to implement OAuth2?
+How to customize UserDetailsService?
+Explain stateless vs stateful authentication.
+
+🗄️ 5. Spring Data JPA & Transactions
+How does Spring Data JPA create queries automatically?
+Difference between save() and saveAndFlush().
+What is dirty checking?
+What is Persistence Context?
+First level vs second level cache?
+Explain N+1 problem and solution.
+How does @Transactional work internally?
+What are propagation types?
+What is isolation level?
+How to handle distributed transactions?
+
+🔄 6. Microservices + Spring Boot
+How do you design microservices architecture?
+How to handle service discovery?
+Explain Circuit Breaker pattern.
+How to implement API Gateway?
+How to handle centralized configuration?
+How to implement distributed tracing?
+How to handle inter-service communication? RestTemplate, WebClient, Feign
+How to implement retry mechanism?
+How to manage database per service?
+How to handle schema migration?
+
+⚡ 7. Performance & Production
+How to increase startup time?
+How to reduce memory footprint?
+How to tune embedded Tomcat?
+How to monitor application health?
+What is Actuator?
+How to expose custom metrics?
+How to debug memory leak?
+How to enable thread dump in production?
+How to handle high concurrency?
+How to implement rate limiting?
+
+🧠 8. Spring Boot Internals (Advanced)
+What is DispatcherServlet flow?
+How does Spring Boot load properties?
+Order of property loading?
+What is Environment abstraction?
+What is ConditionEvaluationReport?
+How does component scanning work internally?
+What is proxy in Spring?
+JDK vs CGLIB proxy difference?
+Why does @Transactional not work on private method?
+Explain AOP flow internally.
+
+🚀 9. Reactive Programming (WebFlux)
+Difference between MVC and WebFlux?
+What is Mono and Flux?
+Backpressure handling?
+When to use WebClient?
+Thread model in WebFlux?
+Blocking vs Non-blocking?
+How to integrate reactive DB?
+
+☁️ 10. Cloud & Deployment
+How to containerize Spring Boot app?
+How to optimize Docker image?
+Difference between WAR and JAR deployment?
+How to configure external config in Kubernetes?
+How to handle secrets?
+Blue-green deployment?
+Rolling update?
+How to enable graceful shutdown?
+
+🧩 11. Testing
+Difference between:@SpringBootTest, @WebMvcTest, @DataJpaTest
+How to mock beans?
+How to test security?
+How to test async methods?
+Integration testing strategy?
+How to use Testcontainers?
+
+🧪 12. Real Production Scenario Questions
+Production issue you faced in Spring Boot?
+How did you debug high CPU issue?
+How did you handle DB connection leak?
+How did you reduce response time?
+How did you handle memory leak?
+How did you design logging strategy?
+How did you secure sensitive APIs?
+How did you migrate monolith to microservices?
+How did you handle backward compatibility?
+What was your most complex Spring Boot design?
+
+💥 13. Coding + Design Questions
+Design rate limiter in Spring Boot.
+Design idempotent API.
+Implement caching using Redis.
+Design audit logging system.
+Design multi-tenant system.
+Implement distributed locking.
+Implement custom starter.
+Design centralized exception framework.
+Implement API request logging filter.
+Implement graceful shutdown logic.
+
+🎯 Special Deep-Dive Questions (Asked in Product Companies)
+How does Spring Boot behave during startup?
+Explain complete request lifecycle.
+How does classpath scanning work?
+How would you build your own Spring Boot framework?
+How would you improve Spring Boot performance?

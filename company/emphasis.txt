@@ -1,0 +1,1180 @@
+mphasis
+----------
+🟦 Coding Questions 
+1. Write a Java 8 stream code to group employees by department and get the highest salary per department.
+2: How can you Remove all occurrences of an element from a List in Java ?
+3: How can you find a missing number in list ? Please write a program
+4: Find the average marks of students for each department
+5: List of employees working in HR Department
+6: Get unique numbers from the list of integers using Streams.
+
+🟦 Core Java
+2 : What are the Enum in Java ?
+======================================================================================
+Enum in Java is a special data type used to define a fixed set of constants.
+
+✅ Key Points: Type-safe constants, Defined using enum keyword, Can have fields, methods, constructors
+	Implicitly extends java.lang.Enum
+	Used in switch statements
+🔥 Advanced Point (Interview): Enums can have constructors and methods:
+
+======================================================================================
+3 : What are the Differences between an Iterator and ListIterator in Java?
+======================================================================================
+| Feature        | Iterator                    | ListIterator                                          |
+| -------------- | --------------------------- | ----------------------------------------------------- |
+| Applicable to  | All Collections             | Only List                                             |
+| Traversal      | Forward only                | Forward & Backward                                    |
+| Methods        | hasNext(), next(), remove() | hasNext(), next(), previous(), add(), set(), remove() |
+| Modify element | Cannot replace              | Can add & replace                                     |
+| Index access   | No                          | Yes (nextIndex(), previousIndex())                    |
+
+======================================================================================
+4 : What are the differences between ArrayList and LinkedList ?
+======================================================================================
+| Feature                     | ArrayList     | LinkedList                  |
+| --------------------------- | ------------- | --------------------------- |
+| Internal Structure          | Dynamic Array | Doubly Linked List          |
+| Random Access               | Fast O(1)     | Slow O(n)                   |
+| Insertion/Deletion (middle) | Slow O(n)     | Faster O(1) (if node known) |
+| Memory Usage                | Less          | More (extra node pointers)  |
+| Implements                  | List          | List + Deque                |
+
+======================================================================================
+5 : What are the differences between HashMap , synchronized-hashmap and ConcurrentHashMap?
+======================================================================================
+| Feature     | HashMap          | SynchronizedMap        | ConcurrentHashMap                         |
+| ----------- | ---------------- | ---------------------- | ----------------------------------------- |
+| Thread-safe | ❌ No           | ✅ Yes (whole map lock) | ✅ Yes (segment-level / bucket-level lock) |
+| Performance | Fast             | Slow (single lock)     | Better than synchronized                  |
+| Null Key    | 1 allowed        | 1 allowed              | ❌ Not allowed                             |
+| Null Value  | Multiple allowed | Allowed                | ❌ Not allowed                             |
+| Iterator    | Fail-fast        | Fail-fast              | Fail-safe (weakly consistent)             |
+
+
+======================================================================================
+6 : What is internal working of hashmap in Java ?
+======================================================================================
+1️⃣ Uses array of buckets (Node<K,V>[])
+2️⃣ Key’s hashCode() → hash → index calculated (n - 1) & hash
+3️⃣ If collision →
+	Before Java 8 → Linked List
+	Java 8+ → LinkedList → converted to Red-Black Tree (if bucket size > 8)
+	
+4️⃣ On put() →
+	Calculate hash
+	Find bucket
+	If key exists → replace value, Else → add new node
+	
+5️⃣ Load factor (default 0.75) → triggers resize (rehashing)
+
+🔥 Time Complexity: Average: O(1)
+	Worst case: O(log n) (after treeification)
+	Key Requirement: Proper hashCode() and equals() implementation.
+	
+======================================================================================
+13: How does ConcurrentHashMap achieve thread safety internally? 
+======================================================================================
+1️⃣ Java 7 → Segment-based locking (multiple locks)
+2️⃣ Java 8+ → Bucket-level locking + CAS
+
+Internal Mechanism (Java 8+):
+	Uses Node[] table
+	Read operations → No lock (volatile reads)
+	Write operations → Try CAS (Compare-And-Swap)
+	If collision → synchronize only that bucket
+	If bucket size > 8 → converted to Red-Black Tree
+
+🔥 Why High Performance?
+	No full map locking
+	Fine-grained locking
+	Better scalability in multi-threaded environment
+	Null keys/values not allowed to avoid ambiguity.
+	
+======================================================================================
+7 : What is Association, Composition and Aggregation in Java ?
+======================================================================================
+1️⃣ Association: Relationship between two independent classes
+	"Uses-a" relationship, No ownership
+	Example: Teacher and Student
+
+2️⃣ Aggregation: Weak has-a relationship
+	Child can exist independently, Represented by reference
+	Example: Department has Teacher
+
+3️⃣ Composition: Strong has-a relationship
+	Child cannot exist without parent
+	Lifecycle dependent
+	Example: House has Room
+	
+======================================================================================
+10: What are virtual threads in Java 21 and how do they differ from traditional threads? 
+======================================================================================
+Virtual Threads are lightweight threads introduced under Project Loom to enable high-concurrency applications.
+
+🔥 Key Differences:
+| Feature       | Traditional Threads (Platform) | Virtual Threads              |
+| ------------- | ------------------------------ | ---------------------------- |
+| Backed By     | OS threads                     | Managed by JVM               |
+| Memory        | Heavy (~1MB stack)             | Very lightweight             |
+| Scalability   | Limited (thousands)            | Millions possible            |
+| Blocking      | Blocks OS thread               | Doesn't block carrier thread |
+| Creation Cost | Expensive                      | Cheap                        |
+
+✅ Creation Example: Thread.startVirtualThread(() -> { System.out.println("Virtual Thread"); });
+
+🎯 Use Case: I/O-bound, high-concurrency apps (microservices, APIs).
+
+======================================================================================
+11: How does record improve DTO handling in Java? 
+======================================================================================
+record (Java 16+) reduces boilerplate for immutable DTOs.
+
+🔥 Before (POJO DTO): Fields, Constructor, Getters, equals(), hashCode(), toString()
+
+✅ With Record: public record UserDTO(String name, int age) {}
+
+🎯 Benefits:
+	Immutable by default, Auto-generates constructor, getters, equals, hashCode, toString
+	Cleaner & concise code, Ideal for DTOs / API responses
+	Improves readability and reduces boilerplate.
+	
+======================================================================================
+12: Explain the difference between Optional.get(), orElse(), and orElseThrow(). 
+======================================================================================
+1️⃣ get()
+		Returns value if present
+		Throws NoSuchElementException if empty
+		❌ Not recommended without isPresent()
+
+2️⃣ orElse(T value)
+	Returns value if present Else returns default value
+	⚠ Default object is created eagerly
+
+3️⃣ orElseThrow()
+	Returns value if present Else throws custom exception
+	optional.orElseThrow(() -> new RuntimeException("Not found"));
+
+🔥 Summary:
+	get() → unsafe
+	orElse() → safe with default
+	orElseThrow() → safe with exception handling
+
+
+✅ Creation
+	Optional.of(value) → Non-null
+	Optional.ofNullable(value) → Allows null
+	Optional.empty() → Empty
+
+✅ Value Retrieval
+	get() → Avoid (unsafe)
+	orElse(default) → Return default
+	orElseGet(Supplier) → Lazy default
+	orElseThrow() → Throw exception
+	
+✅ Checking
+	isPresent()
+	isEmpty() (Java 11)
+	
+✅ Functional Methods (Day-to-day usage)
+	ifPresent(consumer)
+	map(function) → Transform value
+	flatMap(function) → Avoid nested Optional
+	filter(predicate)
+
+🔥 Real-time Example:
+		Optional<User> user = repository.findById(id);
+		String name = user
+        .filter(u -> u.isActive())
+        .map(User::getName)
+        .orElse("Guest");
+		
+🎯 Best Practice: Use map(), filter(), orElseThrow() instead of null checks.
+
+======================================================================================
+14: What are switch expressions and how are they different from switch statements? 
+======================================================================================
+🔥 Switch Statement (Old): Uses case + break, Fall-through possible, Does not return value
+switch (day) {
+    case MONDAY:
+        result = "Work";
+        break;
+}
+
+✅ Switch Expression (New): Returns value, No need for break, Uses ->, No fall-through
+
+String result = switch (day) {
+    case MONDAY -> "Work";
+    case SUNDAY -> "Rest";
+    default -> "Other";
+};
+
+🎯 Key Differences:
+	Expression → returns value
+	Cleaner & concise
+	Safer (no accidental fall-through)
+	
+======================================================================================
+15: Explain the Fork/Join framework and its advantages. 
+======================================================================================
+Fork/Join Framework (Java 7) is used for parallel processing by dividing tasks into smaller subtasks and combining results.
+
+🔥 How It Works:
+	1️⃣ Fork → Split task into subtasks
+	2️⃣ Execute in parallel (using ForkJoinPool)
+	3️⃣ Join → Combine results
+	
+	Uses Work-Stealing Algorithm → Idle threads steal tasks from busy threads.
+
+✅ Key Classes: ForkJoinPool, RecursiveTask (returns result), RecursiveAction (no result)
+
+🎯 Advantages: 
+	Efficient parallel processing, Better CPU utilization
+	High performance for large, compute-intensive tasks
+	Automatic load balancing (work-stealing)
+	
+======================================================================================
+16: How does pattern matching for instanceof simplify Java code? 
+======================================================================================
+Before Java 16:
+if (obj instanceof String) {
+    String s = (String) obj;
+    System.out.println(s.length());
+}
+
+After Pattern Matching:
+if (obj instanceof String s) {
+    System.out.println(s.length());
+}
+
+🔥 How It Simplifies: Removes explicit casting, Reduces boilerplate, Improves readability, Safer (no separate cast)
+
+🎯 Benefit: Cleaner and more concise type-checking code.
+
+======================================================================================
+17: How do you implement immutability in Java classes? 
+======================================================================================
+✅ Steps:
+	1️⃣ Make class final
+	2️⃣ Make fields private final
+	3️⃣ Initialize fields via constructor
+	4️⃣ No setters
+	5️⃣ Return defensive copies for mutable fields
+	
+======================================================================================
+18: What are the benefits of using streams and functional programming in Java? 
+======================================================================================
+✅ 1️⃣ Concise & Readable Code: Less boilerplate compared to loops.
+✅ 2️⃣ Declarative Style: Focus on what to do, not how to do.
+✅ 3️⃣ Easy Parallelism: Use .parallelStream() for multi-core processing.
+✅ 4️⃣ Less Mutable State: Encourages immutability → safer in multi-threading.
+✅ 5️⃣ Functional Operations: Supports map, filter, reduce → clean data transformations.
+
+======================================================================================
+19: How does Java handle memory management for unreachable objects?
+======================================================================================
+Java uses Garbage Collection (GC) to reclaim memory of unreachable objects.
+
+🔥 How It Works:
+	1️⃣ JVM identifies objects with no active references
+	2️⃣ Marks them as unreachable
+	3️⃣ Garbage Collector removes them
+	4️⃣ Memory is reclaimed automatically
+
+✅ Types of GC (Example):
+	Serial, Parallel, G1GC (default in modern JVM)
+
+🎯 Key Point:
+	No manual memory free
+	GC runs automatically
+	Prevents memory leaks (if no references exist)
+	
+======================================================================================
+Intermediate and terminal operations of Java 8 streams
+======================================================================================
+🔥 1️⃣ Intermediate Operations
+		Return another Stream, Lazy (not executed until terminal operation)
+		Examples: filter(), map(), flatMap(), distinct(), sorted(), limit(), skip()
+
+🔥 2️⃣ Terminal Operations
+		Produce result or side effect, Trigger stream execution
+		Examples: collect(), forEach(), reduce(), count(), anyMatch(), allMatch(), findFirst()
+
+🎯 Key Difference:
+	Intermediate → Lazy & chainable
+	Terminal → Executes pipeline and ends stream
+	
+======================================================================================
+Difference abstraction vs encapsulation
+======================================================================================
+| Feature        | Abstraction                  | Encapsulation                    |
+| -------------- | ---------------------------- | -------------------------------- |
+| Meaning        | Hides implementation details | Hides internal data              |
+| Focus          | What to do                   | How data is protected            |
+| Achieved Using | Interface / Abstract class   | Private fields + getters/setters |
+| Goal           | Reduce complexity            | Data security                    |
+
+======================================================================================
+Difference between abstract vs Interface
+======================================================================================
+| Feature              | Abstract Class             | Interface                     |
+| -------------------- | -------------------------- | ----------------------------- |
+| Methods              | Abstract + Concrete        | Abstract + Default + Static   |
+| Variables            | Instance variables allowed | Only `public static final`    |
+| Constructors         | Yes                        | No                            |
+| Access Modifiers     | Any                        | Methods are public by default |
+| Multiple Inheritance | Not supported              | Supported                     |
+
+======================================================================================
+Collections vs Stream
+======================================================================================
+| Feature      | Collection          | Stream                    |
+| ------------ | ------------------- | ------------------------- |
+| Purpose      | Stores data         | Processes data            |
+| Nature       | Data structure      | Functional pipeline       |
+| Modification | Can modify elements | Does not modify source    |
+| Traversal    | External iteration  | Internal iteration        |
+| Reusability  | Reusable            | Cannot reuse (single-use) |
+
+======================================================================================
+Differenct types of memory allocation in jvm
+======================================================================================
+🔥 1️⃣ Heap: Stores objects, Managed by GC, Shared across threads
+
+🔥 2️⃣ Stack: Stores method calls, local variables, One stack per thread, LIFO structure
+
+🔥 3️⃣ Metaspace (Java 8+): Stores class metadata, Replaced PermGen
+
+🔥 4️⃣ PC Register: Stores current executing instruction per thread
+
+🔥 5️⃣ Native Method Stack: Used for native (JNI) methods
+		
+======================================================================================
+OutOfMemorry issue investigation in java
+======================================================================================
+✅ 1️⃣ Check Exception Message (Logs)
+	The error itself tells the type: java.lang.OutOfMemoryError: Java heap space
+				GC overhead limit exceeded
+				Metaspace
+				Direct buffer memory
+				Unable to create new native thread
+
+🔥 1️⃣ Identify Type
+		Java heap space
+		Metaspace
+		GC overhead limit exceeded
+		Direct buffer memory
+
+🔥 2️⃣ Take Heap Dump
+	Enable: -XX:+HeapDumpOnOutOfMemoryError
+	Analyze using: Eclipse MAT, VisualVM
+
+🔥 3️⃣ Check Common Causes
+		Memory leaks (unreleased references)
+		Large collections
+		Static caches
+		Unclosed resources
+		ThreadLocal leaks
+
+🔥 4️⃣ Monitor
+		GC logs
+		Heap usage trend
+		Thread count
+
+🎯 Summary: Identify type → Capture heap dump → Analyze retained objects → Fix root cause → Tune heap if required.
+
+======================================================================================
+
+🟦 Spring + Spring Boot 🟦 Microservices 🟦 Design pattern 
+ ======================================================================================
+1. How do you secure REST APIs using Spring Security and JWT? 
+======================================================================================
+1. Authenticate User
+	User sends username/password to /login.
+	Server validates credentials using AuthenticationManager.
+
+2. Generate JWT Token
+	After successful authentication, generate a signed JWT token containing user details/roles.
+
+3. Send Token to Client
+	Token is returned in response.
+	Client stores it (usually in Authorization header).
+	Authorization: Bearer <JWT_TOKEN>
+	
+4. JWT Filter
+	Create a OncePerRequestFilter to: Extract token from header, Validate signature & expiry, Set authentication in SecurityContext.
+
+5. Configure Security
+@Bean
+SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http.csrf().disable()
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/login").permitAll()
+            .anyRequest().authenticated())
+        .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+    return http.build();
+}
+
+6. Token Validation: Verify signature, Check expiration, Load user from DB if needed.
+
+✅ Flow: Client → Login → JWT Generated → Client sends token → Filter validates → Access secured API.
+
+======================================================================================
+2. What are Spring Profiles and how do they help manage environments? 
+======================================================================================
+Spring Profiles allow you to configure different beans or properties for different environments like dev, test, prod.
+
+Purpose: Activate environment-specific configuration. Avoid changing code for different deployments.
+
+Example
+
+application-dev.properties
+	spring.datasource.url=jdbc:mysql://dev-db
+	application-prod.properties
+
+	spring.datasource.url=jdbc:mysql://prod-db
+
+Activate Profile: spring.profiles.active=dev
+
+or
+
+-Dspring.profiles.active=prod
+Using @Profile
+@Profile("dev")
+@Bean
+public DataSource devDataSource() {
+    return new DevDataSource();
+}
+
+Benefits:Environment-specific configs, Cleaner configuration management, Easier deployment across environments.
+
+======================================================================================
+3. How does Spring Boot integrate with external configuration servers? 
+======================================================================================
+1. Centralized Config Server: A Config Server stores configuration in Git / file system / vault.
+	Multiple microservices fetch configs from it.
+
+2. Client Configuration: Add dependency in service:
+<dependency>
+ <groupId>org.springframework.cloud</groupId>
+ <artifactId>spring-cloud-starter-config</artifactId>
+</dependency>
+
+3. Bootstrap / application config
+
+		spring.application.name=order-service
+		spring.config.import=configserver:http://localhost:8888
+		
+4. Config Loading
+	At startup: Service contacts Config Server
+
+Fetches properties like
+order-service-dev.yml from Git.
+
+5. Dynamic Refresh
+Using Actuator refresh endpoint: /actuator/refresh
+
+Benefits: Centralized configuration, Environment-specific configs, Runtime refresh without redeployment.
+
+======================================================================================
+4. How do you implement scheduling in Spring Boot? 
+======================================================================================
+1. Enable Scheduling
+	@EnableScheduling
+	@SpringBootApplication
+	public class Application { }
+
+2. Create Scheduled Task
+	@Scheduled(fixedRate = 5000)
+	public void runTask() {
+		System.out.println("Task executed every 5 seconds");
+	}
+	
+3. Scheduling Types
+	fixedRate – runs every N milliseconds.
+	fixedDelay – runs after previous execution finishes.
+	cron – runs using cron expression.
+
+Cron Example
+@Scheduled(cron = "0 0 12 * * ?")
+public void runDaily() {
+    System.out.println("Runs every day at 12 PM");
+}
+
+✅ Use cases: batch jobs, cleanup tasks, report generation, cache refresh.
+
+======================================================================================
+5. Explain how Spring Boot Actuator helps monitor applications. 
+======================================================================================
+Key Features
+	Health Monitoring
+			Endpoint: /actuator/health
+			Shows status of DB, disk space, etc.
+
+	Metrics
+		Endpoint: /actuator/metrics
+		Provides JVM, memory, CPU, HTTP request metrics.
+
+	Application Info
+		Endpoint: /actuator/info
+		Displays app version, build details.
+
+	Environment Details
+		Endpoint: /actuator/env
+		Shows environment properties.
+	
+	Thread & Beans Monitoring
+		/actuator/threaddump
+		/actuator/beans
+		
+Example Dependency: 
+	<dependency>
+	 <groupId>org.springframework.boot</groupId>
+	 <artifactId>spring-boot-starter-actuator</artifactId>
+	</dependency>
+	
+Enable Endpoints: management.endpoints.web.exposure.include=*
+
+✅ Benefits
+	Real-time monitoring
+	Health checks for Kubernetes / load balancers
+	Performance metrics for tools like Prometheus & Grafana.
+
+======================================================================================
+6. How do you implement rate limiting and throttling in Spring Boot? 
+======================================================================================
+1. Using Filter / Interceptor
+	Track request count per user/IP and reject when limit exceeds.
+			id="e3k8y1"
+			Map<String, Integer> requestCount = new ConcurrentHashMap<>();
+
+			if(requestCount.get(ip) > 100){
+			   throw new RuntimeException("Rate limit exceeded");
+			}
+			
+2. Using Token Bucket Algorithm
+	Use libraries implementing **Token Bucket Algorithm like **Bucket4j.
+
+		id="n2x9pw"
+		Bucket bucket = Bucket4j.builder()
+			.addLimit(Bandwidth.simple(100, Duration.ofMinutes(1)))
+			.build();
+
+		if(bucket.tryConsume(1)){
+		   // allow request
+		}else{
+		   // reject request
+		}
+		
+3. API Gateway Level
+	Rate limit at gateway like **Spring Cloud Gateway or **NGINX.
+
+4. Distributed Rate Limiting
+	Use **Redis to maintain counters across multiple service instances.
+
+✅ Best Practice: Use Bucket4j + Redis or implement rate limiting at API Gateway level for scalable systems.
+
+======================================================================================
+7. How do you manage dependency injection and circular dependencies in Spring?
+====================================================================================== 
+✅ Best Practice: Use constructor injection + redesign services to avoid circular dependencies.
+
+======================================================================================
+10: What Happens Internally When You Start A Spring Boot Application?
+======================================================================================
+1. Main Method Execution
+	SpringApplication.run() is called.
+
+	@SpringBootApplication
+	public class App {
+	   public static void main(String[] args) {
+		  SpringApplication.run(App.class, args);
+	   }
+	}
+	
+2. SpringApplication Initialization
+	Creates and prepares SpringApplication instance.
+	Determines application type (Servlet / Reactive).
+
+3. Environment Preparation
+	Loads application.properties / application.yml.
+	Resolves active profiles and environment variables.
+
+4. ApplicationContext Creation
+	Creates **ApplicationContext (IoC container).
+
+5. Auto Configuration
+	**Spring Boot Auto-Configuration loads configuration based on dependencies.
+	Example: If JDBC dependency exists → configure DataSource automatically.
+	
+6. Component Scanning
+	@ComponentScan scans packages for: @Component, @Service, @Repository, @Controller
+
+7. Bean Creation & Dependency Injection
+	Spring creates beans and injects dependencies.
+
+8. Embedded Server Start
+	Starts embedded server like **Apache Tomcat.
+
+9. Application Ready
+	Application is ready to accept HTTP requests.
+
+✅ Flow Summary:
+main() → SpringApplication.run() → Environment → ApplicationContext → AutoConfig → Beans → Embedded Server Start.
+
+======================================================================================
+11: What is hibernate Many to One relationship ?
+======================================================================================
+Many-to-One relationship means many records in one table are associated with one record in another table.
+	Example
+		Many employees belong to one department.
+		Employee (Many)  →  Department (One)
+
+Employee Entity
+
+@Entity
+class Employee {
+
+    @Id
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name="dept_id")
+    private Department department;
+}
+
+@Entity
+class Department {
+    @Id
+    private Long id;
+}
+
+How It Works; @ManyToOne defines the relationship., @JoinColumn represents the foreign key in the Employee table.
+
+✅ Key Point:
+Multiple employees can reference the same department using a foreign key.
+
+======================================================================================
+12: How can you asure the availability in Microservices ?
+======================================================================================
+======================================================================================
+13. How do you implement service discovery in microservices architecture? 
+======================================================================================
+✅ Flow:
+Service start → register with Consul → client discovers service → load-balanced communication.
+======================================================================================
+14. What is the difference between synchronous REST calls and asynchronous messaging? 
+======================================================================================
+| Feature       | Synchronous REST      | Asynchronous Messaging              |
+| ------------- | --------------------- | ----------------------------------- |
+| Communication | Request–Response      | Event / Message based               |
+| Blocking      | Yes                   | No                                  |
+| Coupling      | Tight                 | Loose                               |
+| Reliability   | Lower if service down | Higher (queue stores messages)      |
+| Use case      | Real-time response    | Event processing / background tasks |
+
+======================================================================================
+15. How do you ensure fault tolerance using Circuit Breaker or Retry patterns? 
+======================================================================================
+======================================================================================
+16. How do you handle versioning of microservices APIs? 
+• What is the difference between Authentication and Authorization in REST API?
+• Explain the difference between PUT and PATCH methods.
+• What are the types of exceptions in Java? How do you create a Custom Exception?
+• What is the role of Microservices in your projects? How did you implement them?
+• .
+• How do you handle state management in Angular applications?
+• How did you divide the project into microservices?
+• Why did you choose asynchronous messaging (Kafka/RabbitMQ) over synchronous REST for some communication?
+• How did you handle service discovery, scaling, and fault tolerance?
+• How did you implement CRUD operations for Product, Order, and User services?
+• How did you implement JWT authentication and role-based access?
+• How did you manage database per service (SQL vs NoSQL)?
+• How does the Order Service communicate with Notification Service?
+• How do you ensure message delivery is reliable (e.g., Kafka topics, retries)?
+• How do you handle eventual consistency when an order is placed but stock updates fail?
+
+
+
+======================================================================================
+What are the advantages of spring boot?
+======================================================================================
+✅ 1️⃣ Auto Configuration: Reduces manual configuration
+✅ 2️⃣ Embedded Server: Tomcat/Jetty included, No external deployment needed
+✅ 3️⃣ Starter Dependencies: Simplifies dependency management
+✅ 4️⃣ Production-Ready Features: Actuator (health, metrics)
+✅ 5️⃣ Rapid Development: Minimal boilerplate, Convention over configuration
+✅ 6️⃣ Easy Microservices Development: Cloud & container friendly
+🎯 Summary:
+Spring Boot simplifies development with auto-configuration, embedded server, and production-ready features.
+======================================================================================
+What is sync and async in microservice?
+======================================================================================
+Sync → Request/Response (blocking)
+Async → Event-driven (non-blocking)
+======================================================================================
+Explain @springbootapplication annotation and explain? what is @componentScan, @configuration and @enableautoconfiguration.
+======================================================================================
+✅ @SpringBootApplication It is a combination annotation, Used as the main entry point of Spring Boot application.
+
+@SpringBootApplication =
+    @Configuration +
+    @EnableAutoConfiguration +
+    @ComponentScan
+
+🔥 1️⃣ @Configuration: Marks class as configuration class, Defines beans using @Bean, Equivalent to XML config
+🔥 2️⃣ @ComponentScan: Scans packages for components, Detects @Component, @Service, @Repository, @Controller
+		Default: scans current package & sub-packages
+
+🔥 3️⃣ @EnableAutoConfiguration: Automatically configures beans based on classpath
+		Example: If Spring Data JPA present → auto-configures DataSource
+
+======================================================================================
+What are the difference scopes in spring boot
+======================================================================================
+✅ 1️⃣ Singleton (Default): One instance per container
+	Use: Stateless services, utilities
+
+✅ 2️⃣ Prototype: New instance every request
+	Use: Stateful objects
+
+✅ 3️⃣ Request (Web): One per HTTP request
+	Use: Request-specific data
+
+✅ 4️⃣ Session (Web): One per HTTP session
+	Use: User session data
+
+✅ 5️⃣ Application: One per ServletContext
+	Use: Shared web-level objects
+
+🎯 Summary:
+	Singleton → Most common
+	Prototype → New object each time
+	Request/Session → Web-specific lifecycle management
+======================================================================================
+What is lifecycle of bean 
+======================================================================================
+🔥 1️⃣ Instantiation
+	Spring creates bean instance.
+
+🔥 2️⃣ Dependency Injection
+	Injects required dependencies.
+
+🔥 3️⃣ BeanNameAware / BeanFactoryAware (if implemented)
+🔥 4️⃣ @PostConstruct
+		Initialization logic.
+
+🔥 5️⃣ Ready for Use
+🔥 6️⃣ Destruction Phase
+		@PreDestroy
+		DisposableBean.destroy()
+======================================================================================
+Different security feauters in spring boot
+======================================================================================
+Short Interview Answer – Security Features in Spring Boot
+
+✅ 1️⃣ Spring Security Integration: Authentication & Authorization, Role-based access control
+✅ 2️⃣ OAuth2 & JWT Support: Resource Server / Authorization Server, Token-based authentication
+✅ 3️⃣ CSRF Protection: Enabled by default (for stateful apps)
+✅ 4️⃣ CORS Configuration: Control cross-origin requests
+✅ 5️⃣ Password Encoding: BCryptPasswordEncoder
+✅ 6️⃣ Method-Level Security: @PreAuthorize, @Secured
+✅ 7️⃣ HTTPS Support: SSL/TLS configuration
+
+======================================================================================
+Drawbacks of REST protocols
+======================================================================================
+❌ 1️⃣ Over-fetching / Under-fetching: Client may receive more or less data than needed
+
+❌ 2️⃣ Multiple Round Trips: Requires multiple API calls for related data
+
+❌ 3️⃣ No Strict Contract: No built-in schema enforcement (like gRPC/GraphQL)
+
+❌ 4️⃣ Stateless Overhead: Each request must carry full context
+
+❌ 5️⃣ Performance: HTTP/JSON overhead
+
+Not ideal for high-performance binary communication
+
+======================================================================================
+Multiple database configuration with Springboot
+======================================================================================
+🎯 Goal: Connect to multiple databases with separate DataSource, EntityManager, and TransactionManager.
+
+✅ 1️⃣ Define Multiple DataSources
+		@Bean
+		@ConfigurationProperties(prefix = "spring.datasource.db1")
+		public DataSource db1DataSource() {
+			return DataSourceBuilder.create().build();
+		}
+
+		@Bean
+		@ConfigurationProperties(prefix = "spring.datasource.db2")
+		public DataSource db2DataSource() {
+			return DataSourceBuilder.create().build();
+		}
+		
+✅ 2️⃣ Configure Separate EntityManager
+			@EnableJpaRepositories(
+				basePackages = "com.example.db1",
+				entityManagerFactoryRef = "db1EntityManager",
+				transactionManagerRef = "db1TransactionManager"
+			)
+			
+✅ 3️⃣ application.yml
+spring:
+  datasource:
+    db1:
+      url: jdbc:mysql://localhost:3306/db1
+    db2:
+      url: jdbc:mysql://localhost:3306/db2
+	  
+🎯 Key Points:
+	Mark one @Primary
+	Separate packages for each DB
+	Separate TransactionManager
+	Used in multi-tenant or legacy integration systems.
+	
+======================================================================================
+CSRF and CORS
+======================================================================================
+| Feature    | CSRF                                   | CORS                            |
+| ---------- | -------------------------------------- | ------------------------------- |
+| Full Form  | Cross-Site Request Forgery             | Cross-Origin Resource Sharing   |
+| Purpose    | Attack type                            | Browser security mechanism      |
+| Problem    | Unauthorized action using user session | Restricts cross-origin requests |
+| Protection | CSRF token                             | Server-configured headers       |
+
+🔥 CSRF
+	Attacker tricks logged-in user to perform unwanted action
+	Prevent using CSRF token
+
+🔥 CORS
+	Browser blocks requests from different origin
+	Controlled using Access-Control-Allow-Origin
+
+🎯 Summary:
+CSRF → Security attack
+CORS → Security policy enforced by browser
+
+======================================================================================
+Web service Vs Microservices
+======================================================================================
+| Feature       | Web Service                                    | Microservices                            |
+| ------------- | ---------------------------------------------- | ---------------------------------------- |
+| Meaning       | Exposes functionality over network (SOAP/REST) | Architectural style                      |
+| Scope         | Single service/API                             | Collection of small independent services |
+| Deployment    | Usually monolithic                             | Independently deployable                 |
+| Database      | Shared DB common                               | Database per service                     |
+| Communication | HTTP / SOAP                                    | REST, Kafka, gRPC, etc.                  |
+
+======================================================================================
+What is Agile ceremony
+======================================================================================
+✅ Main Ceremonies: 
+	1️⃣ Sprint Planning: Define sprint goal, Select backlog items
+	2️⃣ Daily Standup: 15-minute sync, What I did, doing, blockers
+	3️⃣ Sprint Review: Demo completed work, Get stakeholder feedback
+	4️⃣ Sprint Retrospective: Discuss improvements, What went well / not well
+
+======================================================================================
+How would you implement thread safe HashMap without using ConcurrentHashMap
+======================================================================================
+✅ 1️⃣ Using Collections.synchronizedMap()
+	Map<String, String> map = Collections.synchronizedMap(new HashMap<>());
+
+✅ 2️⃣ Using Explicit Synchronization
+		Map<String, String> map = new HashMap<>();
+
+		synchronized (map) {
+			map.put("key", "value");
+		}
+
+✅ 3️⃣ Using ReadWriteLock (Better Concurrency)
+	ReadWriteLock lock = new ReentrantReadWriteLock();
+	Map<String, String> map = new HashMap<>();
+
+	lock.writeLock().lock();
+	try {
+		map.put("k", "v");
+	} finally {
+		lock.writeLock().unlock();
+	}
+
+======================================================================================
+Explain the internal working of ThreadPoolExecutor and how it manages tasks in different state.
+======================================================================================
+🔥 Core Components:
+	corePoolSize, maximumPoolSize, BlockingQueue, keepAliveTime, RejectedExecutionHandler
+
+🔥 Task Handling Flow:
+	1️⃣ If running threads < corePoolSize → Create new thread
+	2️⃣ Else → Put task in BlockingQueue
+	3️⃣ If queue full & threads < maximumPoolSize → Create new thread
+	4️⃣ If queue full & threads = max → Reject task
+
+🔥 Thread States:
+	RUNNING → Accepts new tasks
+	SHUTDOWN → No new tasks, completes queued tasks
+	STOP → Interrupts running tasks
+	TERMINATED → Fully stopped
+
+🎯 Summary:
+	ThreadPoolExecutor controls concurrency using core threads + queue + max threads + rejection policy for efficient task management.
+	
+======================================================================================
+Describe a scenario where microservice might fail. How would you implement the circuit breaker pattern to handle failures and maintain system ressilence.
+======================================================================================
+🔥 Failure Scenario:
+	Downstream service slow/unavailable
+	Network timeout
+	DB overload
+	Dependency returning 5xx → Causes cascading failure across microservices.
+
+✅ Circuit Breaker Pattern
+🎯 States:
+	1️⃣ Closed → Normal calls
+	2️⃣ Open → Fail fast (no calls)
+	3️⃣ Half-Open → Allow limited test calls
+
+
+🔥 How It Maintains Resilience:
+		Prevents repeated failing calls
+		Reduces load on failing service
+		Provides fallback response
+		Avoids cascading failure
+
+🎯 Summary:
+	Detect failure → Open circuit → Fail fast → Retry after timeout → Recover automatically.
+
+======================================================================================
+How to you handle distributed transactions in a microservices architecture? Explain the concept of saga pattern.
+======================================================================================
+🔥 Problem: In microservices, each service has its own DB → No global ACID transaction.
+
+✅ Solution: Saga Pattern
+	Saga = Sequence of local transactions + compensating actions on failure.
+
+🔥 Two Types:
+	1️⃣ Choreography (Event-based)
+		Services communicate via events (Kafka)
+		No central coordinator
+		Each service triggers next step
+		Example flow: Order → Payment → Inventory
+
+	2️⃣ Orchestration
+		Central orchestrator controls flow
+		Calls each service step-by-step
+		Triggers compensations if failure
+	
+		🔥 Example Scenario:
+			Order Service	
+				→ Deduct Payment
+				→ Reserve Inventory
+
+			If Inventory fails → Compensate → Refund Payment
+
+🎯 Summary:
+		Avoid 2PC in microservices
+		Use Saga (local transactions + compensations)
+		Choreography = decentralized
+		Orchestration = centralized control
+
+======================================================================================
+Spring boot application experinecing performance issue under high load, What are the the steps you would take to identify and address the performance.
+======================================================================================
+🔥 1️⃣ Identify Bottleneck
+		Check CPU, Memory, Thread usage
+		Enable GC logs
+		Analyze heap dump if needed
+		Use APM (NewRelic / Dynatrace)
+		Check slow DB queries
+
+🔥 2️⃣ Check Threading
+		Tomcat thread pool size
+		Blocked threads
+		Deadlocks
+		Use thread dump (jstack)
+
+🔥 3️⃣ Database Optimization
+		Add proper indexes
+		Optimize queries
+		Connection pool tuning (HikariCP)
+		
+🔥 4️⃣ Caching
+		Add Redis / Caffeine
+		Avoid repeated DB calls
+	
+🔥 5️⃣ Scale Strategy
+		Horizontal scaling (K8s autoscaling)
+		Load balancer tuning
+
+🎯 Summary: Monitor → Identify bottleneck (CPU/Memory/DB/Thread) → Optimize → Add caching → Scale horizontally.
+
+======================================================================================
+How would you design a system that supports different payment methods ( credit card, paypal, cryptocurrencies) using interface and abstract classes.
+======================================================================================
+🎯 Goal: Support multiple payment methods using interface + abstraction (Open/Closed Principle).
+
+✅ Step 1: Define Common Interface
+		public interface Payment {
+			void pay(double amount);
+		}
+✅ Step 2: Abstract Class (Common Logic)
+public abstract class AbstractPayment implements Payment {
+    
+    protected void validate(double amount) {
+        if (amount <= 0) throw new IllegalArgumentException();
+    }
+}
+✅ Step 3: Concrete Implementations
+public class CreditCardPayment extends AbstractPayment {
+    public void pay(double amount) {
+        validate(amount);
+        System.out.println("Paid using Credit Card");
+    }
+}
+
+public class PayPalPayment extends AbstractPayment {
+    public void pay(double amount) {
+        validate(amount);
+        System.out.println("Paid using PayPal");
+    }
+}
+
+✅ Step 4: Use Polymorphism
+	Payment payment = new CreditCardPayment();
+	payment.pay(1000);
+🔥 Benefits: Easy to add new payment method
+	Follows OCP, Clean separation of responsibilities, Supports Strategy Pattern
+
+🎯 Summary: Interface defines contract → Abstract class provides common logic → Concrete classes implement specific behavior.
+
+======================================================================================
+How would you structure your packages for maximum effieciency and maintainability in a complex project
+======================================================================================
+🎯 Recommended Approach: Feature-Based (Domain-Driven)
+Instead of layer-based (controller, service, repository globally), use:
+
+com.company.project
+    ├── order
+    │     ├── controller
+    │     ├── service
+    │     ├── repository
+    │     └── model
+    ├── payment
+    ├── user
+	
+🔥 Why Feature-Based?
+	High cohesion, Low coupling, Easy to scale, Easy team ownership, Microservice-ready structure
+
+✅ Common Layers Inside Feature:
+	controller, service, repository, dto, mapper, config
+
+🎯 Best Practices:
+	Follow Clean Architecture, Separate domain, application, infrastructure
+	Avoid circular dependencies, Keep packages small & focused
+
+🚀 Summary: Use feature-based modular structure for better maintainability and scalability.
+
+======================================================================================
+What are the some best practicces for maintaing transactions in spring boot applications
+======================================================================================
+✅ 1️⃣ Use @Transactional at Service Layer
+		Keep transaction boundary in service
+		Avoid using in controller
+
+✅ 2️⃣ Keep Transactions Short
+		Avoid long-running transactions
+		No external API calls inside transaction
+
+✅ 3️⃣ Choose Proper Propagation
+		Default: REQUIRED
+		Use REQUIRES_NEW carefully
+
+✅ 4️⃣ Handle Exceptions Properly
+		Rollback on unchecked exceptions
+		Use rollbackFor for checked exceptions
+		@Transactional(rollbackFor = Exception.class)
+		
+✅ 5️⃣ Use Read-Only for Queries
+		@Transactional(readOnly = true)
+		Improves performance.
+
+✅ 6️⃣ Avoid Self-Invocation: Transaction won’t apply if method calls internally
+
+🎯 Summary:
+	Define transaction at service layer → Keep short → Proper propagation → Correct rollback → Optimize read-only cases.
+	
+======================================================================================
+How do you handle schema migration in a project using spring jpa when the schema changes due to to bussiness requirements.
+======================================================================================
+✅ 1️⃣ Use Migration Tools (Recommended)
+	Flyway, Liquibase
+	Avoid relying only on spring.jpa.hibernate.ddl-auto=update in production.
+
+✅ 2️⃣ Version-Controlled Scripts
+	Maintain incremental migration scripts
+	Example:
+		V1__create_user_table.sql
+		V2__add_email_column.sql
+		
+✅ 3️⃣ Backward Compatibility
+		Deploy DB change first
+		Then deploy application
+		Avoid breaking existing data
+
+✅ 4️⃣ Zero-Downtime Strategy
+		Add new column as nullable
+		Backfill data
+		Update code
+		Remove old column later
+
+✅ 5️⃣ Test Migration
+		Run in staging, Validate rollback strategy
+
+🎯 Summary:
+Use Flyway/Liquibase → Versioned scripts → Backward compatible changes → Zero-downtime deployment strategy.
+
+======================================================================================
+What strategies do you use to motivate your team and what are things you are looking while peer code review?
+======================================================================================
+✅ 1️⃣ Motivating the Team
+	Clear goals & ownership
+	Encourage learning & innovation
+	Recognize achievements publicly
+	Promote open communication
+	Remove blockers quickly
+	🎯 Focus on trust, growth, and accountability.
+
+✅ 2️⃣ Peer Code Review – What I Look For
+	🔥 Code Quality
+			Readability & clean structure
+			Proper naming conventions
+			SOLID principles
+
+	🔥 Correctness
+			Edge cases handled
+			Null checks
+			Proper exception handling
+	
+	🔥 Performance
+			Avoid unnecessary DB calls
+			Proper indexing
+			Efficient algorithms
+	
+	🔥 Security
+			Input validation
+			No hardcoded secrets
+			SQL injection prevention
+	
+	🔥 Maintainability
+			Proper logging
+			Unit test coverage
+			No duplicate code
+
+🎯 Goal: Improve quality, not criticize developer.
+======================================================================================
+
+
+

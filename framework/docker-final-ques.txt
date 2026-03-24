@@ -1,0 +1,153 @@
+🐳 1. Docker Architecture (Must Know Deeply)
+Explain Docker architecture in detail.
+What are Docker Client, Docker Daemon, Docker Registry?
+What happens internally when you run docker run?
+Difference between Image and Container?
+What is Docker Engine?
+What is container runtime?
+What is containerd?
+What is OCI (Open Container Initiative)?
+How does Docker use Linux kernel features?
+How is Docker different from VM?
+
+⚙️ 2. Images & Layers (Very Important)
+What are Docker image layers?
+What is Union File System?
+What is copy-on-write?
+Why is Docker image immutable?
+How to reduce image size?
+What is multi-stage build?
+What is base image?
+What happens if you change one line in Dockerfile?
+Difference between COPY and ADD?
+Best practices for writing Dockerfile?
+
+📦 3. Dockerfile Deep Dive
+Difference between CMD and ENTRYPOINT.
+JSON vs shell form of CMD?
+What is WORKDIR?
+What is EXPOSE?
+What is ARG vs ENV?
+How to pass runtime arguments?
+How to create non-root user in container?
+How to optimize Spring Boot Dockerfile?
+How to build layered jar for Spring Boot?
+How to use Jib instead of Dockerfile?
+
+🌐 4. Networking
+Explain Docker networking types: Bridge, Host, None, Overlay
+How do containers communicate?
+What is port mapping?
+What is Docker DNS?
+How to connect multiple containers?
+How does service discovery work?
+How to debug networking issues?
+How to connect container to external DB?
+What is docker network inspect?
+Difference between bridge and overlay?
+
+💾 5. Volumes & Storage
+What is Docker volume?
+Difference between volume and bind mount?
+Where are volumes stored?
+How to persist database data?
+How to backup Docker volume?
+How to share volume across containers?
+What are storage drivers?
+How to troubleshoot disk space issue?
+What is tmpfs mount?
+How does container filesystem work internally?
+
+🔐 6. Security (Very Important for Senior Role)
+How to secure Docker container?
+What is Docker namespace?
+What are cgroups?
+How to prevent container from running as root?
+What is Docker Content Trust?
+How to scan Docker image for vulnerabilities?
+What is seccomp?
+How to limit CPU and memory?
+What is Docker Bench?
+How to handle secrets in Docker?
+
+🚀 7. Docker + Spring Boot (Production Oriented)
+How to Dockerize Spring Boot app?
+How to reduce Spring Boot image size?
+Difference between fat jar and layered jar?
+JVM tuning inside container?
+How to handle memory limits?
+How to enable graceful shutdown?
+How to externalize config?
+How to pass environment variables?
+How to connect Spring Boot to Dockerized DB?
+How to enable health checks?
+
+🧪 8. Docker Compose
+What is Docker Compose?
+Difference between Dockerfile and docker-compose?
+How to define multi-container setup?
+How to scale service?
+What is depends_on?
+How to define networks in compose?
+How to define volumes in compose?
+How to override compose file?
+How to use profiles?
+How to debug compose failure?
+
+🏗️ 9. CI/CD & DevOps
+How to build Docker image in CI?
+What is multi-arch build?
+What is Docker registry?
+Difference between: Docker Hub, Private Registry
+How to tag image properly?
+What is image versioning strategy?
+How to rollback Docker deployment?
+How to push image securely?
+How to reduce pipeline time?
+How to integrate Docker with Kubernetes?
+
+⚡ 10. Performance & Troubleshooting
+Why is container slow?
+How to check container logs?
+How to debug container crash?
+What is OOMKilled?
+How to inspect container?
+How to analyze image layers?
+How to reduce startup time?
+How to check resource usage?
+How to enter running container?
+How to clean unused images?
+
+☁️ 11. Docker vs Kubernetes
+Difference between Docker and Kubernetes?
+Can Kubernetes run without Docker?
+What is CRI?
+Why Docker removed from Kubernetes?
+What is container runtime interface?
+What is pod?
+When to use Docker only?
+When to move to Kubernetes?
+
+🧠 12. Advanced / Product Company Questions
+How does Docker isolate processes?
+Explain namespaces types: PID, NET, IPC, MNT, UTS, USER
+How does copy-on-write work internally?
+How does overlay2 storage driver work?
+How would you design container platform?
+How to handle zero-downtime deployment?
+How to debug production container issue?
+How to migrate VM-based app to container?
+How to handle logging strategy?
+How to design highly available Docker setup?
+
+🎯 Scenario-Based Questions (Very Important for 8+)
+Container is restarting continuously. How to debug?
+App works locally but not inside Docker. Why?
+DB connection failing inside container.
+Memory usage high after containerization.
+Image size is 1.5GB. How to reduce?
+How to run multiple Spring Boot instances?
+How to secure Docker in production?
+How to handle secrets for multiple environments?
+How to implement blue-green deployment using Docker?
+How to monitor containers?
