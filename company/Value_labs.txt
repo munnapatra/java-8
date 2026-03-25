@@ -1,0 +1,240 @@
+valuelabs
+===========
+abstraction, encapsulation, polymorphism, inheritence in java
+design library system that has books, members and staff ensuring oop principles are applied
+🔹 OOP Principles Applied
+Encapsulation → private fields + methods
+Inheritance → Member, Staff extends Person
+Abstraction → Person as abstract class
+Polymorphism → different behavior for borrowBook()
+
+abstract class Person {
+    protected String name;
+    protected String id;
+}
+
+class Member extends Person {
+    private List<Book> borrowedBooks;
+
+    public void borrowBook(Book book) {}
+    public void returnBook(Book book) {}
+}
+
+class Staff extends Person {
+    public void addBook(Book book) {}
+    public void removeBook(Book book) {}
+}
+
+🔹 Book Class
+class Book {
+    private String title;
+    private String author;
+    private String isbn;
+    private boolean isAvailable;
+
+    public void issue() { isAvailable = false; }
+    public void returnBook() { isAvailable = true; }
+}
+🔹 Library Class
+class Library {
+    private List<Book> books;
+    private List<Member> members;
+
+    public void registerMember(Member m) {}
+    public void addBook(Book b) {}
+    public Book searchByTitle(String title) { return null; }
+}
+
+jre, jdk, jvm, jit
+
+stack vs heap
+hascode used for , how its related with equals()
+compile time constant, what is the risk of using it
+HashTable vs HashMap
+write a code to remove elements from ArrayList while iterating 
+Best practices you apply while using collections in java
+Which design pattern you have used in your project
+Composition vs Agreegation Vs Association
+Checked Vs Unchecked Exceptions
+Difference between Serializable and Externalizable
+Java String pool
+String Vs StringBuffer Vs StringBuilder
+Can you design ATM
+Bean in Spring
+Scope of Spring Bean
+Have you implemented Security to your application
+
+*Q) How do you monitor your spring boot application on prod?*
+
+*Q) What is service discovery? Why do you need multiple Eurekas?*
+
+*Q) What is circuit breaker DP?*
+
+*Q) How do you handle transactions across multiple microservices?*
+
+*Q) How do microservices communicate with each other?*
+
+*Q) Explain the architecture of Kafka.*
+
+*Q) How did you implement Kafka in your project?*
+
+*Q) What is Zookeeper in Kafka? Can Kafka be used without Zookeeper?*
+
+*Q) What do you mean by ISR in Kafka environment?*
+
+*Q) What is consumer lag?*
+
+*Q) What is marking the offset as soon as you read the message from Kafka broker?*
+
+*Q) How did you implement synchronous communication between microservices?*
+
+*Q) You have implemented some REST endpoints for CRUD functionality, how will you share your contract with clients/other teams?*
+
+*Q) How did you implement security end to end?*
+
+*Q) Why Docker?*
+
+*Q) K8 commands you used?*
+
+*Q) How do you analyze logs of pods in your project?*
+
+*Q) Explain the difference between a Pod and a Container in Kubernetes.*
+
+*Q) What is the difference between CI and CD?*
+
+*Q) Explain steps you used in CI/CD in your project.*
+
+Java 8 features, including streams and new APIs.
+ORM mapping of tables to Java classes.
+Differences between @Bean and @Component annotations.
+Implementing pagination and caching in Spring Boot applications.
+The purpose of @ControllerAdvice in Spring.
+Lazy loading in Hibernate and writing complex queries.
+Differences between Gradle and Maven, and the purpose of the pom.xml file in Maven.
+Continuous integration in Jenkins and writing JUnit test cases.
+Practical coding questions, such as finding the second highest salary and the Nth smallest element using Java 8 streams, and summing even numbers in a list with streams.
+Frontend Development:
+
+Data binding in Angular, including the types deployed.
+The concept of Single Page Applications (SPA).
+Angular decorators, templates, and pipes, including the PipeTransform interface.
+Differences between AOT and JIT compilation.
+Angular components, modules, and services.
+Promises and Observables in Angular, and using ngFor.
+Sharing data between components, router links, and HTTP interceptors.
+Error handling in observables and Angular lifecycle hooks.
+Watch this video to gain deep insights and practical knowledge from Abhishek's approach to these complex topics and coding challenges.
+
+
+
+Data Structures & Algorithms: Arrays, HashMaps, Stacks, Queues, Trees, Graphs. • Java Core Concepts: OOP principles, Exception Handling, Streams API. • Multi-threading & Concurrency: Threads, Executors, Synchronization. • SQL Queries: Joins, Aggregation, Optimization.
+
+1. OOPS concepts 2. Springboot annotations 3. How to connect to DB 4. How to add employee details, store and perform operations 5. Microservices vs Monolith 6. Overloading and Overriding 7. Profiles in SpringBoot 8. String, StringBuilder, StringBuffer & manipulations on string 9. Synchronization & Threads 10. Two coding questions, a) Order string array and remove duplicates b) Order a integer array in ascending order
+
+
+Class loader
+Weak Hashmap
+Identity Hash Map
+Countdown Latch
+Serialisation
+Java 8 streams
+basics of Java, java8, execution Framework and Spring mvc, boot, hibernate and some other
+
+Q1. What is the relationship between the Object-Oriented Programming System (OOPs) and the Java Collections Framework?
+Q2. Expection handling mutlithreading string concepts
+Q1. Spring Security Implementation
+Q2. Api design Implementation
+Q3. Stream API coding question
+Q1. Can we make @repository as @service?
+Q2. How to remove given employee object from list? Performance related
+Q1. Collections,spring boot questions,microservices design patterns
+
+🔹 Java (Core + Advanced)
+Core
+Explain SOLID principles with examples
+Difference: Interface vs Abstract class (Java 8/11)
+How do you create an immutable class?
+What are marker interfaces?
+Collections
+How does HashMap work internally?
+Difference: HashMap vs ConcurrentHashMap
+What happens when hash collision occurs?
+Fail-fast vs Fail-safe iterator
+Streams
+map vs flatMap
+How to convert List<List<T>> → List<T>
+How to find duplicates using streams?
+Multithreading
+synchronized vs ReentrantLock
+What is volatile?
+How thread pool works?
+How to avoid deadlock?
+JVM
+Heap vs Stack
+GC (G1, Parallel)
+OutOfMemoryError vs StackOverflowError
+🔹 Spring Boot / Microservices
+What happens internally in @SpringBootApplication?
+@Component vs @Bean
+@Qualifier vs @Primary
+How do you handle circular dependency?
+How to secure APIs (JWT/OAuth2)?
+What is idempotency?
+🔹 Kafka (Very Important)
+How Kafka ensures ordering?
+Partition vs Consumer Group
+What is offset?
+Auto commit vs manual commit
+How to handle retry & DLQ?
+How to avoid data loss & duplication?
+Exactly-once vs At-least-once
+🔹 Database (SQL)
+Write query: 2nd highest salary
+Indexing – when & why
+Normalization vs Denormalization
+Transactions & isolation levels
+🔹 Angular (Advanced)
+Core
+Lifecycle hooks order
+Change Detection (Default vs OnPush)
+How DI works in Angular
+RxJS
+Observable vs Promise
+Subject vs BehaviorSubject
+switchMap vs mergeMap vs concatMap
+How to cancel API calls?
+Performance
+Lazy loading modules
+TrackBy in ngFor
+How to avoid memory leaks?
+Forms
+Reactive vs Template-driven
+Custom validator
+Dynamic form creation
+Directives / Pipes
+Create custom pipe
+Structural vs Attribute directive
+🔹 System Design (Must for 7+)
+Design Library Management System
+Design Kafka-based event system
+Design scalable search system (Solr/Elastic)
+How to handle high traffic APIs
+🔹 Real-time / Scenario
+How did you handle production issue?
+How to improve API performance?
+How to debug slow SQL query?
+Handling concurrent requests?
+🔹 Coding
+Flatten nested list (Streams)
+LRU Cache
+String/Array problems
+🔹 Behavioral
+Why change?
+Challenging project
+Leadership experience
+✅ What ValueLabs focuses on
+
+👉 Kafka + Microservices (high priority)
+👉 Hands-on coding + real scenarios
+👉 Angular RxJS depth
+👉 Production experience
