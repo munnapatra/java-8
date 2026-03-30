@@ -1,4 +1,3 @@
-valuelabs
 ===================================================================================================
 🔹Q1. Explain oops pilar in java and their difference to each other.
 ===================================================================================================
@@ -106,7 +105,7 @@ JIT (Just-In-Time Compiler)
 	Can cause OutOfMemoryError
 	
 ===================================================================================================
-🔹Q5. Use of hascode and how its related with equals()
+🔹Q5. Use of hashcode and how its related with equals()
 ===================================================================================================
 👉 equals()
 		Used to check logical equality
@@ -228,6 +227,8 @@ Best practices you apply while using collections in java
 ===================================================================================================
 Which design pattern you have used in your project
 ===================================================================================================
+Template design pattern
+
 ===================================================================================================
 Composition vs Agreegation Vs Association
 ===================================================================================================
@@ -293,68 +294,571 @@ String Vs StringBuffer Vs StringBuilder
 | Performance | Slow      | Medium             | Fastest       |
 
 ===================================================================================================
-*Q) How do you monitor your spring boot application on prod?*
+Q) How do you monitor your spring boot application on prod?
 ===================================================================================================
+1. Spring Boot Actuator (baseline)
+	Add dependency → spring-boot-starter-actuator
+	Exposes endpoints:
+		/actuator/health
+		/actuator/metrics
+		/actuator/info
+	management.endpoints.web.exposure.include=*
+
+2. Metrics + Monitoring tools
+	Integrate with:
+		Prometheus → collects metrics
+		Grafana → dashboards
+
+	Example:
+		JVM memory, CPU, HTTP response time, DB connection pool
+
+3. Logging
+	Use: Logback / Log4j2
+	Centralized logging: ELK Stack
+	Track: errors, request flow, debugging issues
+
+4. Distributed Tracing
+	Tools: Zipkin / Jaeger
+	Helps track request across microservices
+
+5. Alerts & Health checks
+	Configure alerts: high CPU, memory leak, API latency
+	Health checks used by: Kubernetes / Load balancer
+
+6. APM tools (Production level)
+	New Relic, Dynatrace, AppDynamics
+
+Key points (must say)
+Actuator + Prometheus + Grafana is standard setup
+Centralized logging is mandatory
+Alerts + tracing for quick debugging
+APM tools for deep insights
 
 ===================================================================================================
-*Q) What is service discovery? Why do you need multiple Eurekas?*
+Q) What is service discovery? Why do you need multiple Eurekas?
 ===================================================================================================
+Service Discovery is a mechanism where services register themselves and discover other services dynamically (no hardcoded URLs).
+Common tool: Netflix Eureka
+
+👉 Flow:
+	Service registers with Eureka
+	Client queries Eureka for service location
+	Calls service using discovered instance
+
+Why do we need it?
+	Dynamic scaling (containers / microservices)
+	No hardcoded IP/port
+	Load balancing support
+	Fault tolerance
+
+Why multiple Eureka servers?
+	👉 Main reason: High Availability (HA)
+	1. Avoid single point of failure
+		If one Eureka server goes down → system should still work
+		Multiple servers = redundancy
+
+	2. Replication between Eureka servers
+		Eureka servers sync registry data with each other
+		If one fails → others still have service info
+
+	3. Better scalability
+		Handles large number of services
+		Distributes load
+
+	4. Zone/Region awareness
+		Deploy Eurekas across zones
+		Improves latency + resilience
+
+Key points (must say)
+	Eureka = service registry
+	Clients register + discover
+	Multiple Eurekas = HA + replication + fault tolerance
+	Uses peer-to-peer replication
 
 ===================================================================================================
-*Q) What is circuit breaker DP?*
+Q) What is circuit breaker DP?
 ===================================================================================================
+Circuit Breaker is a resilience pattern used to prevent cascading failures in microservices.
+It stops calling a failing service and returns a fallback response.
+
+👉 Common library: Resilience4j
+
+Why do we need it?
+	Prevent system overload
+	Avoid cascading failures
+	Improve fault tolerance
+	Faster recovery
+
+States of Circuit Breaker
+	Closed (Normal)
+		Calls go through
+		Failures are monitored
+
+	Open (Failure state)
+		If failures exceed threshold
+		Calls are blocked
+		Fallback is returned
+
+	Half-Open (Testing)
+		Allows few requests
+		If success → Closed
+		If fail → Open
+
+Flow:
+	Service A → calls Service B
+	If B fails repeatedly → circuit opens
+	A stops calling B → returns fallback
+
+@CircuitBreaker(name = "serviceB", fallbackMethod = "fallback")
+public String callService() {
+    return restTemplate.getForObject("http://service-b/api", String.class);
+}
+
+public String fallback(Exception e) {
+    return "Fallback response";
+}
+
+Key points (must say)
+	Prevents cascading failure
+	Works with timeout + retry
+	Improves system stability
+	Uses thresholds (failure rate %)
+
 ===================================================================================================
-*Q) How do you handle transactions across multiple microservices?*
+Q) How do you handle transactions across multiple microservices?
 ===================================================================================================
+Problem
+	In microservices, each service has its own DB
+	So traditional ACID transactions don’t work across services
+
+Solutions
+1. Saga Pattern (Most used)
+👉 Handles distributed transactions using events
+	Two types:
+		Choreography (event-driven)
+			Services communicate via events (Kafka/RabbitMQ)
+			No central controller
+			Example tools: Apache Kafka
+
+			✔️ Loose coupling, ❌ Hard to track/debug
+			➡️ Trigger compensating transactions (rollback previous steps)
+
+		Orchestration (central coordinator)
+			One orchestrator controls flow, Calls services sequentially
+			✔️ Easy to manage, ❌ Central dependency
+
+2. 2-Phase Commit (2PC) – NOT preferred
+Distributed ACID transaction
+Uses coordinator
+❌ Blocking, ❌ Not scalable, ❌ Rare in microservices
+
+
+Key points (must say)
+	Use Saga pattern
+	Implement compensating transactions
+	Prefer event-driven architecture
+	Avoid 2PC in microservices
+
 ===================================================================================================
-*Q) How do microservices communicate with each other?*
+Q) How do microservices communicate with each other?
 ===================================================================================================
+1. Synchronous (Request–Response)
+	Services call each other directly via HTTP
+	👉 Tools: REST (most common), gRPC
+	Example: Service A → REST call → Service B
+	✔️ Simple, ❌ Tight coupling, latency
+
+2. Asynchronous (Event-driven)
+	Services communicate via messages/events
+	👉 Tools: Apache Kafka, RabbitMQ
+	Example: Order Service → publish event, Payment Service → consumes event
+	✔️ Loose coupling, ✔️ Better scalability
+
+3. Service Discovery + Load Balancing
+	Use registry like Netflix Eureka
+	Client discovers service dynamically
+
+4. API Gateway
+	Single entry point for clients
+	Routes requests to services
+
+5. Communication patterns
+	Request–Response (sync)
+	Publish–Subscribe (async)
+	Event Streaming
+
+Key points (must say)
+	Sync → REST/gRPC
+	Async → Kafka/RabbitMQ
+	Prefer async for scalability
+	Use service discovery + API gateway
+
 ===================================================================================================
-*Q) Explain the architecture of Kafka.*
+Q) Explain the architecture of Kafka.
 ===================================================================================================
+Apache Kafka is a distributed event streaming platform used for high-throughput, fault-tolerant messaging.
+Core Components
+	1. Producer: Sends messages (events) to Kafka topics
+	2. Topic: Logical channel to store messages, Divided into partitions
+	3. Partition: Splits data for scalability, Maintains ordering within partition
+	4. Broker: Kafka server that stores data, Multiple brokers = Kafka cluster
+	5. Consumer: Reads messages from topics
+	6. Consumer Group: Group of consumers sharing workload, Each partition → consumed by only one consumer in group
+	7. Zookeeper (older) / KRaft (new): Manages cluster metadata, leader election
+
+Architecture Flow
+	Producer publishes message to a topic
+	Topic split into partitions across brokers
+	Each partition has leader + replicas
+	Consumer group reads data in parallel
+	Offsets track consumption
+
+Key Concepts
+	Replication → fault tolerance
+	Leader–Follower model → only leader handles read/write
+	Offset → position of message in partition
+	High throughput & scalability
+
+Key points (must say)
+	Distributed, partitioned, replicated
+	Producers → Topics → Partitions → Consumers
+	Consumer groups enable parallelism
+	Ordering guaranteed per partition
+
 ===================================================================================================
-*Q) How did you implement Kafka in your project?*
+Q) How did you implement Kafka in your project?
 ===================================================================================================
+Use Case
+	Implemented Kafka for Order → Payment → Notification flow
+	Goal: decouple services + async processing + reliability
+
+1. Architecture
+	Order Service → publishes event with Kafka Topic → order-created
+	Payment Service → consumes event
+	Notification Service → consumes event
+
+2. Producer (Order Service)
+	kafkaTemplate.send("order-created", orderEvent);
+	Used JSON serialization
+	Added key (orderId) for partitioning
+
+3. Topic Configuration
+	Partitions: 3 (parallel processing)
+	Replication factor: 2 (fault tolerance)
+
+4. Consumer (Payment Service)
+	@KafkaListener(topics = "order-created", groupId = "payment-group")
+	public void consume(OrderEvent event) {
+    		// process payment
+	}
+
+5. Consumer Group
+	Multiple instances of Payment Service
+	Kafka distributes partitions → enables horizontal scaling
+
+6. Error Handling
+	Used retry + DLQ (Dead Letter Topic)
+	If processing fails → send to order-failed
+
+7. Idempotency: Used orderId to avoid duplicate processing
+
+8. Offset Management: Used manual commit for better control
+
+9. Monitoring
+	Metrics via Actuator + Prometheus
+	Kafka lag monitoring
+
+Key points (must say)
+	Event-driven architecture
+	Decoupled services
+	Used partitions + consumer groups for scaling
+	Implemented retry + DLQ
+	Ensured idempotency
+
 ===================================================================================================
-*Q) What is Zookeeper in Kafka? Can Kafka be used without Zookeeper?*
+Q) What is Zookeeper in Kafka? Can Kafka be used without Zookeeper?
 ===================================================================================================
+ZooKeeper = coordination + metadata
+Used for leader election
+Kafka now supports KRaft (no ZooKeeper)
+Industry moving towards ZooKeeper-less Kafka
+
 ===================================================================================================
-*Q) What do you mean by ISR in Kafka environment?*
+Q) What do you mean by ISR in Kafka environment?
 ===================================================================================================
+ISR = In-Sync Replicas
+In Apache Kafka, ISR is the set of replicas that are fully caught up with the leader partition.
+Explanation
+	Each partition has:
+		Leader → handles read/write
+		Followers (replicas) → copy data from leader
+	
+	👉 ISR = leader + followers that are up-to-date
+
+How it works
+	Producer writes → leader
+	Followers replicate data
+	If follower is slow → removed from ISR
+	If it catches up → added back to ISR
+
+Why ISR is important?
+	Ensures data consistency
+	Guarantees fault tolerance
+	Only ISR replicas are eligible for leader election
+Example
+	Replicas: R1 (leader), R2, R3
+	If R3 lags → ISR = {R1, R2}
+
+Key configs: min.insync.replicas, Minimum replicas required for write success
+
+Key points (must say)
+	ISR = up-to-date replicas
+	Maintained by Kafka dynamically
+	Used for leader election
+	Ensures durability
+
 ===================================================================================================
-*Q) What is consumer lag?*
+Q) What is consumer lag?
 ===================================================================================================
+In Apache Kafka, consumer lag is the difference between:
+	Latest offset (produced messages), Consumer offset (processed messages)
+	Formula: Lag = Latest Offset - Consumer Offset
+	Example: Latest offset = 100, Consumer offset = 80, ➡️ Lag = 20 messages
+
+Why it matters?
+	Indicates how behind a consumer is
+	High lag → slow processing / bottleneck
+	Can lead to delays in real-time systems
+
+Causes of lag
+	Slow consumer processing
+	High message production rate
+	Insufficient partitions
+	Consumer crashes / rebalancing
+
+How to reduce lag?
+	Increase consumer instances (scaling)
+	Increase partitions
+	Optimize processing logic
+	Use batch processing
+	Tune configs (fetch size, poll records)
+
+Monitoring
+ Use: 
+	Kafka metrics
+	Prometheus + Grafana
+	Kafka lag tools
+
+Key points (must say)
+	Lag = unprocessed messages
+	Important for system health
+	Should be monitored continuously
+
 ===================================================================================================
-*Q) What is marking the offset as soon as you read the message from Kafka broker?*
+Q) What is marking the offset as soon as you read the message from Kafka broker?
 ===================================================================================================
+What does it mean?
+“Marking offset as soon as you read” = committing the offset immediately after polling, before processing the message.
+
+👉 In Apache Kafka, offset commit = acknowledging message consumption
+
+Flow
+	Consumer polls message
+	Offset is committed immediately
+	Then message processing happens
+
+Problem with this approach ❌
+	If processing fails after commit: Kafka thinks message is processed, Message is lost (no retry)
+	➡️ Leads to data loss
+
+Example
+	Poll message (offset = 10), Commit offset = 10, App crashes before processing
+	➡️ Offset already committed → message skipped
+
+Better approach ✅
+	👉 Commit after successful processing
+	Manual commit: ack.acknowledge();
+	✔️ Ensures at-least-once delivery
+
+When is early commit used?
+	Low critical systems
+	When duplicate handling is more important than data loss
+
+Key points (must say)
+	Offset commit = acknowledgment
+	Early commit → risk of data loss
+	Prefer commit after processing
+	Use manual commit for control
+
 ===================================================================================================
-*Q) How did you implement synchronous communication between microservices?*
+Q) How did you implement synchronous communication between microservices?
 ===================================================================================================
+1. Service-to-Service Call
+	Used Spring Boot RestTemplate / WebClient
+	String response = restTemplate.getForObject("http://ORDER-SERVICE/orders/1", String.class);
+
+2. Service Discovery
+	Used Netflix Eureka
+	Called service using service name (not hardcoded URL)
+
+3. Load Balancing: Used Spring Cloud LoadBalancer, Requests distributed across instances
+
+4. Resilience: Used Resilience4j, Circuit Breaker, Retry, Timeout
+
+5. API Gateway (Optional): Routed requests via gateway for security & routing
+6. Error Handling: Fallback methods, Global exception handling
+
+Flow: Service A → REST call → Service B
+	Eureka resolves instance
+	Load balancer picks instance
+	Response returned synchronously
+
+Key points (must say)
+	REST-based communication
+	Used Eureka for discovery
+	Load balancing enabled
+	Circuit breaker for fault tolerance
+
 ===================================================================================================
-*Q) You have implemented some REST endpoints for CRUD functionality, how will you share your contract with clients/other teams?*
+Q) You have implemented some REST endpoints for CRUD functionality, how will you share your contract with clients/other teams?
 ===================================================================================================
+Use Swagger/OpenAPI for documentation
+Share YAML/JSON contract
+Support versioning
+
 ===================================================================================================
-*Q) How did you implement security end to end?*
+Q) How did you implement security end to end?
 ===================================================================================================
+1. Authentication (Who are you?)
+	Used JWT-based authentication
+	User logs in → gets JWT token
+	Token sent in every request
+
+2. Authorization (What can you access?)
+	Role-based access (RBAC)
+	@PreAuthorize("hasRole('ADMIN')")
+
+3. Spring Security
+	Configured using Spring Security filters
+	Validates JWT on each request
+
+4. API Gateway Security
+	Token validated at gateway level
+	Prevents unauthorized access to services
+
+5. Secure Communication
+	Used HTTPS (TLS) between services
+	Avoid plain HTTP
+
+6. OAuth2 / External Identity Provider
+	Integrated with: Keycloak / Okta
+	✔️ Centralized authentication
+
+7. Inter-service Security: Passed JWT token between services, Or used service-to-service auth
+8. Data Security: Sensitive data encrypted (DB level), Passwords hashed (BCrypt)
+
+9. Protection mechanisms: CSRF disabled for stateless APIs, CORS configured, Rate limiting (API Gateway)
+
+10. Monitoring & Auditing: Logged security events, Alert on suspicious activity
+
+Key points (must say)
+	JWT + Spring Security
+	Role-based authorization
+	HTTPS everywhere
+	OAuth2 with IAM (Keycloak)
+	Gateway-level security
+
 ===================================================================================================
-*Q) Why Docker?*
+Q) Why Docker?
 ===================================================================================================
+Docker is used to package applications with all dependencies into containers for consistent deployment.
+Key Reasons
+1. Consistency across environments: “Works on my machine” problem solved, Same container runs in dev, QA, prod
+2. Lightweight & Fast: Containers share OS → faster than VMs, Quick startup
+3. Easy Deployment: Package app + dependencies → single image, Run anywhere (cloud, local, on-prem)
+4. Scalability: Easily scale containers (Kubernetes)
+5. Isolation: Each container runs independently, No dependency conflicts
+6. CI/CD Integration: Seamless integration with pipelines, Faster build & release
+7. Microservices Friendly: Each service runs in its own container
+
+Key points (must say)
+	Consistency + portability
+	Lightweight vs VMs
+	Faster deployments
+	Supports microservices & scaling
+
 ===================================================================================================
-*Q) K8 commands you used?*
+Q) K8 commands you used?
 ===================================================================================================
+1. Cluster & Nodes: 
+	kubectl get nodes
+	kubectl cluster-info
+2. Pods
+	kubectl get pods
+	kubectl describe pod <pod-name>
+	kubectl logs <pod-name>
+	kubectl delete pod <pod-name>
+3. Deployments
+	kubectl get deployments
+	kubectl apply -f deployment.yaml
+	kubectl scale deployment my-app --replicas=3
+	kubectl rollout status deployment my-app
+	kubectl rollout undo deployment my-app
+4. Services
+	kubectl get svc
+	kubectl expose deployment my-app --type=NodePort --port=80
+5. Namespaces
+	kubectl get ns
+	kubectl create ns dev
+	kubectl config set-context --current --namespace=dev
+6. ConfigMaps & Secrets
+	kubectl create configmap app-config --from-file=app.properties
+	kubectl create secret generic db-secret --from-literal=password=123
+7. Exec into Pod
+	kubectl exec -it <pod-name> -- /bin/bash
+8. Port Forwarding
+	kubectl port-forward pod/<pod-name> 8080:8080
+9. Resource Monitoring
+	kubectl top pod
+	kubectl top node
+
 ===================================================================================================
-*Q) How do you analyze logs of pods in your project?*
+Q) Explain the difference between a Pod and a Container in Kubernetes.
 ===================================================================================================
+🔹 Container
+	Smallest unit → runs the application
+	Contains: Code, Runtime Dependencies
+	Example: Docker container
+🔹 Pod
+	Smallest deployable unit in Kubernetes
+	Wrapper around one or more containers
+	👉 Provides: Shared IP & network, Shared storage (volumes)
+
+| Feature        | Container           | Pod                    |
+| -------------- | ------------------- | ---------------------- |
+| Level          | Runtime unit        | Deployment unit        |
+| Scope          | Single app instance | One or more containers |
+| Managed by K8s | ❌ No       	       | ✅ Yes         	|
+| Networking     | Own (Docker)        | Shared within pod      |
+| Usage          | Runs app            | Hosts containers       |
+
 ===================================================================================================
-*Q) Explain the difference between a Pod and a Container in Kubernetes.*
+Q) What is the difference between CI and CD?
 ===================================================================================================
+🔹 Continuous Integration (CI)
+	Developers push code → pipeline runs
+	Steps: Build, Unit tests, Code quality checks
+	✔️ Ensures code is always in working state
+
+🔹 Continuous Delivery (CD)
+	Code is automatically ready for release, Deployment to staging/QA, Manual approval for production
+
 ===================================================================================================
-*Q) What is the difference between CI and CD?*
+Q) Explain steps you used in CI/CD in your project.
 ===================================================================================================
+Code → Build → Test → Analyze → Dockerize → Push → Deploy → Monitor
 ===================================================================================================
-*Q) Explain steps you used in CI/CD in your project.*
-===================================================================================================
-===================================================================================================
+
 Java 8 features, including streams and new APIs.
 ORM mapping of tables to Java classes.
 
