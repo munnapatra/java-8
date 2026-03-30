@@ -12,8 +12,7 @@
 	✔️Store config in environment variables like in (dev,test, prod properties)
 	✔️No hardcoded configs, examples: DB URL, credentials, API keys
 
-🔹4. Backing Services: 
-	✔️Application consumes over the network is known as a backing service.
+🔹4. Backing Services:  Application consumes over the network is known as a backing service.
 	✔️Treat DBs, message brokers, caches as attached resources
 	✔️Easily swap services without code change, Example: MySQL → PostgreSQL
 

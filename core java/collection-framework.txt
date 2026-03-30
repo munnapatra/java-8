@@ -8,10 +8,10 @@ It is part of the java.util package and includes:
 	Utility Algorithms → sorting, searching, synchronization (via Collections class)
 
 ✅ Why Was Java Collection Framework Introduced?
-	Before JCF (pre-Java 1.2), Java had: Vector, Stack, Hashtable, Enumeration
+	Before Java Collection Framework (pre-Java 1.2), Java had: Vector, Stack, Hashtable, Enumeration
 	These were: Inconsistent, Not part of a unified hierarchy, Mostly synchronized (performance overhead), Lacked common interfaces
 	
-	🎯 Key Reasons for Introducing JCF
+	🎯 Key Reasons for Introducing Java Collection Framework
 		1️⃣ Standardization: 
 			Provide a common set of interfaces so developers can code against interfaces instead of implementations.
 			Example:
@@ -98,7 +98,7 @@ It is part of the java.util package and includes:
 				| LinkedList    | Doubly linked list | Queue/Deque       |
 
 4️⃣ Map Hierarchy (Separate from Collection)
-	⚠ Map does NOT extend Collection. Why? Because Map stores key-value pairs, not individual elements.
+	⚠ Map does NOT extend Collection. Because Map stores key-value pairs, not individual elements.
 			Map
 			 ├── HashMap
 			 ├── LinkedHashMap

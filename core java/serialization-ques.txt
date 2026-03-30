@@ -2,7 +2,7 @@
 =============================================================================================================
 🔹 Q1. What is serialization in Java? Why do we need serialization?
 =============================================================================================================
-✅ Serialization in Java is the process of converting an object’s state into a byte stream so that
+✅ Serialization in Java is the process of converting an object’s state into a bytecode stream so that
 it can be stored, transmitted, or persisted, and later reconstructed back into the same object through deserialization.
 
 ✅ Why Serialization is Needed

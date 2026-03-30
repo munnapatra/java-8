@@ -1,0 +1,174 @@
+✅ Mangerial Round Questions
+================================================================================================================
+🔹Q1. Would you recommend the Traditional or Agile SDLC project model to the client?
+================================================================================================================
+🔥 Agile allows iterative development, continuous feedback, faster delivery, and easier adaptation to changing business needs.
+
+👉 However, if the requirements are very clear, stable, and well-documented (e.g., government or compliance-heavy projects), then the Traditional/Waterfall model may be more suitable.
+
+🧠Conclusion:
+	✔️ Agile → Best for dynamic requirements and continuous delivery.
+	✔️ Traditional (Waterfall) → Best for fixed and well-defined requirements.
+	
+================================================================================================================
+🔹Q2. Describe your roles and responsibilities
+================================================================================================================
+1️⃣  Develop and expose RESTful APIs and integrate with frontend (e.g., Angular).
+2️⃣  Write unit and integration tests to ensure code quality.
+3️⃣  Work on microservices communication using REST or messaging systems.
+4️⃣  Perform code reviews, debugging, and production issue resolution.
+5️⃣  Collaborate with cross-functional teams (QA, DevOps, Product).
+6️⃣  Participate in analysis of level 1 design.
+7️⃣  Mentor junior developers and follow coding best practices.
+
+================================================================================================================
+🔹Q3. What strategies do you use to handle pressure in a work environment?
+================================================================================================================
+🔥 I manage pressure through prioritization, effective communication, and maintaining a positive mindset.
+
+1️⃣  Prioritization: 
+	I assess tasks based on urgency and importance, focusing on high-impact activities first.
+	For example, during a project deadline, I create a list of tasks and tackle the most critical ones first.
+
+2️⃣  Effective Communication:
+	I keep open lines of communication with my team and stakeholders to ensure everyone is aligned.
+	For instance, I hold brief daily check-ins to address any concerns and adjust plans as needed.
+
+3️⃣  Positive Mindset:
+	I practice mindfulness techniques, such as deep breathing or short breaks, to maintain focus and reduce stress.
+	This helps me stay calm and composed during high-pressure situations.
+
+4️⃣  Delegation:
+	I recognize when to delegate tasks to team members based on their strengths, which not only eases my workload but also empowers them. For example, I assign specific tasks to team members who excel in those areas.
+
+================================================================================================================
+🔹Q4. How I Estimate Project Timelines
+================================================================================================================
+1️⃣  Requirement Analysis: Break the requirement into features, user stories, and tasks.
+
+2️⃣  Task Breakdown (WBS): Divide into smaller tasks like API development, DB design, integration, testing.
+
+3️⃣  Effort Estimation
+	Use techniques like:
+		Story Points (Agile)
+		T-shirt sizing
+		Expert judgement / past project reference
+
+4️⃣  Add Dependencies & Buffer: Consider integration, testing, deployment, and risk buffer (10–20%).
+
+5️⃣  Team Capacity Planning: Estimate based on team size, sprint capacity, and velocity.
+
+================================================================================================================
+🔹Q5. Approach to Code Reviews
+================================================================================================================
+✔️ Verify the code meets business requirements and acceptance criteria.
+✔️ Ensure clean code, readability, proper naming conventions, and modular design.
+✔️ Check compliance with coding standards, design patterns, and project guidelines.
+✔️ Review for efficient algorithms, proper resource handling, and security issues.
+✔️ Ensure adequate unit test coverage and edge cases are handled.
+✔️ Use tools like SonarQube, Checkstyle, PMD to detect issues.
+✔️ Provide clear and respectful suggestions to improve the code.
+
+🔥 Conclusion:
+	By combining manual review, automated tools, and coding standards, I ensure maintainable, secure, and high-quality code.
+
+================================================================================================================
+🔹Q6. Describe a time you had to mentor a junior developer" or "How do you handle disagreements on technical approaches within your team?
+================================================================================================================
+1️⃣ . Mentoring a Junior Developer
+	Situation: A junior developer in my team was struggling with Spring Boot microservice development and debugging production issues.
+	Action: 
+		I explained the microservice flow, logging, and debugging techniques.
+		Did pair programming sessions to guide them on best practices.
+		Reviewed their code and gave constructive feedback.
+		Shared design patterns and clean coding practices.
+	
+	Result: The developer improved quickly, started delivering features independently, and the overall team productivity increased.
+
+2️⃣ . Handling Technical Disagreements
+	Approach: 
+		Listen to all viewpoints and understand the reasoning.
+		Evaluate options based on technical factors like scalability, maintainability, and performance.
+		Discuss pros and cons with the team using data or past experience.
+		If needed, run a small POC to validate the approach.
+		Align with team consensus or architect decision.
+
+Conclusion: The goal is always to choose the best technical solution while maintaining a healthy team collaboration.
+
+================================================================================================================
+🔹Q7. How do you handle critical technical issues (production support) and resolve them within SLAs?
+================================================================================================================
+1️⃣  Immediate Acknowledgement: Quickly acknowledge the issue and analyze logs, monitoring tools (Splunk, ELK, etc.).
+
+2️⃣  Impact Analysis: Identify affected services, endpoints, and users to understand severity.
+
+3️⃣  Quick Mitigation: Restart service if required, Rollback recent deployment, Apply temporary fix or feature toggle
+
+4️⃣  Root Cause Analysis (RCA): Debug using logs, metrics, thread dumps, and database queries.
+
+5️⃣  Fix & Validate: Implement the fix, test in lower environment if possible, and deploy safely.
+
+6️⃣  Communication: Provide regular updates to stakeholders and support teams.
+
+7️⃣  Post-Incident Action: Document RCA, preventive measures, and monitoring improvements.
+
+8️⃣  Interview Closing Line: "My focus is first to restore service within SLA and then perform proper RCA to prevent recurrence."
+
+================================================================================================================
+🔹Q8. How would you design a scalable microservices architecture
+================================================================================================================
+1️⃣  Service Decomposition: Break the system into small, independent services based on business capabilities (DDD).
+
+2️⃣  API Communication: Use REST or gRPC for synchronous calls and Kafka/RabbitMQ for asynchronous communication.
+
+3️⃣  Service Discovery: Use tools like Consul / Eureka so services can dynamically find each other.
+
+4️⃣  API Gateway: Place an API Gateway for routing, authentication, rate limiting, and load balancing.
+
+5️⃣  Database per Service: Each microservice should have its own database to maintain loose coupling.
+
+6️⃣  Scalability & Load Balancing: Deploy services in containers (Docker) with Kubernetes and scale horizontally.
+
+7️⃣  Caching: Use Redis or Caffeine to reduce database load and improve response time.
+
+8️⃣  Resilience Patterns: Implement Circuit Breaker, Retry, Timeout (Resilience4j) to handle failures.
+
+9️⃣  Centralized Logging & Monitoring: Use ELK stack, Prometheus, Grafana for observability.
+
+🔟 Security: Secure APIs using OAuth2 / JWT with Spring Security.
+
+Conclusion:
+A scalable microservices architecture focuses on loose coupling, independent deployment, fault tolerance, and horizontal scalability
+
+================================================================================================================
+🔹Q9. If a system is experiencing high latency, what is your debugging approach?
+================================================================================================================
+1️⃣  Identify the Bottleneck
+	Check APM/monitoring tools (Prometheus, Grafana, New Relic) to see whether latency is from API, database, network, or external service.
+
+2️⃣  Analyze Logs & Metrics: Review application logs, response times, thread pools, and CPU/memory usage.
+
+1️⃣  Check Database Performance: Look for slow queries, missing indexes, locks, or large scans.
+
+1️⃣  Review External API Calls: Verify if third-party services or microservice calls are slow.
+
+1️⃣  Thread & Resource Analysis: Check thread dumps, connection pool usage, and blocking operations.
+
+1️⃣  Caching Opportunity: Identify if frequently requested data can be cached (Redis/Caffeine).
+
+1️⃣  Load & Scaling: Verify if the service needs horizontal scaling or load balancing.
+
+Conclusion:
+I isolate the exact bottleneck (application, DB, network, or external service) using monitoring and logs, then apply optimization like query tuning, caching, or scaling.
+
+================================================================================================================
+🔹Q10. Explain the difference between monolith and microservices, and when to use which.
+================================================================================================================
+| Aspect          | Monolith                            | Microservices                                     |
+| --------------- | ----------------------------------- | ------------------------------------------------- |
+| Architecture    | Single application with all modules | Multiple small independent services               |
+| Deployment      | Entire app deployed together        | Each service deployed independently               |
+| Scalability     | Scale whole application             | Scale individual services                         |
+| Technology      | Usually single tech stack           | Different services can use different technologies |
+| Fault Isolation | Failure may affect entire system    | Failure isolated to one service                   |
+| Development     | Easier to start and manage          | More complex (network, monitoring, etc.)     

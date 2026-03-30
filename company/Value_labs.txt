@@ -1,12 +1,44 @@
 valuelabs
-===========
-abstraction, encapsulation, polymorphism, inheritence in java
-design library system that has books, members and staff ensuring oop principles are applied
+===================================================================================================
+🔹Q1. Explain oops pilar in java and their difference to each other.
+===================================================================================================
+1. Encapsulation: Wrapping data (variables) + methods into a single unit (class) and restricting direct access using private fields + public getters/setters to get benefit of Data hiding, better control.
+
+2. Inheritance: One class acquires properties of another using extends keyword to get benifit of code reuse.
+
+3. Polymorphism: Same method behaves differently.
+	Types:
+	Compile-time (Method Overloading)
+	Runtime (Method Overriding)
+
+4. Abstraction: Hiding implementation, showing only essential details using either Abstract class / Interface to get benefit of Focus on “what” not “how”.
+
+| Pillar        | Focus          | Key Idea                        | Example Use    |
+| ------------- | -------------- | ------------------------------- | -------------- |
+| Encapsulation | Data hiding    | Restrict access                 | Private fields |
+| Inheritance   | Code reuse     | Parent-child relationship       | `extends`      |
+| Polymorphism  | Flexibility    | Same method, different behavior | Overriding     |
+| Abstraction   | Simplification | Hide complexity                 | Interface      |
+
+===================================================================================================
+🔹Q2. Design library system that has books, members and staff ensuring oop principles are applied
+===================================================================================================
+
 🔹 OOP Principles Applied
 Encapsulation → private fields + methods
 Inheritance → Member, Staff extends Person
 Abstraction → Person as abstract class
 Polymorphism → different behavior for borrowBook()
+🔹 Book Class
+class Book {
+    private String title;
+    private String author;
+    private String isbn;
+    private boolean isAvailable;
+
+    public void issue() { isAvailable = false; }
+    public void returnBook() { isAvailable = true; }
+}
 
 abstract class Person {
     protected String name;
@@ -25,16 +57,7 @@ class Staff extends Person {
     public void removeBook(Book book) {}
 }
 
-🔹 Book Class
-class Book {
-    private String title;
-    private String author;
-    private String isbn;
-    private boolean isAvailable;
 
-    public void issue() { isAvailable = false; }
-    public void returnBook() { isAvailable = true; }
-}
 🔹 Library Class
 class Library {
     private List<Book> books;
@@ -45,74 +68,303 @@ class Library {
     public Book searchByTitle(String title) { return null; }
 }
 
-jre, jdk, jvm, jit
+===================================================================================================
+🔹Q3. JVM vs JRE vs JDK vs JIT
+===================================================================================================
+JVM (Java Virtual Machine)
+	Runs Java bytecode (.class), Platform-dependent implementation. Handles memory, GC, execution
+	Enables “write once, run anywhere”
 
-stack vs heap
-hascode used for , how its related with equals()
-compile time constant, what is the risk of using it
+JRE (Java Runtime Environment)
+	JVM + Libraries, Used to run Java apps, No development tools
+	👉 JRE = JVM + standard class libraries
+
+JDK (Java Development Kit)
+	JRE + Development tools, Used to develop + run Java apps. Includes tools like: javac (compiler), jdb, jar
+	👉 JDK = JRE + tools
+
+JIT (Just-In-Time Compiler)
+	Part of JVM, Converts bytecode → native machine code at runtime, Improves performance by avoiding repeated interpretation
+
+===================================================================================================
+🔹Q4. Stack vs Heap
+===================================================================================================
+👉Stack Memory
+	Stores method calls + local variables
+	LIFO structure
+	Fast access ⚡
+	Memory managed automatically (push/pop)
+	Thread-specific (each thread has its own stack)
+	Size is limited → can cause StackOverflowError
+	
+👉Heap Memory
+	Stores objects + instance variables
+	Shared across threads
+	Slower than stack
+	Managed by Garbage Collector (GC)
+	Larger memory area
+	Can cause OutOfMemoryError
+	
+===================================================================================================
+🔹Q5. Use of hascode and how its related with equals()
+===================================================================================================
+👉 equals()
+		Used to check logical equality
+		Default → compares memory reference
+		Override to compare content
+			@Override
+			public boolean equals(Object o) {
+				if (this == o) return true;
+				if (!(o instanceof Person)) return false;
+				Person p = (Person) o;
+				return this.id == p.id;
+			}
+			
+👉 hashCode()
+		Returns int hash value for object
+		Used in HashMap, HashSet, Hashtable
+		Helps in bucket placement
+			@Override
+			public int hashCode() {
+				return Objects.hash(id);
+			}
+			
+👉 Relationship (VERY IMPORTANT)
+	If equals() → true, then hashCode() must be same
+	If hashCode() same → equals() may or may not be true
+	
+Why needed together
+	Hash-based collections:
+			First → hashCode() to find bucket
+			Then → equals() to find exact object
+
+	Problem if not overridden
+		Duplicate objects in HashSet
+		Retrieval fails in HashMap
+
+In HashMap
+hashCode() → find bucket
+equals() → confirm exact key
+
+===================================================================================================
+What is compile time constant, what is the risk of using it
+===================================================================================================
+A value resolved at compile time
+	Declared as: static final int MAX = 100;
+	Typically primitives or String literals
+	Where stored: In constant pool, Compiler inlines the value wherever used
+
+Risk of using it ⚠️
+	Inlining issue:
+		Value is copied into dependent classes at compile time
+		If constant changes → dependent classes must be recompiled
+
+		Example
+		// Class A
+		public static final int VALUE = 10;
+
+		// Class B
+		System.out.println(A.VALUE);
+
+	👉 If VALUE changes to 20 and only A is recompiled: B still prints 10 ❌
+
+Other risks: Version mismatch bugs, Hard to track changes in large systems, Breaks backward compatibility in libraries
+
+Best Practice
+Avoid public compile-time constants in libraries
+Use: getters, enums, config files
+
+===================================================================================================
 HashTable vs HashMap
-write a code to remove elements from ArrayList while iterating 
+===================================================================================================
+| Feature       | HashMap            | HashTable            |
+| ------------- | ------------------ | -------------------- |
+| Thread-safe   | ❌ No        	     | ✅ Yes (synchronized) |
+| Performance   | Faster             | Slower               |
+| Null handling | 1 key, many values | No nulls             |
+| API           | Modern             | Legacy               |
+
+===================================================================================================
 Best practices you apply while using collections in java
+===================================================================================================
+1. Program to Interface: 
+	List<String> list = new ArrayList<>();
+	👉 Flexibility to switch implementations
+
+2. Choose Right Collection
+	ArrayList → read-heavy
+	LinkedList → frequent insert/delete
+	HashMap → fast lookup
+	TreeMap → sorted data
+	
+3. Use Generics
+	List<Integer> list = new ArrayList<>();
+	👉 Type safety, no casting
+
+4. Prefer Concurrent Collections
+	Use ConcurrentHashMap instead of HashMap in multithreading, 👉 Better performance than synchronization
+	
+5. Avoid Nulls
+	👉 Prevent NPE & inconsistent behavior
+
+6. Use equals() & hashCode() properly
+	👉 Required for correct behavior in HashMap, HashSet
+
+7. Use removeIf, Streams
+	list.removeIf(x -> x > 10);
+	👉 Cleaner, safer code
+
+8. Initialize with Capacity: 
+	new ArrayList<>(1000);
+	👉 Avoid resizing overhead
+
+9. Prefer Immutable Collections
+	List.of("A", "B");
+	👉 Thread-safe, safer
+
+10. Avoid Over-synchronization
+	👉 Don’t use Vector / Hashtable (legacy)
+	
+===================================================================================================
 Which design pattern you have used in your project
+===================================================================================================
+===================================================================================================
 Composition vs Agreegation Vs Association
-Checked Vs Unchecked Exceptions
+===================================================================================================
+1. Association: General relationship between two classes, No ownership, Can be one-to-one / one-to-many
+	class Teacher {
+		List<Student> students;
+	}
+	👉 Just “uses” relationship
+
+2. Aggregation (HAS-A, weak): Whole–part relationship, Part can exist independently
+	class Department {
+		List<Teacher> teachers;
+	}
+	👉 If Department is deleted, Teachers still exist
+
+3. Composition (HAS-A, strong): Strong ownership, Part cannot exist without whole
+	class House {
+		private Room room = new Room();
+	}
+	👉 If House is deleted, Room is also gone
+
+===================================================================================================
 Difference between Serializable and Externalizable
-Java String pool
+===================================================================================================
+Serializable: Marker interface (java.io.Serializable), 
+	Default serialization handled by JVM
+	No control over how object is serialized
+	Easier to use
+		class User implements Serializable {
+			int id;
+			String name;
+		}
+		
+Externalizable
+	Extends Serializable
+	Full control over serialization
+	Must override:
+		writeExternal()
+		readExternal()
+	
+	class User implements Externalizable {
+		int id;
+		String name;
+
+		public void writeExternal(ObjectOutput out) throws IOException {
+			out.writeInt(id);
+			out.writeObject(name);
+		}
+
+		public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+			id = in.readInt();
+			name = (String) in.readObject();
+		}
+	}
+
+===================================================================================================
 String Vs StringBuffer Vs StringBuilder
-Can you design ATM
-Bean in Spring
-Scope of Spring Bean
-Have you implemented Security to your application
+===================================================================================================
+| Feature     | String    | StringBuffer       | StringBuilder |
+| ----------- | --------- | ------------------ | ------------- |
+| Mutability  | Immutable | Mutable            | Mutable       |
+| Thread-safe | Yes       | Yes (synchronized) | No            |
+| Performance | Slow      | Medium             | Fastest       |
 
+===================================================================================================
 *Q) How do you monitor your spring boot application on prod?*
+===================================================================================================
 
+===================================================================================================
 *Q) What is service discovery? Why do you need multiple Eurekas?*
+===================================================================================================
 
+===================================================================================================
 *Q) What is circuit breaker DP?*
-
+===================================================================================================
+===================================================================================================
 *Q) How do you handle transactions across multiple microservices?*
-
+===================================================================================================
+===================================================================================================
 *Q) How do microservices communicate with each other?*
-
+===================================================================================================
+===================================================================================================
 *Q) Explain the architecture of Kafka.*
-
+===================================================================================================
+===================================================================================================
 *Q) How did you implement Kafka in your project?*
-
+===================================================================================================
+===================================================================================================
 *Q) What is Zookeeper in Kafka? Can Kafka be used without Zookeeper?*
-
+===================================================================================================
+===================================================================================================
 *Q) What do you mean by ISR in Kafka environment?*
-
+===================================================================================================
+===================================================================================================
 *Q) What is consumer lag?*
-
+===================================================================================================
+===================================================================================================
 *Q) What is marking the offset as soon as you read the message from Kafka broker?*
-
+===================================================================================================
+===================================================================================================
 *Q) How did you implement synchronous communication between microservices?*
-
+===================================================================================================
+===================================================================================================
 *Q) You have implemented some REST endpoints for CRUD functionality, how will you share your contract with clients/other teams?*
-
+===================================================================================================
+===================================================================================================
 *Q) How did you implement security end to end?*
-
+===================================================================================================
+===================================================================================================
 *Q) Why Docker?*
-
+===================================================================================================
+===================================================================================================
 *Q) K8 commands you used?*
-
+===================================================================================================
+===================================================================================================
 *Q) How do you analyze logs of pods in your project?*
-
+===================================================================================================
+===================================================================================================
 *Q) Explain the difference between a Pod and a Container in Kubernetes.*
-
+===================================================================================================
+===================================================================================================
 *Q) What is the difference between CI and CD?*
-
+===================================================================================================
+===================================================================================================
 *Q) Explain steps you used in CI/CD in your project.*
-
+===================================================================================================
+===================================================================================================
 Java 8 features, including streams and new APIs.
 ORM mapping of tables to Java classes.
-Differences between @Bean and @Component annotations.
+
 Implementing pagination and caching in Spring Boot applications.
-The purpose of @ControllerAdvice in Spring.
+
 Lazy loading in Hibernate and writing complex queries.
 Differences between Gradle and Maven, and the purpose of the pom.xml file in Maven.
 Continuous integration in Jenkins and writing JUnit test cases.
 Practical coding questions, such as finding the second highest salary and the Nth smallest element using Java 8 streams, and summing even numbers in a list with streams.
+
 Frontend Development:
 
 Data binding in Angular, including the types deployed.
@@ -123,9 +375,6 @@ Angular components, modules, and services.
 Promises and Observables in Angular, and using ngFor.
 Sharing data between components, router links, and HTTP interceptors.
 Error handling in observables and Angular lifecycle hooks.
-Watch this video to gain deep insights and practical knowledge from Abhishek's approach to these complex topics and coding challenges.
-
-
 
 Data Structures & Algorithms: Arrays, HashMaps, Stacks, Queues, Trees, Graphs. • Java Core Concepts: OOP principles, Exception Handling, Streams API. • Multi-threading & Concurrency: Threads, Executors, Synchronization. • SQL Queries: Joins, Aggregation, Optimization.
 
@@ -192,7 +441,8 @@ Exactly-once vs At-least-once
 Write query: 2nd highest salary
 Indexing – when & why
 Normalization vs Denormalization
-Transactions & isolation levels
+Transactions & isolation level
+
 🔹 Angular (Advanced)
 Core
 Lifecycle hooks order
@@ -214,27 +464,90 @@ Dynamic form creation
 Directives / Pipes
 Create custom pipe
 Structural vs Attribute directive
+
 🔹 System Design (Must for 7+)
 Design Library Management System
 Design Kafka-based event system
 Design scalable search system (Solr/Elastic)
 How to handle high traffic APIs
+
 🔹 Real-time / Scenario
 How did you handle production issue?
 How to improve API performance?
 How to debug slow SQL query?
 Handling concurrent requests?
+
 🔹 Coding
 Flatten nested list (Streams)
 LRU Cache
 String/Array problems
+
 🔹 Behavioral
 Why change?
 Challenging project
 Leadership experience
-✅ What ValueLabs focuses on
 
-👉 Kafka + Microservices (high priority)
-👉 Hands-on coding + real scenarios
-👉 Angular RxJS depth
-👉 Production experience
+🔹 System Design & Architecture
+Design a high-throughput REST API
+How do you design scalable microservices architecture
+Monolith vs Microservices – when to choose?
+How do you ensure fault tolerance & resiliency
+Explain circuit breaker pattern
+How do you handle distributed transactions
+API Gateway vs Load Balancer
+
+🔹 Java & Backend (8+ yrs focus)
+How does JVM memory model work?
+Difference: HashMap vs ConcurrentHashMap
+How do you prevent memory leaks
+Explain thread pool & @Async
+CompletableFuture vs ExecutorService
+How does Spring Boot auto-configuration work?
+@Transactional propagation levels
+
+🔹 Database & Performance
+How to optimize slow SQL queries
+Indexing types & when to use
+SQL vs NoSQL – real scenarios
+How to handle millions of records
+Pagination vs Streaming
+Explain database sharding & partitioning
+
+🔹 Microservices & Distributed Systems
+How do you handle service-to-service communication
+REST vs Kafka (when to use)
+How do you ensure data consistency
+Saga pattern vs 2PC
+How do you manage configuration & secrets
+How to implement rate limiting
+
+🔹 Kafka / Messaging
+How does Apache Kafka work internally?
+Partitioning & consumer groups
+Exactly-once vs At-least-once
+How do you handle message failures / retries
+
+🔹 API & Security
+How to secure APIs using JWT & OAuth2
+Difference: Authentication vs Authorization
+How do you prevent common attacks (XSS, CSRF)
+API versioning strategies
+
+🔹 Coding / Problem Solving
+Merge intervals
+LRU Cache implementation
+Thread-safe singleton
+Stream API transformations
+Null-safe coding practices
+
+🔹 DevOps & Production Issues
+Steps if service is down after deployment
+Blue-green vs Canary deployment
+Logging & monitoring tools (ELK, Prometheus)
+How do you debug production issues
+
+🔹 Behavioral / Leadership
+How do you handle conflicts in team
+Mentoring juniors example
+Handling tight deadlines
+Ownership of a failed release
