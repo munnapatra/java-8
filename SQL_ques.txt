@@ -1,0 +1,586 @@
+What is normalization? Explain 1NF–5NF.
+=================================================================================================================================
+Normalization: Process of organizing data to reduce redundancy and avoid anomalies (insert/update/delete).
+
+🔹 1NF (First Normal Form)
+No repeating groups, all values are atomic
+Each column holds single value
+
+👉 Example:
+❌ Phone: 123,456
+✅ Separate rows for each phone
+
+🔹 2NF (Second Normal Form)
+Must be in 1NF
+No partial dependency (non-key fully depends on whole primary key)
+
+👉 Used when composite key exists
+
+🔹 3NF (Third Normal Form)
+Must be in 2NF
+No transitive dependency (non-key depends only on key)
+
+👉 Example:
+EmpID → DeptID → DeptName ❌
+Fix: Separate Dept table
+
+🔹 BCNF (Boyce-Codd Normal Form)
+Stronger than 3NF
+Every determinant must be a candidate key
+
+👉 Fixes edge cases not handled in 3NF
+
+🔹 4NF (Fourth Normal Form)
+No multi-valued dependencies
+
+👉 Example:
+Student → multiple courses & hobbies
+Split into separate tables
+
+🔹 5NF (Fifth Normal Form)
+No join dependency
+Data cannot be further decomposed without loss
+
+👉 Used in complex many-to-many relationships
+=================================================================================================================================
+What is denormalization? When would you use it?
+=================================================================================================================================
+=================================================================================================================================
+Difference between WHERE and HAVING.
+Difference between DELETE, TRUNCATE, DROP.
+What are constraints? Types?
+What is a primary key vs unique key?
+What is a composite key?
+What is a surrogate key?
+What is a check constraint?
+What is a default constraint?
+What is a view? Types?
+Can we update a view?
+What is a materialized view?
+What is indexing? Types?
+Clustered vs Non-clustered index?
+What is covering index?
+What is composite index?
+What is index scan vs index seek?
+What is query execution plan?
+How to optimize a slow query?
+What is cardinality?
+🔹 Joins & Queries
+Types of joins?
+Difference between INNER and OUTER join?
+Self join use case?
+Cross join?
+What is correlated subquery?
+Subquery vs join – which is faster?
+EXISTS vs IN?
+UNION vs UNION ALL?
+How to remove duplicates?
+How to find nth highest salary?
+How to find duplicate records?
+How to delete duplicate records?
+How to pivot rows into columns?
+What are window functions?
+Difference between RANK, DENSE_RANK, ROW_NUMBER?
+What is PARTITION BY?
+What is CTE?
+Recursive CTE use case?
+How to perform pagination?
+🔹 Transactions & Concurrency
+What is ACID?
+What is isolation level?
+Types of isolation levels?
+What is dirty read?
+What is non-repeatable read?
+What is phantom read?
+What is deadlock?
+How to prevent deadlocks?
+What is optimistic vs pessimistic locking?
+What is MVCC?
+How does DB handle concurrent updates?
+🔹 Indexing & Performance
+When index should not be used?
+How to analyze query performance?
+What is fragmentation?
+What is fill factor?
+What is statistics in DB?
+How to improve join performance?
+How to optimize large table queries?
+What is partitioning?
+Types of partitioning?
+When to use sharding?
+What is connection pooling?
+What is execution plan cost?
+🔹 Database Design
+How to design schema for high traffic system?
+OLTP vs OLAP?
+Star vs Snowflake schema?
+What is fact table?
+What is dimension table?
+How to design audit tables?
+How to design soft delete?
+How to implement versioning?
+How to design idempotent DB operations?
+🔹 Advanced SQL
+What are window frames?
+What is LAG/LEAD?
+What is MERGE statement?
+What are stored procedures?
+Function vs procedure?
+Trigger use cases?
+What is cursor?
+When to avoid cursor?
+What is dynamic SQL?
+What is indexing strategy for composite columns?
+What is database replication?
+Types of replication?
+What is CDC (Change Data Capture)?
+What is database failover?
+🔹 Production & Real-Time Scenarios
+How to handle DB migration without downtime?
+How to handle large data cleanup?
+How to archive historical data?
+How to design multi-tenant DB?
+How to scale RDBMS horizontally?
+How to implement read replicas?
+How to debug slow production queries?
+How to monitor DB health?
+What metrics do you track?
+How to handle schema changes in microservices?
+How to avoid N+1 query problem?
+How to implement caching strategy?
+How to handle hot partitions?
+How to implement rate limiting at DB level?
+When to move from RDBMS to NoSQL?
+
+If you want, I can next give:
+
+🔥 Top 50 most frequently asked only
+🔥 Scenario-based real production questions
+🔥 Hands-on SQL coding problems for interviews
+🔥 Company-wise SQL questions (Amazon, Walmart, etc.)
+
+Tell me which one you want next.
+
+Top 50 most frequently asked only
+
+Since you prefer short, interview-level answers, here are the Top 50 most frequently asked SQL/RDBMS questions (5+ years level):
+
+🔹 Fundamentals
+What is normalization? Explain 1NF–3NF.
+What is denormalization? When would you use it?
+What are ACID properties?
+What is a primary key?
+Primary key vs Unique key?
+What are constraints in SQL?
+What is a foreign key?
+What is indexing?
+Clustered vs Non-clustered index?
+What is a composite index?
+🔹 Queries & Joins
+Types of joins?
+INNER vs LEFT JOIN?
+What is a self join?
+What is a subquery?
+Correlated vs non-correlated subquery?
+EXISTS vs IN?
+UNION vs UNION ALL?
+WHERE vs HAVING?
+How to find duplicate records?
+How to get nth highest salary?
+🔹 Window Functions
+What is a window function?
+ROW_NUMBER vs RANK vs DENSE_RANK?
+What is PARTITION BY?
+What is LAG and LEAD?
+How to perform pagination in SQL?
+🔹 Transactions & Concurrency
+What is isolation level?
+Types of isolation levels?
+What is dirty read?
+What is phantom read?
+What is deadlock?
+How to prevent deadlocks?
+Optimistic vs pessimistic locking?
+What is MVCC?
+🔹 Performance & Optimization
+What is execution plan?
+Index scan vs index seek?
+How to optimize a slow query?
+When index should not be used?
+What is partitioning?
+What is sharding?
+How to avoid N+1 query problem?
+🔹 Database Design
+OLTP vs OLAP?
+Star vs Snowflake schema?
+What is a fact table?
+What is a dimension table?
+How to design audit tables?
+🔹 Advanced / Production
+What is stored procedure?
+Trigger use cases?
+What is replication?
+How to handle zero-downtime schema migration?
+When would you move from RDBMS to NoSQL?
+=================================================================================================================================
+=================================================================================================================================
+Difference between SQL and NoSQL
+=================================================================================================================================
+=================================================================================================================================
+
+Types of SQL commands
+=================================================================================================================================
+=================================================================================================================================
+
+DDL
+
+DML
+
+DCL
+
+TCL
+=================================================================================================================================
+=================================================================================================================================
+
+Difference between CHAR vs VARCHAR
+=================================================================================================================================
+=================================================================================================================================
+
+What is a schema
+=================================================================================================================================
+=================================================================================================================================
+What is a view
+=================================================================================================================================
+=================================================================================================================================
+Difference between view and materialized view
+=================================================================================================================================
+=================================================================================================================================
+What is a temporary table
+=================================================================================================================================
+=================================================================================================================================
+What are SQL constraints?
+=================================================================================================================================
+=================================================================================================================================
+Types of constraints
+=================================================================================================================================
+=================================================================================================================================
+Primary key
+
+Foreign key
+
+Unique key
+
+Not null
+
+Check constraint
+
+Default constraint
+
+Composite key
+
+=================================================================================================================================
+=================================================================================================================================
+
+Types of joins
+=================================================================================================================================
+=================================================================================================================================
+Inner join
+
+Left join
+
+Right join
+
+Full join
+
+Self join
+
+Cross join
+=================================================================================================================================
+=================================================================================================================================
+Difference between join and subquery
+=================================================================================================================================
+=================================================================================================================================
+When to use self join
+=================================================================================================================================
+=================================================================================================================================
+Performance of joins
+=================================================================================================================================
+=================================================================================================================================
+What is GROUP BY
+=================================================================================================================================
+=================================================================================================================================
+What is HAVING
+=================================================================================================================================
+=================================================================================================================================
+Difference between WHERE and HAVING
+=================================================================================================================================
+=================================================================================================================================
+Aggregate functions
+=================================================================================================================================
+=================================================================================================================================
+COUNT
+
+SUM
+
+AVG
+
+MAX
+
+MIN
+=================================================================================================================================
+=================================================================================================================================
+Multiple column group by
+=================================================================================================================================
+=================================================================================================================================
+What is a subquery?
+=================================================================================================================================
+=================================================================================================================================
+Types of subqueries
+=================================================================================================================================
+=================================================================================================================================
+Correlated subquery
+=================================================================================================================================
+=================================================================================================================================
+Non-correlated subquery
+=================================================================================================================================
+=================================================================================================================================
+Subquery vs join
+
+EXISTS vs IN
+
+ANY vs ALL
+
+6. Window Functions (Very Important)
+
+What are window functions?
+
+Difference between GROUP BY and window function
+
+ROW_NUMBER
+
+RANK
+
+DENSE_RANK
+
+LEAD
+
+LAG
+
+NTILE
+
+Running totals
+
+Partition by
+
+Example
+
+SELECT name, salary,
+ROW_NUMBER() OVER (PARTITION BY dept ORDER BY salary DESC)
+FROM employee;
+7. Indexing
+
+What is an index?
+
+Types of indexes
+
+Clustered index
+
+Non-clustered index
+
+Composite index
+
+Unique index
+
+Covering index
+
+Bitmap index
+
+When indexes should not be used
+
+How indexes improve performance
+
+8. Transactions
+
+What is a transaction?
+
+ACID properties
+
+Transaction states
+
+Commit vs rollback
+
+Savepoint
+
+Autocommit
+
+9. Isolation Levels
+
+Read uncommitted
+
+Read committed
+
+Repeatable read
+
+Serializable
+
+Problems
+
+Dirty read
+
+Non-repeatable read
+
+Phantom read
+
+10. Locks & Concurrency
+
+What is locking?
+
+Types of locks
+
+Shared lock
+
+Exclusive lock
+
+Row level locking
+
+Table level locking
+
+Deadlock
+
+Deadlock prevention
+
+11. Performance Optimization (Very Important for 8+)
+
+How to optimize slow queries
+
+Explain execution plan
+
+Index scan vs table scan
+
+Query cost
+
+Partitioning
+
+Denormalization
+
+Sharding
+
+Query caching
+
+Batch inserts
+
+Pagination optimization
+
+12. Normalization
+
+What is normalization?
+
+1NF
+
+2NF
+
+3NF
+
+BCNF
+
+Denormalization
+
+Trade-offs
+
+13. Advanced SQL
+
+Common Table Expressions (CTE)
+
+Recursive queries
+
+Pivot and unpivot
+
+Materialized views
+
+Stored procedures
+
+Triggers
+
+Functions
+
+14. Data Modeling
+
+Entity relationships
+
+Star schema
+
+Snowflake schema
+
+Fact table
+
+Dimension table
+
+15. Data Warehousing
+
+OLTP vs OLAP
+
+ETL process
+
+Slowly changing dimensions
+
+Data lake vs data warehouse
+
+16. SQL Coding Questions (Very Common)
+
+Find second highest salary
+
+Find Nth highest salary
+
+Find duplicate records
+
+Delete duplicate records
+
+Find employees without manager
+
+Find employees with highest salary per department
+
+Running total
+
+Top N per group
+
+Find gaps in sequence
+
+Find consecutive records
+
+17. Real Production Questions (Very Important)
+
+How to handle millions of records
+
+How to design high throughput database
+
+Handling slow queries in production
+
+Index strategy for large tables
+
+Database connection pooling
+
+Handling database failover
+
+Read replica usage
+
+Database sharding
+
+Handling data migration
+
+Backward compatible schema changes
+
+18. SQL vs Java Integration
+
+JDBC working
+
+PreparedStatement vs Statement
+
+Connection pooling
+
+ORM vs native SQL
+
+Hibernate query optimization
+
+N+1 problem
+
+Lazy vs eager loading

@@ -1,0 +1,270 @@
+Coforge
+==================
+Immutability & String Manipulation
+
+Explain the concept of immutability in Java. Are strings immutable? (7:12)
+If strings are immutable, what happens when you perform a concatenation operation like str1 + str2? Can you example how it works under the hood? (7:33)
+When should I use String vs StringBuilder? (8:00)
+If you are working on a multi-threaded application, how would you choose between using a StringBuilder and StringBuffer? (8:22)
+
+Object-Oriented Programming (OOP) Concepts
+
+Have you worked on any OOP concepts of Java? (8:48)
+Can you think of a situation where polymorphism might lead to an issue such as in a scenario with overridden methods? How would you resolve it? (9:05)
+Explain polymorphism and different types of it. (9:32)
+Can you explain how method overloading and method overriding differ in terms of polymorphism and give an example where you would use each? (9:52)
+Spring Boot
+
+What's the default server in Spring Boot? (10:17)
+If you wanted to change the default embedded Tomcat server from Tomcat to Jetty in Spring Boot, what configuration changes would you need to make and what impact might that have on performance? (10:34)
+How are beans created in Spring Boot? (11:04)
+Imagine you have two beans of the same type but need to inject a specified one based on some runtime condition. How would you achieve this in Spring Boot? (11:21)
+
+JPA (Java Persistence API)
+
+What is JPA? (11:47)
+Can you explain the difference between one-to-many and many-to-one relationships in JPA, and give an example when you would use each in a real-world scenario? (12:07)
+
+REST APIs
+
+Have you worked on APIs? Tell me the process to create REST API in Spring Boot. (13:33)
+If you are building a REST API with Spring Boot and you need to handle versioning, what strategies would you use to version the API? (13:59)
+
+Coding Questions
+
+Write a program to create an object of a student class having ID, name, marks, and sorted by marks using a stream. (13:21)
+Print the palindromic strings from the list of strings by using a stream. (13:30)
+
+
+📌 Round 1 : ( Technical ) 
+👉 : Explain about your project , how long is your sprint ?
+👉 : Difference between StringBuffer and StringBuilder
+👉 : Program to remove duplicate elements from an arraylist.
+👉 : Difference between 500 vs 503 API Status code
+----------------------------------------------------------------
+📌 Round 2 ( Technical )
+👉 : Given a string , remove all the duplicate elements from a string
+👉 : What is use of GroupBy in SQL. 
+👉 : How many string objects will be created : String s1 = new String("JAVA");
+👉 : Difference between finally and finalize in Java 
+
+Technical: OOPs , Data Structure, Collections, Exception Handling, Angular Basics TechnoManagerial: Java Basics ,Angular -features, PIPES, Lazy Loading , Decorators, Angular Life Cycle, Routing concepts HR: General Information, Slary Negotiation
+
+
+Coding Related Questions
+1. There is two String S1 =”Java” and S2 =” Software” swap value without third variable and loops?
+2. There is one String s = “Java” count frequency of characters using java 8.
+3. int a = {10,15,20,25} and number if n =1 print 10,15,n=2 print 20,25 using java
+4. Using Java Streams, how do you filter employees whose salary is greater than a given value?
+5. Using Java Streams, how do you find the average salary of all employees?
+6. Using Java Streams, how do you group employees by department?
+
+Java Related Questions
+1. Types of garbage collectors in java?
+2. In tree set null is allowed?
+3. Features of java 17 over java 8?
+4. what is functional interface?
+5. why default method introduce in java 8?
+6. if functional interface have one default and one abstract method so it called functional interface?
+7. Explain virtual thread in Java?
+8. Some Java 21 Features?
+9. Difference between ArrayList And LinkedList?
+10. How HashMap and HashSet works internally?
+11. What is the real difference between HashMap and ConcurrentHashMap and when should you never use one?
+12. Why is String immutable in Java, and how does that impact performance?
+13. What actually happens in memory when you create an object using new?
+14. Difference between checked and unchecked exceptions and when to create your own?
+15. How does JVM memory (Heap, Stack, Metaspace) really work?
+16. What problem does Garbage Collection solve and when does it fail?
+17. Why is composition preferred over inheritance?
+18. What’s the difference between synchronized, volatile, and Atomic classes?
+19. How does Java achieve platform independence?
+20. When would you choose Stream API over a traditional loop and when not to?
+21. When to use parallel stream?
+22. In threads, what is the difference between the NEW state and the ACTIVE/RUNNABLE state?
+23. What is the difference between Fail-Fast and Fail-Safe iterators?
+
+Framework Related Questions
+1. What is @SpringbootStarterApplication annotation and how internally works.
+2. How does @RequestBody work in Spring Boot?
+3. Explain the complete flow of how a table is created in the database using Java, Spring Boot, and JPA — starting from defining an Entity class up to how it becomes a table in SQL.
+4. What are the purposes of the @Service and @Repository annotations in Spring, how does Spring treat them internally, and what is the typical request flow involving these layers?
+5. What is Dependency Injection and Dependency Inversion?
+
+Microservice Related Questions
+1. What is an API Gateway in microservices?
+2. How 2 microservices communicates to each other?
+3. How to track any request in microservice?
+4. What is Trace Id and Span Id?
+5. What happens when a microservice fails in between?
+6. Benefit of microservice over monolithic?
+
+Core Java & OOPs:
+
+- How to check if a number in an array is even or odd without using %?
+- Can we have a static class in Java?
+-What is an immutable class, and why is String immutable in Java?
+- In Java Streams, how to count and print individual words in a sentence?
+-How to sort an Employee table by name and age?
+-Bubble Sort: Difference between up & down approach, and how to implement it?
+-A situation where finally won’t execute in Java.
+
+Spring & Microservices:
+
+-What is API Gateway in microservices?
+-How to migrate a monolithic application to microservices?
+ -What are key security aspects in Spring?
+
+SQL & Database Concepts:
+
+ -Primary Key vs. Unique Key – Key differences.
+- Given an Employee table (id, name, dept, salary), write a SQL query to find the highest salary in each department.
+
+It was an insightful round with a good mix of coding, problem-solving, and system design. 
+
+If you’re preparing for a Java Full Stack role, these topics are crucial!
+
+1. Java & Core Concepts
+Java 8-21 Features: Deep knowledge of Stream API (map() vs flatMap(), collect(), groupingBy()), Functional Interfaces, and Virtual Threads.
+Performance & Memory: JVM memory management (Heap, Stack, Metaspace), garbage collection types, and how to debug memory leaks.
+Concurrency: Differences between synchronized, volatile, and Atomic classes, ConcurrentHashMap internals, and ExecutorService.
+Coding Challenges: Find first non-repeating character, check linked list cycle, remove duplicates from a list, and reverse a string using recursion. 
+LinkedIn
+LinkedIn
+ +3
+2. Spring Boot & Backend (Microservices) 
+Microservices Architecture: Explain the Saga pattern for transaction management, Circuit Breakers for failure handling, and Eventual Consistency.
+Spring Boot Internal: How does @SpringBootApplication work? Explain @RequestBody and @Service vs @Repository.
+API Management: API versioning strategies (URI, header), Idempotency in REST APIs, and authentication.
+Message Queues: Kafka partitions, consumer groups, and handling data consistency. 
+YouTube
+YouTube
+ +2
+3. Frontend & Database (Full Stack)
+React/Angular: State management, hooks, and communication between components.
+SQL/Database: Advanced queries (e.g., finding the N-th highest salary, using GroupBy), SQL vs NoSQL scenarios. 
+Glassdoor
+Glassdoor
+ +4
+
+
+============================
+Current project role
+What changes comes in date and time api
+Predefine functional interface
+count the duplicate words in a string
+changes comes in HashMap in java 8
+in general meaning of threshold and time complexity
+shift particular duplicates elements to left side in an array with less complexity  int[] arr = {1,2,3,4,2,1,1,3,1,4,1}; 
+custom exception handling in spring boot
+Role of response status
+how to use two datasource in spring boot application
+use of @Profile
+how to call procedure in data jpa
+stereo annotation types
+all design patterns of microservices used in your project
+
+Round 2: 
+immutable class
+clone means
+shallow vs deep copy
+marker interface, can we create our own marker interface
+serialization vs externalization
+locking concept in multithreading, Lock interface
+fair lock and reentrant lock
+what is read write lock
+concurrency level in ConcurrentHashMap, what will happen if we have more threads compare with no of bucket
+@SpringBootApplication internally work
+yaml vs properties
+@Transactional use case propagation and isolation level
+what is serializable
+manage fault tolerance
+service registry
+use of webclient, webflux, mono and flux
+role of API Gateway
+what is load balancer
+have you worked on ci/cd 
+junit test cases, Mockito, code coverage
+have you worked on design patterns
+difference between of factory and abstract factory
+what is binary search tree, i have a sorted array write code to use binary search to find the element
+
+Map<Integer, Employee> map = new HashMap();
+map.put(1, new Employee(1,"Mahes", "Hyderabad"));
+map.put(2, new Employee(2,"Sunny", "Mumbai"));
+map.put(3, new Employee(3,"Tuna", "Pune"));
+map.put(4, new Employee(4,"Kuna", "Chennai"));
+
+sort employee on base of city and return a map having integer as key and value as employee
+
+Map<Integer, Employee> sortedMap = map.entrySet()
+    .stream()
+    .sorted(Map.Entry.comparingByValue(Comparator.comparing(Employee::getCity)))
+    .collect(Collectors.toMap(
+        Map.Entry::getKey,
+        Map.Entry::getValue,
+        (e1, e2) -> e1,
+        LinkedHashMap::new   // maintains sorted order
+    ));
+
+
+how locking mechanism work in concurrenthasmap, how it differentiate with hashmap
+we have 16 elememnts in concurenthashmap, can 16 thread can update at the same time of 16 bucket elemnts
+abstract vs interface, real life example
+TreeMap, HashSet, TreeSet
+can we create a private constructor in a class
+how can we break singleton
+what is garbage collection
+how can use the finalize method programaticlly
+fail-fast vs fail-safe iterator
+java 8 features added for comparator
+map vs flatmap
+arrayList vs linkedlist
+sleep vs wait, why wait in object class
+what is exception declarion
+how to write custom exception
+try with resorces
+classnotfoundexception vs noclassdeffounderror
+
+count of male and female count using java stream 8
+Distadvantage of @Autowired 
+inversion of control
+Dependency Injection
+
+how java memory model works, and why volatile is important
+hashmap vs hastable vs concurrenthasmap
+concurrenthasmap over synchronizedMap
+how gc works, what make g1gc special
+Threadpoolexecutor internally works
+monolithic vs micrservice architecture
+synchronize vs lock api
+checked vs unchecked exception
+how stream work internally
+weakhasmap
+class loader hierarchy
+compeletablefutre
+ExecutorServie and forkjoinpool
+
+
+Backend Development:
+
+Java 8 features, including streams and new APIs.
+ORM mapping of tables to Java classes.
+Differences between @Bean and @Component annotations.
+Implementing pagination and caching in Spring Boot applications.
+The purpose of @ControllerAdvice in Spring.
+Lazy loading in Hibernate and writing complex queries.
+Differences between Gradle and Maven, and the purpose of the pom.xml file in Maven.
+Continuous integration in Jenkins and writing JUnit test cases.
+Practical coding questions, such as finding the second highest salary and the Nth smallest element using Java 8 streams, and summing even numbers in a list with streams.
+Frontend Development:
+
+Data binding in Angular, including the types deployed.
+The concept of Single Page Applications (SPA).
+Angular decorators, templates, and pipes, including the PipeTransform interface.
+Differences between AOT and JIT compilation.
+Angular components, modules, and services.
+Promises and Observables in Angular, and using ngFor.
+Sharing data between components, router links, and HTTP interceptors.
+Error handling in observables and Angular lifecycle hooks.
+Watch this video to gain deep insights and practical knowledge from Abhishek's approach to these complex topics and coding challenges.

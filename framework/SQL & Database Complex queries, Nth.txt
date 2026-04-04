@@ -1,0 +1,51 @@
+SQL & Database: Complex queries, Nth highest salary, indexing strategies, handling duplicate data, and stored procedures in databases like Snowflake.
+System Design & Architecture: Microservices architecture, API design, scalability, and performance optimization.
+Cloud & Tools: Experience with cloud services (AWS), containerization (Docker), and version control (Git).
+Data Migration & Handling: Experience with system migrations, data verification, and handling exceptions. 
+
+Common Behavioral and Scenario Questions
+Describe a challenging project and how you handled the issues.
+How do you troubleshoot a system failure in a live production environment?
+How do you deal with complex requirements from stakeholders?.
+What is your approach to ensuring high performance in a web application?. 
+
+Key Advice
+Expect questions to be behavioral-focused if this round involves a client interaction.
+Prepare to discuss past migration projects or system improvements.
+Ensure strong understanding of SQL optimization techniques.
+
+SOLID principle description with examples
+
+Second round was little deeper and like how you implemented security, design patterns in your project. There was final HR interview.
+Interview questions [1]
+
+Question 1
+
+Multi Threading, Internal working of collections.
+How to reverse a string without using inbuilt methods
+java static keyword , java core , oops concept , Finance System design , Java 8+
+
+SQl
+============================
+Q. How do you check if a table has a duplicate data?
+Ans. 
+1. select count(*) 'row_count', count(distinct product_id) from shipment_table
+2. select product_id, count(*) from shipment_table group by product_id
+
+Q. How to compare two tables?
+Ans.
+1. select t1.product_id, t1.spid, t2.product_id, t2.spid
+case
+  when t1.product_id is null then 'Data in Table 2 only'
+  when t2.product_id is null then 'Data in Table 1 only'
+  else 'Data in both tables'
+end as [data status]
+from firs_week_sale t1
+full join second_week_sales t2 on t1.product_id=t2.product_id and t1.spid= t2.spid
+
+Q. Query works but wrong result
+Q. Where Vs having: having we ca use with group by
+Q. COALESCE() function -> return null first argument
+Q. Case when example
+Q. Normalize and Denormalize
+

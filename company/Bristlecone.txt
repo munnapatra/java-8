@@ -1,0 +1,122 @@
+Bristlecone 
+===================================
+Core Java & Java 8+ 
+Java 8 Features: 
+Explain Lambda expressions, Stream API, and Optional class with real-world use cases.
+
+Collections: 
+Explain the internal working of HashMap (bucketing, collision handling) and the differences between ArrayList vs. LinkedList.
+
+Multithreading: 
+How to implement a thread-safe Singleton class? Explain CompletableFuture for asynchronous programming.
+
+Memory Management:
+Discussion on different Garbage Collectors and scenarios where a finally block might not execute. 
+
+Spring Boot & Microservices
+Annotations: Be ready to explain @RestController, @Service, @Qualifier, and @Autowired.
+Architecture: Describe your current project's architecture, specifically focusing on Microservices patterns, API Gateways, and Service Discovery.
+Security & Resilience: How do you implement rate limiting and prevent DDoS attacks? Explain JWT for authentication.
+Custom Starters: How would you add a custom Spring starter alongside a normal one?. 
+
+Frontend & Database (Full Stack)
+Angular/React: Concepts like Hoisting in JavaScript, component communication, and the use of Pipes or custom decorators.
+SQL/JPA: Write queries for complex scenarios (e.g., finding the second highest salary). Explain JPA transaction rollbacks and how to ensure consistency during concurrent updates.
+API Design: Explain idempotent HTTP methods and how you implement REST API validation. 
+
+Problem Solving & DSA
+Linked Lists: Reverse a singly linked list or add two numbers represented as linked lists.
+Arrays/Strings: Count character occurrences in a string using Streams or find elements starting with a specific digit in an integer list.
+Optimisation: Solve "Rotated Array" problems using Binary Search to achieve 
+
+HR & Project Management
+Project Depth: Detailed questions on your role, key features you developed, and what technical changes you would make if given a chance.
+OCM (Organizational Change Management): Bristlecone often asks about your experience with OCM work or leading transitions in previous projects.
+Behavioral: Why Bristlecone? How do you handle major bugs in production?
+
+What is qualifier?
+What is singleton class? 
+What are different garbage collectors? 
+Features of java 8? 
+When can finally block not work? 
+Can we change the chronology of public static void main? 
+What is lifecycle of a servlet? 
+What is life cycle of jsp? 
+what is object in jsp? 
+Collections? what is diff bet. list and set? 
+What is marker interface? 
+What is functional interface? 
+What is default interface? 
+what is directive in jsp? 
+Get the second highest salary from salary table mysql? 
+Explain dependency injection using getter setter method. 
+What is volatile in java? 
+
+Using java stream, count the number of occurrences of each characters in a string. 
+
+What is iterator in java? 
+How will you prvent ddos attack? 
+what are the different api getaways you can use in spring boot java? 
+How will you keep record of what api will do what like is there any api registry or store?
+How to create a custom exception in java?
+What is cursor in mysql? 
+Is ajax asynchronous or synchronous? 
+Tell all annotations in spring boot? 
+explain .equals() and == in java? 
+Explain == and === in javascript? 
+Are there datatypes in javascript? 
+What is AOP? 
+Is constructor in singleton public or protected? 
+Disadvantages of trigger in mysql? 
+What is Bean in spring boot? 
+What is Interceptor and what is filter? 
+What is static synchronized in java? 
+What is transient in java
+
+
+
+ From hibernate, they will ask you HQL Criteria.
+ And from Spring MVC they will ask the flow and all the things.
+ From core they ask comparable and Comparator, Exception and Collection.
+Q. What is CompletableFuture?
+Q1. What are the new features introduced in Java 8?
+Q2. How to implement a thread-safe singleton class?
+
+Q4. If you are given custom starter. how will you add it along with normal Spring starter
+Ans. Integrating a custom Spring starter with existing Spring starters enhances modularity and reusability in applications.
+Create Custom Starter: Develop a new Spring Boot starter by creating a Maven or Gradle project that includes necessary dependencies and configurations.
+
+Define Auto-Configuration: Implement an auto-configuration class in your custom starter to define beans and configurations that will be automatically applied when the starter is included.
+
+Add to Build File: Include your custom starter in the application's build file (pom.xml for Maven or build.gradle for Gradle) alongside existing Spring starters.
+
+Use @EnableAutoConfiguration: Ensure your main application class is annotated with @EnableAutoConfiguration to enable the auto-configuration feature of Spring Boot.
+
+Test Integration: After adding the custom starter, run tests to verify that both the custom and normal Spring starters work together seamlessly.
+
+
+1st round:
+1.Few Angular concept.
+2.Hoisting in javascript with example.
+3.polymorphism in java(run time and compile time both discuss in details)
+4.Functional Interface in java. why we use @FuntionalInterface decorator.
+7.All https methods and which all are idemoptent?
+8.Few questions how you implement Fake Store API in Springboot.
+
+Codes
+==========
+In given integer list 1,13,15,7,9,12 find the elements starting with digit one
+How we can reverse a singly linked list
+Write a multithreaded program to print numbers from 0 to 100 using two threads. One thread should print odd numbers, and the other should print even numbers.
+
+You are given two numbers 'num1' and 'num2' represented in the form of linked lists.
+The digits in the linked lists are stored in reverse order, i.e. starting from least significant digit (LSD) to the most significant digit (MSD), and each of their nodes contains a single digit.
+Calculate the sum of the two numbers and return the head of the sum list.
+
+1. Add Two Numbers As Linked Lists
+2. Implement Map Sum Pair
+1. Sort An Array of 0s, 1s and 2s
+Input: 'arr' = [2, 2, 2, 2, 0, 0, 1, 0]
+Output: Final 'arr' = [0, 0, 0, 1, 2, 2, 2, 2]
+Explanation: The array is sorted in increasing order.
+Reverse string Word Wise

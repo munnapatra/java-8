@@ -1,0 +1,109 @@
+What are the different data types in JavaScript?
+---------------------------------------------------------------------------------------------
+JavaScript includes 
+	primitive types (String, Number, BigInt, Boolean, Undefined, Null, and Symbol)
+	non-primitive types (Object, Array, and Function).
+
+---------------------------------------------------------------------------------------------
+What is the difference between == and ===?
+---------------------------------------------------------------------------------------------
+== is the loose equality operator that performs type coercion before comparing values.
+=== is the strict equality operator that compares both value and type without conversion.
+
+Loose Equality (==): 
+	Triggers implicit coercion that means if you compare two different types (like a number and a string), 
+	JavaScript will try to convert them to a common type (usually numeric) before the final comparison.
+	Example: 5 == "5" returns true. JavaScript coerces the string "5" into the number 5 and then finds them equal.
+
+Strict Equality (===): This operator prohibits coercion. It requires both the value and the type to be identical.
+	Example: 5 === "5" returns false because one is a Number and the other is a String
+
+---------------------------------------------------------------------------------------------
+What is Hoisting?
+---------------------------------------------------------------------------------------------
+Hoisting is the behavior where variable and function declarations are moved to the top of their containing scope during compilation.
+Note that only declarations are hoisted, not initializations.
+Example:
+	console.log(a)  // undefeined not error
+	var a;
+	a=9;
+	console.log(a) // 9
+
+---------------------------------------------------------------------------------------------
+Difference between var, let, and const?
+---------------------------------------------------------------------------------------------
+var: Function-scoped, can be re-declared and updated, and is hoisted.
+let: Block-scoped, can be updated but not re-declared.
+const: Block-scoped, cannot be re-assigned or re-declared, and must be initialized immediately. 
+
+---------------------------------------------------------------------------------------------
+What is a Closure? Explain with an example
+---------------------------------------------------------------------------------------------
+A closure is when a function remembers and accesses variables from its outer (lexical) scope even after the outer function has finished execution.
+Example:
+function outer() {
+  let count = 0;
+
+  function inner() {
+    count++;
+    console.log(count);
+  }
+
+  return inner;
+}
+
+const fn = outer(); // outer executed
+fn(); // 1
+fn(); // 2
+
+---------------------------------------------------------------------------------------------
+How does the this keyword work?
+---------------------------------------------------------------------------------------------
+The value of this depends on the execution context: it refers to the global object in the global scope, the object itself in a method, and a newly created instance in a constructor.
+---------------------------------------------------------------------------------------------
+What is the Event Loop?
+---------------------------------------------------------------------------------------------
+The Event Loop is the mechanism that allows JavaScript to perform non-blocking asynchronous operations by offloading tasks to the web browser and processing them via the task and microtask queues.
+---------------------------------------------------------------------------------------------
+Difference between call(), apply(), and bind()?
+---------------------------------------------------------------------------------------------
+These methods are used to set the this context for a function:
+call(): Invokes the function immediately with arguments passed individually.
+apply(): Invokes the function immediately with arguments passed as an array.
+bind(): Returns a new function with the specified this context for later execution. 
+
+---------------------------------------------------------------------------------------------
+What are Promises and async/await?
+---------------------------------------------------------------------------------------------
+Promises represent the eventual completion (or failure) of an asynchronous task.
+async/await is a cleaner, more readable syntax for working with Promises.
+
+---------------------------------------------------------------------------------------------
+What is Prototypal Inheritance?
+---------------------------------------------------------------------------------------------
+JavaScript uses prototypes for inheritance; every object has a internal link to another object (its prototype) from which it inherits properties and methods.
+---------------------------------------------------------------------------------------------
+
+Explain Debouncing and Throttling.
+---------------------------------------------------------------------------------------------
+Debouncing: Delays a function's execution until after a specified "quiet period" since the last time the event was triggered (e.g., search bars).
+Throttling: Ensures a function is called at most once within a fixed time interval (e.g., window resizing).
+
+---------------------------------------------------------------------------------------------
+What is Event Delegation?
+---------------------------------------------------------------------------------------------
+Event delegation is a technique where a single event listener is attached to a parent element to handle events occurring on its children, improving performance and memory efficiency.
+
+---------------------------------------------------------------------------------------------
+difference between arrow function and normal function in javascript
+---------------------------------------------------------------------------------------------
+| Feature        | Normal Function                   | Arrow Function                        |
+| -------------- | --------------------------------- | ------------------------------------- |
+| Syntax         | `function add(a,b){ return a+b }` | `const add = (a,b) => a+b`            |
+| `this` binding | Dynamic (depends on call)         | Lexical (inherits from outer scope) ✅ |
+| `arguments`    | Available                         | ❌ Not available (use `...args`)       |
+| Constructor    | ✅ Can use `new`                   | ❌ Cannot be used as constructor       |
+| `prototype`    | Has prototype                     | ❌ No prototype                        |
+| Return         | Explicit `return`                 | Implicit return (single expression)   |
+| Use case       | Methods, constructors             | Callbacks, short functions            |
+| Hoisting       | ✅ Hoisted                         | ❌ Not hoisted (like variables)        |

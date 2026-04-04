@@ -857,11 +857,49 @@ Q) What is the difference between CI and CD?
 Q) Explain steps you used in CI/CD in your project.
 ===================================================================================================
 Code → Build → Test → Analyze → Dockerize → Push → Deploy → Monitor
+
 ===================================================================================================
 
+Q) How to restrict metrics and api docs
+===================================================================================================
+1. Using Spring Security (Best Practice ✅)
+Secure endpoints with authentication
+@Bean
+SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http
+      .authorizeHttpRequests(auth -> auth
+        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").hasRole("ADMIN")
+        .requestMatchers("/actuator/**").hasRole("ADMIN")
+        .anyRequest().authenticated()
+      )
+      .oauth2ResourceServer(oauth -> oauth.jwt());
+
+    return http.build();
+}
+
+✔️ Only authorized users can access
+
+2. Restrict Actuator Endpoints
+	management.endpoints.web.exposure.include=health,info
+	management.endpoint.health.show-details=never
+	✔️ Expose only minimal endpoints
+
+3. Disable in Production
+	Disable Swagger in prod:
+		springdoc.api-docs.enabled=false
+		springdoc.swagger-ui.enabled=false
+
+4. IP Whitelisting (Network level)
+	Allow only internal IPs / VPN
+	.requestMatchers("/actuator/**").hasIpAddress("192.168.1.0/24")
+
+5. API Gateway Restriction
+	Control access at gateway layer
+	Allow only internal services or admins
+
+===================================================================================================
 Java 8 features, including streams and new APIs.
 ORM mapping of tables to Java classes.
-
 Implementing pagination and caching in Spring Boot applications.
 
 Lazy loading in Hibernate and writing complex queries.
@@ -882,7 +920,18 @@ Error handling in observables and Angular lifecycle hooks.
 
 Data Structures & Algorithms: Arrays, HashMaps, Stacks, Queues, Trees, Graphs. • Java Core Concepts: OOP principles, Exception Handling, Streams API. • Multi-threading & Concurrency: Threads, Executors, Synchronization. • SQL Queries: Joins, Aggregation, Optimization.
 
-1. OOPS concepts 2. Springboot annotations 3. How to connect to DB 4. How to add employee details, store and perform operations 5. Microservices vs Monolith 6. Overloading and Overriding 7. Profiles in SpringBoot 8. String, StringBuilder, StringBuffer & manipulations on string 9. Synchronization & Threads 10. Two coding questions, a) Order string array and remove duplicates b) Order a integer array in ascending order
+1. OOPS concepts 
+2. Springboot annotations 
+3. How to connect to DB 
+4. How to add employee details, store and perform operations 
+5. Microservices vs Monolith 
+6. Overloading and Overriding 
+7. Profiles in SpringBoot 
+8. String, StringBuilder, StringBuffer & manipulations on string 
+9. Synchronization & Threads 
+10. Two coding questions, 
+	a) Order string array and remove duplicates
+	b) Order a integer array in ascending order
 
 
 Class loader
