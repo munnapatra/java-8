@@ -1,92 +1,449 @@
-What is normalization? Explain 1NF–5NF.
+Q. What is normalization? Explain 1NF–5NF.
 =================================================================================================================================
 Normalization: Process of organizing data to reduce redundancy and avoid anomalies (insert/update/delete).
 
-🔹 1NF (First Normal Form)
-No repeating groups, all values are atomic
-Each column holds single value
+🔹 1NF (First Normal Form): No repeating groups, all values are atomic, Each column holds single value
+👉 Example: ✅ Separate rows for each phone
 
-👉 Example:
-❌ Phone: 123,456
-✅ Separate rows for each phone
-
-🔹 2NF (Second Normal Form)
-Must be in 1NF
-No partial dependency (non-key fully depends on whole primary key)
-
+🔹 2NF (Second Normal Form): Must be in 1NF, No partial dependency (non-key fully depends on whole primary key)
 👉 Used when composite key exists
 
-🔹 3NF (Third Normal Form)
-Must be in 2NF
-No transitive dependency (non-key depends only on key)
+🔹 3NF (Third Normal Form): Must be in 2NF, No transitive dependency (non-key depends only on key)
+👉 Example: EmpID → DeptID → DeptName ❌, Fix: Separate Dept table
 
-👉 Example:
-EmpID → DeptID → DeptName ❌
-Fix: Separate Dept table
-
-🔹 BCNF (Boyce-Codd Normal Form)
-Stronger than 3NF
-Every determinant must be a candidate key
-
+🔹 BCNF (Boyce-Codd Normal Form): Stronger than 3NF, Every determinant must be a candidate key
 👉 Fixes edge cases not handled in 3NF
 
-🔹 4NF (Fourth Normal Form)
-No multi-valued dependencies
+🔹 4NF (Fourth Normal Form): No multi-valued dependencies
+👉 Example: Student → multiple courses & hobbies, Split into separate tables
 
-👉 Example:
-Student → multiple courses & hobbies
-Split into separate tables
-
-🔹 5NF (Fifth Normal Form)
-No join dependency
-Data cannot be further decomposed without loss
-
+🔹 5NF (Fifth Normal Form): No join dependency, Data cannot be further decomposed without loss
 👉 Used in complex many-to-many relationships
+
+| Normal Form | Focus                      |
+| ----------- | -------------------------- |
+| 1NF         | Atomic values              |
+| 2NF         | No partial dependency      |
+| 3NF         | No transitive dependency   |
+| BCNF        | Stronger 3NF               |
+| 4NF         | No multi-valued dependency |
+| 5NF         | No join dependency         |
+
 =================================================================================================================================
-What is denormalization? When would you use it?
+Q. What is denormalization? When would you use it?
 =================================================================================================================================
+Denormalization: Process of intentionally adding redundancy to a database (combining tables or duplicating data) to improve read performance.
+
+🔹 Why use it: Reduces JOIN operations, Faster read/query performance, Simpler queries
+🔹 When to use:
+	✅ High read, low write systems (reporting, analytics)
+	✅ Performance bottlenecks due to joins
+	✅ Data warehousing (OLAP systems)
+	✅ Frequently accessed aggregated data
+	✅ Caching derived data (like total counts, sums)
+
+🔹 Example
+	Normalized: Orders table, Customers table → Requires JOIN
+	Denormalized: Store customer name directly in Orders → No JOIN needed
+
+🔹 Drawbacks: ❌ Data redundancy, ❌ Update anomalies, ❌ More storage
+
 =================================================================================================================================
-Difference between WHERE and HAVING.
-Difference between DELETE, TRUNCATE, DROP.
-What are constraints? Types?
-What is a primary key vs unique key?
+Q. Difference between WHERE and HAVING.
+=================================================================================================================================
+WHERE filters rows before grouping, HAVING filters grouped results after aggregation
+
+👉 WHERE → row-level filtering
+👉 HAVING → group-level filtering (with aggregates)
+
+| Feature               | WHERE               | HAVING             |
+| --------------------- | ------------------- | ------------------ |
+| Usage                 | Filters **rows**    | Filters **groups** |
+| Applied               | **Before GROUP BY** | **After GROUP BY** |
+| Works with aggregates | ❌ No   	      | ✅ Yes   	   |
+| Performance           | Faster              | Slower             |
+
+-- WHERE (row filtering)
+SELECT * FROM Employee WHERE salary > 50000;
+
+-- HAVING (group filtering)
+SELECT dept_id, COUNT(*) FROM Employee GROUP BY dept_id HAVING COUNT(*) > 5;
+
+=================================================================================================================================
+Q. Types of SQL commands DDL, DML, DQL, DCL, TCL
+=================================================================================================================================
+🔸 1. DDL (Data Definition Language): Used to define/modify structure, Auto-commit (no rollback)
+👉 Commands:
+	CREATE, ALTER, DROP, TRUNCATE, RENAME
+
+🔸 2. DML (Data Manipulation Language): Used to modify data (rows)
+👉 Commands:
+	INSERT, UPDATE, DELETE
+
+🔸 3. DQL (Data Query Language): Used to fetch data
+👉 Command:
+	SELECT
+
+🔸 4. DCL (Data Control Language): Used to control permissions
+👉 Commands:
+	GRANT, REVOKE
+
+🔸 5. TCL (Transaction Control Language): Used to manage transactions
+👉 Commands:
+	COMMIT, ROLLBACK, SAVEPOINT
+
+=================================================================================================================================
+Q. Difference between DELETE, TRUNCATE, DROP.
+=================================================================================================================================
+🔹 Key Difference
+	👉 DELETE → remove specific rows (safe, slower): DELETE FROM Employee WHERE id = 1;
+	👉 TRUNCATE → remove all rows (fast): TRUNCATE TABLE Employee;
+	👉 DROP → remove table completely; DROP TABLE Employee;
+
+| Feature        | DELETE        | TRUNCATE      | DROP          |
+| -------------- | ------------- | ------------- | ------------- |
+| Type           | DML           | DDL           | DDL           |
+| Removes        | Selected rows | All rows      | Entire table  |
+| WHERE clause   | ✅ Yes  	 | ❌ No   	 | ❌ No  	 |
+| Rollback       | ✅ Yes 	 | ❌ No (mostly)| ❌ No	 |
+| Logging        | Row-level     | Minimal       | Minimal       |
+| Structure      | Keeps table   | Keeps table   | Deletes table |
+| Identity reset | ❌ No   	 | ✅ Yes   	 | —             |
+
+=================================================================================================================================
+Q. What are constraints? Types?
+=================================================================================================================================
+Constraints are rules applied on table columns to ensure data integrity and accuracy.
+
+🔹 Types of Constraints
+	PRIMARY KEY: Uniquely identifies each row, No NULL, No duplicate
+	FOREIGN KEY: Maintains referential integrity, Links to another table’s primary key
+	UNIQUE: Ensures all values are unique, ✅ Allows one NULL (DB-dependent)
+	NOT NULL: Column cannot have NULL values
+	CHECK: Enforces a condition 👉 Example: salary > 0
+	DEFAULT: Assigns default value if none provided
+
+CREATE TABLE Employee (
+  id INT PRIMARY KEY,
+  name VARCHAR(50) NOT NULL,
+  email VARCHAR(100) UNIQUE,
+  salary INT CHECK (salary > 0),
+  dept_id INT,
+  created_at DATE DEFAULT CURRENT_DATE,
+  FOREIGN KEY (dept_id) REFERENCES Department(id)
+);
+
+
+=================================================================================================================================
 What is a composite key?
+=================================================================================================================================
+🔹 A composite key is a primary key made of two or more columns used together to uniquely identify a row.
+🔹 When to use: When a single column is not enough to ensure uniqueness, Common in junction (mapping) tables
+
+Example:
+CREATE TABLE Student_Course (
+  student_id INT,
+  coursed INT,
+  PRIMARY KEY (student_id, course_id)
+);
+
+👉 Here, combination of student_id + course_id is unique
+
+🔹 Key Point
+	👉 Individually columns may have duplicates,
+	👉 but combined values must be unique
+
+=================================================================================================================================
 What is a surrogate key?
-What is a check constraint?
-What is a default constraint?
-What is a view? Types?
-Can we update a view?
-What is a materialized view?
+=================================================================================================================================
+A surrogate key is a system-generated unique identifier with no business meaning, used as a primary key.
+
+🔹 Characteristics: Auto-generated (e.g., AUTO_INCREMENT, IDENTITY), Not derived from actual data, Stable (doesn’t change)
+
+CREATE TABLE Employee (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(50),
+  email VARCHAR(100)
+);
+
+👉 id is a surrogate key
+
+🔹 Why use it: Avoids issues with changing natural data, Simple joins and indexing, Better performance
+
+=================================================================================================================================
+What is a view? Types? Can we update a view?
+=================================================================================================================================
+A view is a virtual table based on a SQL query. It does not store data, it stores the query.
+
+🔹 Types of Views
+	1. Simple View: Based on single table, No aggregation, ✅ Updatable
+	🔹 Example: CREATE VIEW emp_view AS SELECT id, name, salary FROM Employee WHERE salary > 50000;
+
+	2. Complex View: Based on multiple tables, Uses joins, group by, functions, ❌ Usually not updatable
+	🔹 Example: CREATE VIEW emp_dept_view AS SELECT e.id, e.name, d.dept_name FROM Employee e JOIN Department d ON e.dept_id = d.id;
+
+	3. Materialized View: Stores data physically, Faster reads, Needs refresh
+	🔹 Example: CREATE MATERIALIZED VIEW emp_mv AS SELECT dept_id, COUNT(*) AS total, FROM Employee, GROUP BY dept_id;
+
+🔹 How to Identify View Type
+	✅ Check definition: SELECT view_definition FROM information_schema.views WHERE table_name = 'emp_view';
+	👉 If: Single table → Simple View, Join / aggregation → Complex View
+
+	✅ Check if Materialized
+	Oracle: SELECT * FROM user_mviews;
+	PostgreSQL: SELECT * FROM pg_matviews;
+	👉 If exists here → Materialized View
+
+	✅ Check Updatable
+	UPDATE emp_view SET salary = 60000 WHERE id = 1;
+	Works → Simple View
+	Fails → Complex View
+
+🔹 Advantages: Security (hide columns), Simplifies complex queries, Reusability
+
+
+=================================================================================================================================
 What is indexing? Types?
+=================================================================================================================================
+Indexing is a technique to speed up data retrieval by creating a data structure (like B-tree) on columns.
+👉 Works like a book index → faster search, less full scan
+
+🔹 Types of Indexes
+	1. Clustered Index: Stores actual table data in sorted order, Only one per table
+	2. Non-Clustered Index: Stores index + pointer to actual data, Multiple allowed
+	3. Unique Index: Ensures no duplicate values
+	4. Composite Index: Index on multiple columns
+	5. Full-Text Index: Used for searching text data (LIKE, search engines)
+	6. Bitmap Index (mostly in data warehouses): Efficient for low-cardinality columns (gender, status)
+
+🔹 Example
+	CREATE INDEX idx_emp_name ON Employee(name);
+	CREATE UNIQUE INDEX idx_email ON Employee(email);
+	CREATE INDEX idx_multi ON Employee(dept_id, salary);
+
+🔹 Key Points: 	Improves SELECT performance, Slows INSERT/UPDATE/DELETE, Uses extra storage
+
+=================================================================================================================================
 Clustered vs Non-clustered index?
+=================================================================================================================================
+| Feature         | Clustered Index                        | Non-Clustered Index                 |
+| --------------- | -------------------------------------- | ----------------------------------- |
+| Data storage    | Stores **actual data** in sorted order | Stores **index + pointer** to data  |
+| Count per table | Only **1**                             | Multiple allowed                    |
+| Speed           | Faster for range queries               | Faster for specific lookups         |
+| Structure       | Table itself is reordered              | Separate structure                  |
+| Key usage       | Usually on primary key                 | Used on frequently searched columns |
+
+🔹 Use Clustered Index when:
+Searching range queries (BETWEEN, ORDER BY)
+Column is primary key
+Data is frequently sorted/accessed sequentially
+
+🔹 Use Non-Clustered Index when:
+Searching specific values (WHERE name = 'A')
+Need multiple indexes
+Queries use different columns
+
+=================================================================================================================================
 What is covering index?
+=================================================================================================================================
+A covering index is an index that contains all the columns required by a query, so the database does not need to access the table.
+
+🔹 Why it’s useful: Avoids table lookup, Improves query performance, Uses only index → faster
+🔹 Example
+-- Query: SELECT name, salary FROM Employee WHERE dept_id = 10;
+
+-- Covering index: CREATE INDEX idx_cover ON Employee(dept_id, name, salary);
+👉 All required columns are in index → no table access
+
+🔹 Key Point: 👉 Index covers SELECT + WHERE columns
+
+=================================================================================================================================
 What is composite index?
+=================================================================================================================================
+A composite index is an index created on two or more columns to improve query performance.
+
+🔹 When to use: Queries filter on multiple columns, Frequently used combined conditions
+
+🔹 Example: CREATE INDEX idx_emp_dept_salary ON Employee(dept_id, salary);
+👉 Works best for: 	SELECT *  FROM Employee WHERE dept_id = 10 AND salary > 50000;
+
+🔹 Important Rule (Order matters): 	👉 Index (A, B) works for: ✅ A, ✅ A + B, ❌ B alone
+
+🔹 Key Point: 👉 Improves performance for multi-column filtering
+
+=================================================================================================================================
 What is index scan vs index seek?
+=================================================================================================================================
+| Feature     | Index Scan                             | Index Seek                      |
+| ----------- | -------------------------------------- | ------------------------------- |
+| Definition  | Scans **entire index**                 | Directly jumps to required rows |
+| Performance | Slower                                 | Faster                          |
+| Use case    | When many rows match / no proper index | When selective condition exists |
+| Efficiency  | Low                                    | High                            |
+
+🔹 Example
+-- Index Scan (less selective): SELECT * FROM Employee WHERE salary > 1000;
+
+-- Index Seek (highly selective): SELECT * FROM Employee WHERE id = 101;
+
+🔹 Key Difference
+👉 Index Scan → reads most/all index
+👉 Index Seek → jumps directly to matching data
+
+=================================================================================================================================
 What is query execution plan?
+=================================================================================================================================
+A query execution plan is a step-by-step strategy used by the database to execute a SQL query.
+👉 Generated by the query optimizer
+
+🔹 What it shows: 
+	Access method (Index Seek / Scan / Table Scan)
+	Join type (Nested Loop, Hash Join, Merge Join)
+	Order of operations
+	Estimated cost/time
+
+🔹 Example
+	EXPLAIN SELECT * FROM Employee WHERE id = 101;
+	👉 Shows how DB will fetch the data
+
+🔹 Types
+	Estimated Plan → before execution
+	Actual Plan → after execution (real stats)
+
+🔹 Why important?
+	Helps identify slow queries
+	Detects missing indexes
+	Used for performance tuning
+
+=================================================================================================================================
 How to optimize a slow query?
+=================================================================================================================================
+1. Check Execution Plan: Use EXPLAIN / EXPLAIN ANALYZE: Identify table scan, costly joins
+
+2. Add Proper Indexes: Index WHERE, JOIN, ORDER BY columns, Use composite / covering index
+
+3. Avoid SELECT * : Fetch only required columns
+
+4. Optimize Joins: Use proper join type, Ensure indexed join columns
+
+5. Reduce Data Early: Filter using WHERE before JOIN, Avoid unnecessary rows
+
+6. Use EXISTS instead of IN (for large data): Better performance in many cases
+
+7. Avoid Functions on Indexed Columns : ❌ WHERE UPPER(name) = 'A' 👉 breaks index usage
+
+8. Use Pagination / LIMIT: Avoid loading large datasets
+
+9. Normalize / Denormalize wisely: Balance between joins vs redundancy
+
+10. Update Statistics: Helps optimizer choose better plan
+
+=================================================================================================================================
 What is cardinality?
+=================================================================================================================================
+Cardinality refers to the number of unique values in a column.
+
+🔹 Types
+	High Cardinality: Many unique values, 👉 Example: id, email
+	Low Cardinality: Few unique values, 👉 Example: gender, status
+
+🔹 Why important: Helps query optimizer choose best plan, Impacts index effectiveness
+
+👉 High cardinality → good for indexing
+👉 Low cardinality → less effective (except bitmap index)
+
+🔹 Example
+-- High cardinality: SELECT COUNT(DISTINCT email) FROM Employee;
+-- Low cardinality: SELECT COUNT(DISTINCT gender) FROM Employee;
+
+=================================================================================================================================
+
 🔹 Joins & Queries
+=================================================================================================================================
 Types of joins?
+=================================================================================================================================
+
+=================================================================================================================================
 Difference between INNER and OUTER join?
+=================================================================================================================================
+
+=================================================================================================================================
 Self join use case?
+=================================================================================================================================
+
+=================================================================================================================================
 Cross join?
+=================================================================================================================================
+
+=================================================================================================================================
 What is correlated subquery?
+=================================================================================================================================
+
+=================================================================================================================================
 Subquery vs join – which is faster?
+=================================================================================================================================
+
+=================================================================================================================================
 EXISTS vs IN?
+=================================================================================================================================
+
+=================================================================================================================================
 UNION vs UNION ALL?
+=================================================================================================================================
+
+=================================================================================================================================
 How to remove duplicates?
+=================================================================================================================================
+
+=================================================================================================================================
 How to find nth highest salary?
+=================================================================================================================================
+
+=================================================================================================================================
 How to find duplicate records?
+=================================================================================================================================
+
+=================================================================================================================================
 How to delete duplicate records?
+=================================================================================================================================
+
+=================================================================================================================================
 How to pivot rows into columns?
+=================================================================================================================================
+
+=================================================================================================================================
 What are window functions?
+=================================================================================================================================
+
+=================================================================================================================================
 Difference between RANK, DENSE_RANK, ROW_NUMBER?
+=================================================================================================================================
+
+=================================================================================================================================
 What is PARTITION BY?
+=================================================================================================================================
+
+=================================================================================================================================
 What is CTE?
+=================================================================================================================================
+
+=================================================================================================================================
 Recursive CTE use case?
+=================================================================================================================================
+
+=================================================================================================================================
 How to perform pagination?
+=================================================================================================================================
+
+=================================================================================================================================
+
 🔹 Transactions & Concurrency
+=================================================================================================================================
 What is ACID?
+=================================================================================================================================
+
+=================================================================================================================================
 What is isolation level?
 Types of isolation levels?
 What is dirty read?

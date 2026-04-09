@@ -1,194 +1,402 @@
 Coforge
-==================
-Immutability & String Manipulation
+=====================================================================================================================================================
+Explain the concept of immutability in Java. Are strings immutable?
+=====================================================================================================================================================
+👉An immutable object is one whose state cannot be changed after creation. 
+👉Any modification results in a new object, not changing the existing one.
+👉Class is final (cannot be subclassed), Fields are private final, No setters, Initialize via constructor only
 
-Explain the concept of immutability in Java. Are strings immutable? (7:12)
-If strings are immutable, what happens when you perform a concatenation operation like str1 + str2? Can you example how it works under the hood? (7:33)
-When should I use String vs StringBuilder? (8:00)
-If you are working on a multi-threaded application, how would you choose between using a StringBuilder and StringBuffer? (8:22)
+Why String is immutable (important reasons):
+	Security (used in class loading, file paths)
+	String pool optimization
+	Thread-safe (no synchronization needed)
+	Hashcode caching (better performance in HashMap)
 
-Object-Oriented Programming (OOP) Concepts
+=====================================================================================================================================================
+When should I use String vs StringBuilder?
+=====================================================================================================================================================
+🔹 Use String when: 
+	Data is immutable / not changing, Few or no modifications
+	Example: constants, config values
+	String s = "Hello";
 
-Have you worked on any OOP concepts of Java? (8:48)
-Can you think of a situation where polymorphism might lead to an issue such as in a scenario with overridden methods? How would you resolve it? (9:05)
-Explain polymorphism and different types of it. (9:32)
-Can you explain how method overloading and method overriding differ in terms of polymorphism and give an example where you would use each? (9:52)
-Spring Boot
+🔹 Use StringBuilder when: 
+	Frequent modifications (append, insert, delete), Inside loops or heavy concatenation, Better performance (no new objects each time)
+	StringBuilder sb = new StringBuilder();
+	sb.append("Hello").append(" World");
 
-What's the default server in Spring Boot? (10:17)
-If you wanted to change the default embedded Tomcat server from Tomcat to Jetty in Spring Boot, what configuration changes would you need to make and what impact might that have on performance? (10:34)
-How are beans created in Spring Boot? (11:04)
-Imagine you have two beans of the same type but need to inject a specified one based on some runtime condition. How would you achieve this in Spring Boot? (11:21)
+🔥 Key Difference:
+	String → immutable (creates new object each change)
+	StringBuilder → mutable (modifies same object)
+=====================================================================================================================================================
+Difference between String vs StringBuffer vs StringBuilder
+=====================================================================================================================================================
+| Feature     | String                        | StringBuffer           | StringBuilder   |
+| ----------- | ----------------------------- | ---------------------- | --------------- |
+| Mutability  | ❌ Immutable      	      | ✅ Mutable     	       | ✅ Mutable     |
+| Thread-safe | ❌             	              | ✅ (synchronized)      | ❌    	 |
+| Performance | Slow (new object each change) | Slower (sync overhead) | Fastest         |
+| Use case    | Constants / read-only         | Multi-threaded         | Single-threaded |
 
-JPA (Java Persistence API)
+=====================================================================================================================================================
+If you are working on a multi-threaded application, how would you choose between using a StringBuilder and StringBuffer
+=====================================================================================================================================================
+🔹 StringBuffer
+	Thread-safe (methods are synchronized)
+	Use when multiple threads modify same object
+	StringBuffer sb = new StringBuffer();
 
-What is JPA? (11:47)
-Can you explain the difference between one-to-many and many-to-one relationships in JPA, and give an example when you would use each in a real-world scenario? (12:07)
+🔹 StringBuilder
+	Not thread-safe
+	Use in single-threaded or when each thread has its own instance
+	StringBuilder sb = new StringBuilder();
 
-REST APIs
+🚀 Decision:
+	Shared mutable data across threads → StringBuffer
+	No sharing / performance critical → StringBuilder
+⚡ Best Practice:
+	Instead of StringBuffer, prefer:
+		StringBuilder + manual synchronization (if needed)
+		Or use thread confinement (each thread uses its own object)
 
-Have you worked on APIs? Tell me the process to create REST API in Spring Boot. (13:33)
-If you are building a REST API with Spring Boot and you need to handle versioning, what strategies would you use to version the API? (13:59)
+=====================================================================================================================================================
+Have you worked on any OOP concepts of Java?
+=====================================================================================================================================================
+🚀 Real-world usage:
+	Encapsulation → DTOs, entities
+	Inheritance → base service classes
+	Polymorphism → strategy pattern, method overriding
+	Abstraction → interfaces in Spring (service layer)
+
+=====================================================================================================================================================
+Can you think of a situation where polymorphism might lead to an issue such as in a scenario with overridden methods? How would you resolve it?
+=====================================================================================================================================================
+👉 Issue comes when base class method is called unexpectedly due to:
+	Wrong reference type, Missing @Override, Method signature mismatch
+
+🔹 How to Resolve:
+	Use @Override annotation
+	Match exact method signature: Same name, parameters, return type
+	Program to interface carefully
+	Ensure correct method is invoked
+	Use final if method should NOT be overridden
+
+=====================================================================================================================================================
+Can you explain how method overloading and method overriding differ in terms of polymorphism and give an example where you would use each?=====================================================================================================================================================
+🔹 Method Overloading (Compile-time polymorphism)
+	Same method name, different parameters, Happens in same class, Decided at compile time
+
+🔹 Method Overriding (Runtime polymorphism)
+	Same method name + same signature, Happens in parent-child relationship, Decided at runtime
+
+=====================================================================================================================================================
+
+Default server in Spring Boot? If you wanted to change the default embedded Tomcat server from Tomcat to Jetty in Spring Boot, what configuration changes would you need to make and what impact might that have on performance?
+=====================================================================================================================================================
+Default server in Spring Boot → Apache Tomcat, but if you have both dependency then jetty will win
+
+🔹 Change Tomcat → Jetty
+	1. Exclude Tomcat & Add Jetty (Maven)
+
+| Aspect         | Tomcat   | Jetty                     |
+| -------------- | -------- | ------------------------- |
+| Throughput     | Good     | Slightly better in async  |
+| Memory         | Moderate | **Lower footprint**       |
+| Startup time   | Good     | **Faster**                |
+| Async handling | Good     | **Better (non-blocking)** |
+
+🔥 When to use Jetty?
+	High concurrency / async apps
+	Microservices (lightweight)
+
+=====================================================================================================================================================
+How are beans created in Spring Boot?
+=====================================================================================================================================================
+🔹 1. Component Scanning (Most common): Spring scans classes with annotations: @Component, @Service, @Repository, @Controller
+	👉 Automatically detected & registered as bean
+
+🔹 2. @Configuration + @Bean: Manually define beans
+
+🔹 3. Auto-Configuration (Spring Boot magic): Based on dependencies in classpath, Uses @EnableAutoConfiguration
+	👉 Example: Add web starter → DispatcherServlet bean created automatically
+🔹 4. @SpringBootApplication
+Combines: @Configuration, @ComponentScan, @EnableAutoConfiguration
+🔹 5. XML (legacy, rarely used)
+
+🔥 Bean Lifecycle (short):
+Instantiate
+Dependency injection
+Initialize (@PostConstruct)
+Ready to use
+
+=====================================================================================================================================================
+Imagine you have two beans of the same type but need to inject a specified one based on some runtime condition. How would you achieve this in Spring Boot?
+=====================================================================================================================================================
+
+@Autowired
+Map<String, PaymentService> services;
+
+public void process(String type) {
+    PaymentService service = services.get(type); // "paypal" / "stripe"
+    service.pay();
+}
+
+=====================================================================================================================================================
+
+What is JPA?
+=====================================================================================================================================================
+🔹 What is JPA?
+	JPA is a specification (not implementation) for managing relational data in Java applications
+	It provides ORM (Object Relational Mapping)
+	👉 Maps Java objects ↔ Database tables
+🔹 Key Idea:
+Class → Table, Object → Row, Field → Column
+
+🔹 Important Points: JPA is just interface/spec, Needs implementation like: Hibernate ORM, EclipseLink
+🔹 Features: CRUD operations, JPQL (query language), Caching, Relationships (OneToMany, ManyToOne)
+
+=====================================================================================================================================================
+Can you explain one-to-one, one-to-many, many-to-one, many-to-many, and many-to-any relationships in JPA, and give an example when you would use each in a real-world scenario and show the difference table
+=====================================================================================================================================================
+🔹 1. One-to-One (@OneToOne): One entity ↔ one entity, 👉 Example: User ↔ Passport
+@Entity
+class User {
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "passport_id")
+    private Passport passport;
+}
+
+@Entity
+class Passport {
+
+}
+
+🔹 2. One-to-Many (@OneToMany): One parent → many children, 👉 Example: Customer → Orders
+🔹 3. Many-to-One (@ManyToOne): Many children → one parent, 👉 Example: Many Orders → one Customer
+
+@Entity
+class Customer {
+    @OneToMany(mappedBy = "customer")
+    private List<Order> orders;
+}
+
+@Entity
+class Order {
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
+}
+
+
+🔹 4. Many-to-Many (@ManyToMany): Many ↔ many, 👉 Example: Students ↔ Courses
+@Entity
+class Student {
+    @ManyToMany
+    @JoinTable(
+        name = "student_course",
+        joinColumns = @JoinColumn(name = "student_id"),
+        inverseJoinColumns = @JoinColumn(name = "course_id")
+    )
+    private List<Course> courses;
+}
+
+@Entity
+class Course {
+    @ManyToMany(mappedBy = "courses")
+    private List<Student> students;
+}
+
+🔹 5. Many-to-Any (@ManyToAny) (Hibernate-specific): Many entities → multiple different entity types, 👉 Example: AuditLog → (User / Order / Product)
+@Entity
+class AuditLog {
+    @Id @GeneratedValue
+    private Long id;
+
+    private String entityType; // USER / ORDER
+
+    private Long entityId;
+}
+
+| Relationship | Mapping            | Real-world Example | FK Location    | Join Table |
+| ------------ | ------------------ | ------------------ | -------------- | ---------- |
+| One-to-One   | 1 ↔ 1              | User–Passport      | Either side    | Optional   |
+| One-to-Many  | 1 → N              | Customer–Orders    | Child table    | No         |
+| Many-to-One  | N → 1              | Orders–Customer    | Child table    | No         |
+| Many-to-Many | N ↔ N              | Students–Courses   | —              | **Yes**    |
+| Many-to-Any  | N → Multiple types | Audit–(User/Order) | Special column | Yes        |
+
+| Relationship  | Default |
+| ------------- | ------- |
+| `@OneToOne`   | EAGER   |
+| `@ManyToOne`  | EAGER   |
+| `@OneToMany`  | LAZY    |
+| `@ManyToMany` | LAZY    |
+
+🔹 Problems:
+EAGER → performance issues (loads unnecessary data)
+LAZY → LazyInitializationException (if session closed)
+
+🔹 Best Practice:
+Prefer LAZY
+Use JOIN FETCH / DTO when needed
+
+@Query("SELECT DISTINCT c FROM Customer c JOIN FETCH c.orders WHERE c.id = :id")
+Customer findCustomerWithOrders(@Param("id") Long id);
+
+🔹 Key Points:
+Works only in JPQL (not native SQL), Overrides LAZY → fetch immediately, Avoids LazyInitializationException
+
+
+🔹 Problem (N+1): Fetch parent → triggers multiple queries for child
+
+🔹 Solution: DTO Projection ✅
+1. Create DTO
+public class CustomerOrderDTO {
+    private String customerName;
+    private String orderName;
+
+    public CustomerOrderDTO(String customerName, String orderName) {
+        this.customerName = customerName;
+        this.orderName = orderName;
+    }
+}
+2. Use JPQL with DTO
+@Query("SELECT new com.example.dto.CustomerOrderDTO(c.name, o.name) " +
+       "FROM Customer c JOIN c.orders o")
+List<CustomerOrderDTO> fetchCustomerOrders();
+
+👉 Single query → no lazy loading → no N+1
+
+🔹 Why this works?
+Direct join query, No entity navigation (getOrders()), No extra queries triggered
+
+🔹 Benefits: Better performance, Fetch only required fields, Avoids LazyInitializationException
+
+🔥 DTO vs JOIN FETCH:
+Approach	Use Case
+JOIN FETCH	When you need full entities
+DTO Projection	When you need partial data (best for APIs)
+
+=====================================================================================================================================================
+If you are building a REST API with Spring Boot and you need to handle versioning, what strategies would you use to version the API?
+=====================================================================================================================================================
+🔹 1. URI Versioning (Most common) ✅ 👉 Simple, easy to understand
+	@GetMapping("/v1/users")
+	@GetMapping("/v2/users")
+
+🔹 2. Request Parameter Versioning: 👉 /users?version=1
+	@GetMapping(value = "/users", params = "version=1")
+
+🔹 3. Header Versioning: 👉 Cleaner URLs, version in headers
+	@GetMapping(value = "/users", headers = "X-API-VERSION=1")
+
+🔹 4. Media Type Versioning (Content Negotiation): 👉 Used in advanced APIs
+	@GetMapping(value = "/users", produces = "application/vnd.app.v1+json")
+
+| Strategy   | Pros            | Cons           |
+| ---------- | --------------- | -------------- |
+| URI        | Simple, visible | URL clutter    |
+| Param      | Easy to test    | Less RESTful   |
+| Header     | Clean URL       | Harder to test |
+| Media type | Flexible        | Complex        |
+
+=====================================================================================================================================================
 
 Coding Questions
 
-Write a program to create an object of a student class having ID, name, marks, and sorted by marks using a stream. (13:21)
-Print the palindromic strings from the list of strings by using a stream. (13:30)
+Q. Write a program to create an object of a student class having ID, name, marks, and sorted by marks using a stream.
+=====================================================================================================================================================
+	students.stream().sorted(Comparator.comparing(Student::getMark).reversed()).collect(Collectors.toList());
 
+=====================================================================================================================================================
+Q. Print the palindromic strings from the list of strings by using a stream.
+=====================================================================================================================================================
+	list.stream().filter(s -> s.equals(new StringBuilder(s).reverse().toString())).toList();
 
-📌 Round 1 : ( Technical ) 
-👉 : Explain about your project , how long is your sprint ?
-👉 : Difference between StringBuffer and StringBuilder
-👉 : Program to remove duplicate elements from an arraylist.
-👉 : Difference between 500 vs 503 API Status code
-----------------------------------------------------------------
-📌 Round 2 ( Technical )
-👉 : Given a string , remove all the duplicate elements from a string
-👉 : What is use of GroupBy in SQL. 
-👉 : How many string objects will be created : String s1 = new String("JAVA");
-👉 : Difference between finally and finalize in Java 
+=====================================================================================================================================================
+Q. Given a string , remove all the duplicate elements from a string
+=====================================================================================================================================================
+	str.chars().distinct().mapToObj(ch-> collect(Collectors.joining());
 
-Technical: OOPs , Data Structure, Collections, Exception Handling, Angular Basics TechnoManagerial: Java Basics ,Angular -features, PIPES, Lazy Loading , Decorators, Angular Life Cycle, Routing concepts HR: General Information, Slary Negotiation
+=====================================================================================================================================================
+Q. Program to remove duplicate elements from an arraylist
+=====================================================================================================================================================
+	arrayList.stream().distinct().toList();
 
-
-Coding Related Questions
+=====================================================================================================================================================
 1. There is two String S1 =”Java” and S2 =” Software” swap value without third variable and loops?
+=====================================================================================================================================================
+	s1 = s1 + s2;
+        s2 = s1.substring(0, s1.length() - s2.length());
+        s1 = s1.substring(s2.length());
+
+=====================================================================================================================================================
 2. There is one String s = “Java” count frequency of characters using java 8.
-3. int a = {10,15,20,25} and number if n =1 print 10,15,n=2 print 20,25 using java
+=====================================================================================================================================================
+		s1.chars().mapToObj(ch -> (char) ch)
+				.collect(Collectors.groupingBy(Function.identity(), LinkedHashMap::new, Collectors.counting()))
+				.entrySet().forEach(e -> System.out.println(e.getKey() + "=" + e.getValue()));
+
+=====================================================================================================================================================
+3. int a[] = {10,15,20,25} and number if n =1 print 10,15, n=2 print 20,25 using java
+=====================================================================================================================================================
+		int[] a = { 10, 15, 20, 25 };
+		int n = 1; // change to 1 or 2
+
+		for (int i = 0; i < a.length; i++) {
+			int num = a[i];
+			while (num >= 10) {
+				num /= 10;
+			}
+			if (num == n) {
+				System.out.println(a[i]);
+			}
+		}
+
+=====================================================================================================================================================
 4. Using Java Streams, how do you filter employees whose salary is greater than a given value?
+=====================================================================================================================================================
+	employees.stream().filter(e -> e.getSalary() > 5000).toList();
+
+=====================================================================================================================================================
 5. Using Java Streams, how do you find the average salary of all employees?
+=====================================================================================================================================================
+	employees.stream().mapToDouble(Employee::getSalary).average().orElse(0);
+
+=====================================================================================================================================================
 6. Using Java Streams, how do you group employees by department?
+=====================================================================================================================================================
+	employees.stream().collect(Collectors.groupingBy(Employee::getDepartment));
 
-Java Related Questions
-1. Types of garbage collectors in java?
-2. In tree set null is allowed?
-3. Features of java 17 over java 8?
-4. what is functional interface?
-5. why default method introduce in java 8?
-6. if functional interface have one default and one abstract method so it called functional interface?
-7. Explain virtual thread in Java?
-8. Some Java 21 Features?
-9. Difference between ArrayList And LinkedList?
-10. How HashMap and HashSet works internally?
-11. What is the real difference between HashMap and ConcurrentHashMap and when should you never use one?
-12. Why is String immutable in Java, and how does that impact performance?
-13. What actually happens in memory when you create an object using new?
-14. Difference between checked and unchecked exceptions and when to create your own?
-15. How does JVM memory (Heap, Stack, Metaspace) really work?
-16. What problem does Garbage Collection solve and when does it fail?
-17. Why is composition preferred over inheritance?
-18. What’s the difference between synchronized, volatile, and Atomic classes?
-19. How does Java achieve platform independence?
-20. When would you choose Stream API over a traditional loop and when not to?
-21. When to use parallel stream?
-22. In threads, what is the difference between the NEW state and the ACTIVE/RUNNABLE state?
-23. What is the difference between Fail-Fast and Fail-Safe iterators?
-
-Framework Related Questions
-1. What is @SpringbootStarterApplication annotation and how internally works.
-2. How does @RequestBody work in Spring Boot?
-3. Explain the complete flow of how a table is created in the database using Java, Spring Boot, and JPA — starting from defining an Entity class up to how it becomes a table in SQL.
-4. What are the purposes of the @Service and @Repository annotations in Spring, how does Spring treat them internally, and what is the typical request flow involving these layers?
-5. What is Dependency Injection and Dependency Inversion?
-
-Microservice Related Questions
-1. What is an API Gateway in microservices?
-2. How 2 microservices communicates to each other?
-3. How to track any request in microservice?
-4. What is Trace Id and Span Id?
-5. What happens when a microservice fails in between?
-6. Benefit of microservice over monolithic?
-
-Core Java & OOPs:
-
+=====================================================================================================================================================
 - How to check if a number in an array is even or odd without using %?
-- Can we have a static class in Java?
--What is an immutable class, and why is String immutable in Java?
-- In Java Streams, how to count and print individual words in a sentence?
+=====================================================================================================================================================
+int[] arr = {10, 15, 20, 25};
+
+for (int n : arr) {
+    if ((n & 1) == 0)
+        System.out.println(n + " is Even");
+    else
+        System.out.println(n + " is Odd");
+OR
+
+if ((n / 2) * 2 == n)
+    System.out.println("Even");
+else
+    System.out.println("Odd");
+
+=====================================================================================================================================================
 -How to sort an Employee table by name and age?
+=====================================================================================================================================================
+employees.stream().sorted(Comparator.comparing(Employee::getName).thenComparing(Employee::getAge)).toList();
+
+=====================================================================================================================================================
 -Bubble Sort: Difference between up & down approach, and how to implement it?
--A situation where finally won’t execute in Java.
-
-Spring & Microservices:
-
--What is API Gateway in microservices?
--How to migrate a monolithic application to microservices?
- -What are key security aspects in Spring?
-
-SQL & Database Concepts:
-
- -Primary Key vs. Unique Key – Key differences.
-- Given an Employee table (id, name, dept, salary), write a SQL query to find the highest salary in each department.
-
-It was an insightful round with a good mix of coding, problem-solving, and system design. 
-
-If you’re preparing for a Java Full Stack role, these topics are crucial!
-
-1. Java & Core Concepts
-Java 8-21 Features: Deep knowledge of Stream API (map() vs flatMap(), collect(), groupingBy()), Functional Interfaces, and Virtual Threads.
-Performance & Memory: JVM memory management (Heap, Stack, Metaspace), garbage collection types, and how to debug memory leaks.
-Concurrency: Differences between synchronized, volatile, and Atomic classes, ConcurrentHashMap internals, and ExecutorService.
-Coding Challenges: Find first non-repeating character, check linked list cycle, remove duplicates from a list, and reverse a string using recursion. 
-LinkedIn
-LinkedIn
- +3
-2. Spring Boot & Backend (Microservices) 
-Microservices Architecture: Explain the Saga pattern for transaction management, Circuit Breakers for failure handling, and Eventual Consistency.
-Spring Boot Internal: How does @SpringBootApplication work? Explain @RequestBody and @Service vs @Repository.
-API Management: API versioning strategies (URI, header), Idempotency in REST APIs, and authentication.
-Message Queues: Kafka partitions, consumer groups, and handling data consistency. 
-YouTube
-YouTube
- +2
-3. Frontend & Database (Full Stack)
-React/Angular: State management, hooks, and communication between components.
-SQL/Database: Advanced queries (e.g., finding the N-th highest salary, using GroupBy), SQL vs NoSQL scenarios. 
-Glassdoor
-Glassdoor
- +4
-
-
-============================
-Current project role
-What changes comes in date and time api
-Predefine functional interface
-count the duplicate words in a string
-changes comes in HashMap in java 8
-in general meaning of threshold and time complexity
-shift particular duplicates elements to left side in an array with less complexity  int[] arr = {1,2,3,4,2,1,1,3,1,4,1}; 
-custom exception handling in spring boot
-Role of response status
-how to use two datasource in spring boot application
-use of @Profile
-how to call procedure in data jpa
-stereo annotation types
-all design patterns of microservices used in your project
-
-Round 2: 
-immutable class
-clone means
-shallow vs deep copy
-marker interface, can we create our own marker interface
-serialization vs externalization
-locking concept in multithreading, Lock interface
-fair lock and reentrant lock
-what is read write lock
-concurrency level in ConcurrentHashMap, what will happen if we have more threads compare with no of bucket
-@SpringBootApplication internally work
-yaml vs properties
-@Transactional use case propagation and isolation level
-what is serializable
-manage fault tolerance
-service registry
-use of webclient, webflux, mono and flux
-role of API Gateway
-what is load balancer
-have you worked on ci/cd 
-junit test cases, Mockito, code coverage
-have you worked on design patterns
-difference between of factory and abstract factory
+=====================================================================================================================================================
+=====================================================================================================================================================
 what is binary search tree, i have a sorted array write code to use binary search to find the element
-
+=====================================================================================================================================================
+=====================================================================================================================================================
 Map<Integer, Employee> map = new HashMap();
 map.put(1, new Employee(1,"Mahes", "Hyderabad"));
 map.put(2, new Employee(2,"Sunny", "Mumbai"));
@@ -196,7 +404,7 @@ map.put(3, new Employee(3,"Tuna", "Pune"));
 map.put(4, new Employee(4,"Kuna", "Chennai"));
 
 sort employee on base of city and return a map having integer as key and value as employee
-
+=====================================================================================================================================================
 Map<Integer, Employee> sortedMap = map.entrySet()
     .stream()
     .sorted(Map.Entry.comparingByValue(Comparator.comparing(Employee::getCity)))
@@ -206,65 +414,1150 @@ Map<Integer, Employee> sortedMap = map.entrySet()
         (e1, e2) -> e1,
         LinkedHashMap::new   // maintains sorted order
     ));
+=====================================================================================================================================================
+finding the second highest salary
+=====================================================================================================================================================
+	employees.stream().map(Employee::getSalary).distinct().sorted().skip(1).findFirst().orElse(0.0);
 
+=====================================================================================================================================================
+finding the employee having second highest salary
+=====================================================================================================================================================
+employees.stream().sorted(Comparator.comparing(Employee::getSalary).reversed())
+                .collect(
+                    LinkedHashMap<Double, Employee>::new,
+                    (map, emp) -> map.putIfAbsent(emp.getSalary(), emp),
+                    Map::putAll
+                )
+                .values()
+                .stream()
+                .skip(1)
+                .findFirst();
+
+list.stream()
+    .sorted(Comparator.comparing(Employee::getSalary).reversed())
+    .map(Employee::getSalary)
+    .distinct()
+    .skip(1)
+    .findFirst()
+    .flatMap(sal -> list.stream()
+        .filter(e -> e.getSalary() == sal)
+        .findFirst());
+=====================================================================================================================================================
+Nth smallest element using Java 8 streams
+=====================================================================================================================================================
+	elements.stream().sorted().skip(n-1).findFirst()
+=====================================================================================================================================================
+summing even numbers in a list with streams.
+=====================================================================================================================================================
+numbers.stream().filter(n->n%2==0).reduce(0, Integer::sum);
+OR
+numbers.stream()
+       .filter(n -> n % 2 == 0)
+       .mapToInt(Integer::intValue)
+       .sum();
+=====================================================================================================================================================
+
+=====================================================================================================================================================
+👉 : API Status code
+=====================================================================================================================================================
+🔹 2xx → Success responses
+| Code    | Name                          | Description                        |
+| ------- | ----------------------------- | ---------------------------------- |
+| **200** | OK                            | Request successful                 |
+| **201** | Created                       | Resource created                   |
+| **202** | Accepted                      | Request accepted, processing later |
+| **204** | No Content                    | Success, no response body          |
+
+🔹 3xx → Redirection responses
+| Code    | Name                     | Description                   |
+| ------- | ------------------------ | ----------------------------- |
+| **301** | Moved Permanently        | Resource permanently moved    |
+| **302** | Found                    | Temporary redirect            |
+| **304** | Not Modified             | Cached version still valid    |
+| **307** | Temporary Redirect       | Same method, temporary        |
+| **308** | Permanent Redirect       | Same method, permanent        |
+
+🔹 4xx → Client Error responses
+| Code    | Name                            | Description                     |
+| ------- | ------------------------------- | ------------------------------- |
+| **400** | Bad Request                     | Invalid request                 |
+| **401** | Unauthorized                    | Authentication required         |
+| **403** | Forbidden                       | Access denied                   |
+| **404** | Not Found                       | Resource not found              |
+| **405** | Method Not Allowed              | HTTP method not supported       |
+| **409** | Conflict                        | Resource conflict               |
+| **422** | Unprocessable Entity            | Validation failed               |
+| **429** | Too Many Requests               | Rate limit exceeded             |
+
+🔹 5xx → Server Error responses
+| Code    | Name                            | Description                                  |
+| ------- | ------------------------------- | -------------------------------------------- |
+| **500** | Internal Server Error           | Generic server failure                       |
+| **502** | Bad Gateway                     | Invalid response from upstream server        |
+| **503** | Service Unavailable             | Server overloaded/down                       |
+| **504** | Gateway Timeout                 | Upstream server timeout                      |
+
+=====================================================================================================================================================
+ What is use of Group By in SQL. 
+=====================================================================================================================================================
+ Used to group rows with same values and apply aggregate functions
+	🔹 Common Aggregates: COUNT(), SUM(), AVG(), MAX(), MIN()
+
+=====================================================================================================================================================
+How to execute finalize() in Java (Interview answer):
+=====================================================================================================================================================
+🔹 Key Point: You cannot directly control or guarantee execution of finalize(), It is called by the Garbage Collector (GC)
+purpose is to use close open resources
+
+🔹 Modern Alternative:  Use: try-with-resources, AutoCloseable, Explicit cleanup methods
+🔹 Common Classes implementing AutoCloseable
+✅ I/O Streams: FileInputStream, FileOutputStream, BufferedReader, BufferedWriter, InputStream, OutputStream
+✅ Readers/Writers: FileReader, FileWriter, PrintWriter
+✅ JDBC: Connection, Statement, PreparedStatement, ResultSet
+✅ NIO: DirectoryStream, WatchService
+✅ Others: Scanner, ZipFile, JarFile
+
+=====================================================================================================================================================
+Technical: OOPs , Data Structure, Collections, Exception Handling, Angular Basics 
+Techno Managerial: Java Basics , Angular-features, PIPES, Lazy Loading , Decorators, Angular Life Cycle, Routing concepts 
+HR: General Information, Salary Negotiation
+=====================================================================================================================================================
+
+Java Related Questions
+=====================================================================================================================================================
+1. Types of garbage collectors in java?
+=====================================================================================================================================================
+Serial GC: Single-threaded, Best for small apps, JVM option: -XX:+UseSerialGC
+Parallel GC (Throughput GC): Multi-threaded, Focus: high throughput, JVM option: -XX:+UseParallelGC
+G1 GC (Garbage First) (Default since Java 9): Region-based, Predictable pause times, JVM option: -XX:+UseG1GC
+ZGC (Z Garbage Collector): Ultra-low latency (few ms pauses), Scalable for large heaps, JVM option: -XX:+UseZGC
+Shenandoah GC: Low pause time, Concurrent compaction, JVM option: -XX:+UseShenandoahGC
+
+=====================================================================================================================================================
+2. In TreeSet null is allowed?
+=====================================================================================================================================================
+👉 TreeSet doesn’t allow null because it needs comparison for sorting, and null
+TreeSet internally uses a balanced tree (Red-Black Tree).
+=====================================================================================================================================================
+3. Features of java 17 over java 8?
+=====================================================================================================================================================
+1. Language Enhancements
+	var (Java 10) → local variable type inference
+	Switch Expressions (Java 14) → cleaner switch
+	Text Blocks (Java 15) → multi-line strings
+	Records (Java 16) → immutable data classes
+	Sealed Classes (Java 17) → restrict inheritance
+	Pattern Matching for instanceof (Java 16)
+
+=====================================================================================================================================================
+4. what is functional interface?
+=====================================================================================================================================================
+=====================================================================================================================================================
+7. Explain virtual thread in Java?
+=====================================================================================================================================================
+👉 Virtual threads are lightweight threads introduced in Project Loom (Java 19 preview, Java 21 stable).
+
+🔹 Key Idea
+	Traditional threads (OS threads) are heavy & limited
+	Virtual threads are lightweight, managed by JVM
+	You can create millions of virtual threads
+🔹 Example
+	Thread.startVirtualThread(() -> { System.out.println("Hello Virtual Thread"); });
+🔹 Features
+	Very low memory usage
+	High scalability (good for I/O-heavy apps)
+	Simplifies async code → write like synchronous
+	Managed by JVM, not OS
+🔹 Platform vs Virtual Thread
+| Feature    | Platform Thread | Virtual Thread |
+| ---------- | --------------- | -------------- |
+| Managed by | OS              | JVM            |
+| Cost       | Heavy           | Lightweight    |
+| Count      | Limited (1000s) | Millions       |
+| Use case   | CPU tasks       | I/O tasks      |
+
+🔹 When to Use: Web servers, DB calls, API calls, Blocking I/O operations
+
+=====================================================================================================================================================
+8. Some Java 21 Features?
+=====================================================================================================================================================
+🔹 1. Virtual Threads (Final)
+🔹 2. Pattern Matching for Switch (Final)
+🔹 3. Record Patterns (Final)
+🔹 4. Sequenced Collections (New API)
+	Maintains order for collections
+	New interfaces: SequencedCollection, SequencedSet, SequencedMap
+🔹 5. String Templates (Preview)
+	String name = "Munna";
+	String msg = STR."Hello \{name}";
+	Safer string interpolation
+🔹 6. Scoped Values (Preview)
+	Alternative to ThreadLocal
+	Better for virtual threads
+🔹 7. Foreign Function & Memory API (Preview)
+	Replace JNI
+	Access native memory safely
+🔹 8. Unnamed Patterns & Variables (Preview)
+🔹 9. Unnamed Classes & Instance Main (Preview)
+
+=====================================================================================================================================================
+9. Difference between ArrayList And LinkedList?
+=====================================================================================================================================================
+| Operation              | ArrayList           | LinkedList            |
+| ---------------------- | ------------------- | --------------------- |
+| Get(index)             | Fast O(1)           | Slow O(n)             |
+| Insert/Delete (middle) | Slow (shift needed) | Fast (no shift)       |
+| Insert/Delete (end)    | Fast                | Fast                  |
+| Memory                 | Less                | More (extra pointers) |
+
+ArrayList → Best for frequent read operations
+LinkedList → Best for frequent insert/delete
+
+=====================================================================================================================================================
+10. How HashMap and HashSet works internally?
+=====================================================================================================================================================
+🔹 HashMap Internal Working
+Step-by-step
+	Key → hashCode()
+	Hash is processed → decides bucket index
+	Stored as Node (key, value, hash, next)
+🔹 Collision Handling
+	Same bucket → LinkedList
+	If list size ≥ 8 → converted to Balanced Tree (Red-Black Tree) (Java 8+)
+🔹 Flow
+	map.put("A", 10);
+	Compute hash of "A"
+	Find index
+	If empty → insert
+	If collision → compare using equals()
+	If same key → replace value
+
+🔹 Complexity
+	Average → O(1)
+	Worst → O(log n) (after tree conversion)
+
+🔹 HashSet Internal Working
+	👉 HashSet is backed by HashMap
+	Internally uses: private transient HashMap<E,Object> map;
+	When you do: set.add("A");
+	It does: map.put("A", PRESENT);
+
+🔹 Key Points
+	Only keys matter, value is dummy (PRESENT)
+	Ensures no duplicates (via equals() + hashCode())
+
+=====================================================================================================================================================
+11. What is the real difference between HashMap and ConcurrentHashMap and when should you never use one?
+=====================================================================================================================================================
+| Feature          | HashMap                                   | ConcurrentHashMap                            |
+| ---------------- | ----------------------------------------- | -------------------------------------------- |
+| Thread-safe      | ❌ No              	               | ✅ Yes       	                              |
+| Locking          | None                                      | Fine-grained (segment/bucket level)          |
+| Performance      | Fast (single-thread)                      | Slight overhead but scalable in multi-thread |
+| Null keys/values | ✅ Allows 1 null key, multiple null values| ❌ Not allowed              	              |
+| Fail behavior    | Can cause race conditions                 | Safe concurrent access                       |
+
+🔹 When to Use
+HashMap: Single-threaded apps, Read-heavy, no concurrency
+ConcurrentHashMap: Multi-threaded apps, High concurrency (e.g., caching, shared data)
+
+=====================================================================================================================================================
+13. What actually happens in memory when you create an object using new?
+=====================================================================================================================================================
+Step-by-step Flow when Student s = new Student();
+Class Loading (if not already)
+	JVM loads Student class into Method Area
+
+Memory Allocation (Heap)
+	Object memory is created in Heap
+	Space allocated for all instance variables
+
+Default Initialization
+	Fields get default values
+	int → 0, boolean → false, Object → null
+
+Constructor Call
+	Constructor initializes values
+
+Reference Assignment
+	s (in Stack) stores reference (address) of object
+
+=====================================================================================================================================================
+15. How does JVM memory (Heap, Stack, Metaspace) really work?
+=====================================================================================================================================================
+🔹 1. Heap (Shared): 👉 Stores objects & instance variables
+	Divided into:
+		Young Gen → Eden + Survivor (S0, S1)
+		Old Gen → long-lived objects
+		Managed by Garbage Collector
+
+Flow: New object → Eden, Survives GC → Survivor → Old Gen
+
+Key Point: 👉 Main area for memory management & GC tuning
+
+🔹 2. Stack (Thread-specific)
+	👉 Stores method calls & local variables
+	Each thread has its own stack
+	Works as LIFO (Last In First Out)
+
+Contains:
+	Method frames
+	Local variables
+	References (not objects)
+	Example Flow: main() → methodA() → methodB(), Each call creates a new stack frame
+	Errors: StackOverflowError → deep recursion
+
+🔹 3. Metaspace (Class Metadata)
+	👉 Stores class-level information
+	Class structure (methods, fields, bytecode)
+	Static variables (Java 8+)
+	Replaced PermGen (Java 8)
+	Key Point: Uses native memory (not heap), Grows dynamically
+🔹 How They Work Together
+Class loaded → Metaspace
+Method called → Stack frame created
+Object created (new) → Heap
+Stack holds reference → points to Heap object
+GC cleans Heap when no references exist
+
+| Area      | Scope      | Stores            | Managed By    |
+| --------- | ---------- | ----------------- | ------------- |
+| Heap      | Shared     | Objects           | GC            |
+| Stack     | Per thread | Local vars, calls | JVM           |
+| Metaspace | Shared     | Class metadata    | Native memory |
+
+=====================================================================================================================================================
+16. What problem does Garbage Collection solve and when does it fail?
+=====================================================================================================================================================
+🔹 When does GC FAIL / Cause Problems?
+1. Memory Leaks (Logical): Objects still referenced but not used
+	static List<Object> list = new ArrayList<>();
+	👉 GC won’t remove → reference exists
+
+2. OutOfMemoryError: Heap is full, GC cannot free enough memory
+3. GC Overhead Limit Exceeded: JVM spends too much time in GC, frees very little memory
+4. Stop-The-World Pauses: Application pauses during GC, Affects performance (latency issues)
+5. Improper Object Usage: Long-lived objects stay in Old Gen, Frequent allocations → GC pressure
+
+🔹 Key Insight
+	👉 GC does NOT free unused objects
+	👉 It frees only unreachable objects
+
+=====================================================================================================================================================
+17. Why is composition preferred over inheritance?
+=====================================================================================================================================================
+👉 Composition = “has-a”
+👉 Inheritance = “is-a”
+🔹 Why Composition is Better: 
+	Loose Coupling: Changes in one class don’t break others, Inheritance → tightly coupled
+	Flexibility: Can change behavior at runtime, Inheritance → fixed at compile time
+	Better Encapsulation: Internal details are hidden, Inheritance exposes parent behavior
+	Avoids Fragile Base Class Problem: Changes in parent class can break child
+	Code Reuse without Hierarchy Issues: Reuse functionality via objects, not forced hierarchy
+
+🔹 1. Aggregation (Weak Composition)
+	👉 “Has-a” (loosely coupled)
+	Child can exist independently, Lifecycle is separate
+	👉 Engine can exist without Car
+
+🔹 2. Composition (Strong Composition)
+	👉 “Part-of” (strong relationship)
+	Child cannot exist without parent, Lifecycle is dependent
+=====================================================================================================================================================
+18. What’s the difference between synchronized, volatile, and Atomic classes?
+=====================================================================================================================================================
+| Feature       | synchronized        | volatile   | Atomic Classes |
+| ------------- | ------------------- | ---------- | -------------- |
+| Thread safety | ✅ Yes             | ⚠️ Partial | ✅ Yes        |
+| Locking       | Uses lock (monitor) | No lock    | No lock (CAS)  |
+| Visibility    | ✅ Yes              | ✅ Yes    | ✅ Yes        |
+| Atomicity     | ✅ Yes              | ❌ No     | ✅ Yes        |
+| Performance   | Slower              | Fast       | Fast           |
+
+=====================================================================================================================================================
+20. When would you choose Stream API over a traditional loop and when not to?
+=====================================================================================================================================================
+👉 Use Streams for clean data processing, loops for complex logic & performance control.
+
+=====================================================================================================================================================
+21. When to use parallel stream?
+=====================================================================================================================================================
+🔹 Use Parallel Stream when:
+Large Dataset: Thousands/millions of elements, Small tasks → benefit from splitting
+Independent Operations: No shared mutable state, Each element processed independently
+CPU-intensive Work: Calculations, transformations, NOT I/O (DB/API calls)
+Stateless & Side-effect free: Safe operations (no race conditions)
+
+🔹 When NOT to use
+❌ Small datasets (overhead > benefit)
+❌ I/O operations (blocking → no gain)
+❌ Shared mutable data (race conditions)
+❌ Order-sensitive operations
+
+🔹 Key Points: Uses ForkJoinPool (common pool), Performance depends on CPU cores
+
+=====================================================================================================================================================
+23. What is the difference between Fail-Fast and Fail-Safe iterators?
+=====================================================================================================================================================
+🔹 Fail-Fast Iterator: 👉 Throws exception if collection is modified during iteration
+	Uses modCount to detect changes, Throws ConcurrentModificationException
+
+Example:
+	List<Integer> list = new ArrayList<>();
+	list.add(1); list.add(2);
+	for (Integer i : list) {
+	    list.add(3); // ❌ Exception
+	}
+
+Collections: ArrayList, HashMap, HashSet
+
+🔹 Fail-Safe Iterator: 👉 Works on a copy of collection
+	No exception, Safe modification during iteration
+
+Example:
+	CopyOnWriteArrayList<Integer> list = new CopyOnWriteArrayList<>();
+	list.add(1);
+	for (Integer i : list) {
+	    list.add(2); // ✅ No exception
+	}
+
+Collections: CopyOnWriteArrayList, ConcurrentHashMap
+
+=====================================================================================================================================================
+
+Framework Related Questions
+1. What is @SpringBootApplication annotation and how internally works.
+=====================================================================================================================================================
+🔹 1. @Configuration: 👉 Marks class as source of bean definitions
+🔹 2. @EnableAutoConfiguration: 👉 Automatically configures Spring based on dependencies
+	Uses: spring.factories (Spring Boot 2), AutoConfiguration.imports (Spring Boot 3)
+	Example: If spring-web present → auto configures Tomcat, DispatcherServlet
+🔹 3. @ComponentScan: 👉 Scans package for: @Component, @Service, @Repository, @Controller
+	(Default: current package + sub-packages)
+🔹 Internal Flow
+	JVM starts main(): Calls: SpringApplication.run(App.class, args);
+	Spring Boot: Creates ApplicationContext, Performs component scan, Applies auto-configurations, Starts embedded server (Tomcat)
+🔹 Key Points: Reduces boilerplate configuration, Convention over configuration, Entry point of Spring Boot app
+
+=====================================================================================================================================================
+2. How does @RequestBody work in Spring Boot?
+=====================================================================================================================================================
+👉 Used to bind HTTP request body (JSON/XML) to a Java object
+🔹 How it works internally: Client sends JSON { "name": "Munna", "age": 25 }
+	Spring uses Jackson: Converts JSON → Java Object (Deserialization)
+	Flow: DispatcherServlet receives request, Finds matching controller, Uses HttpMessageConverter
+	Default: MappingJackson2HttpMessageConverter, Object passed to controller method
+
+🔹 Key Points: Works with @PostMapping, @PutMapping, Requires matching fields in POJO, Supports validation (@Valid)
+🔹 Common Issues: Missing getters/setters, Wrong JSON format, No default constructor
+
+=====================================================================================================================================================
+3. Explain the complete flow of how a table is created in the database using Java, Spring Boot, and JPA — starting from defining an Entity class up to how it becomes a table in SQL.
+=====================================================================================================================================================
+🔹 1. Define Entity (Java Class → Metadata)
+🔹 2. Application Startup
+🔹 3. Auto Configuration kicks in
+	👉 Via @SpringBootApplication: Enables JPA auto-config, Configures: DataSource, EntityManagerFactory, TransactionManager
+🔹 4. Entity Scanning: 👉 Spring scans packages for @Entity classes
+🔹 5. Hibernate (JPA Provider) takes over: 👉 Default provider = Hibernate, Converts Entity → Table mapping, Prepares SQL schema
+🔹 6. DDL Generation (Important): 👉 Controlled by: spring.jpa.hibernate.ddl-auto=update
+	Options: create → drop & create, update → alter existing, validate → only validate, none → do nothing
+🔹 7. SQL Execution: 👉 Hibernate generates SQL: Executes via JDBC → DB creates table
+🔹 8. Final Result: 👉 Table created in DB, 👉 Entity ↔ Table mapping ready
+
+
+=====================================================================================================================================================
+4. What are the purposes of the @Service and @Repository annotations in Spring, how does Spring treat them internally, and what is the typical request flow involving these layers?
+=====================================================================================================================================================
+👉 @Service: Marks business logic layer, Contains application rules, calculations, workflows
+👉 @Repository: Marks data access layer (DAO), Interacts with DB (JPA, JDBC)
+
+🔹 How Spring treats them internally: 👉 Both are specializations of @Component
+Detected via component scanning, Registered as Spring Beans (Singleton by default)
+🔹 Extra behavior of @Repository: 👉 Adds exception translation, Converts DB exceptions → Spring’s DataAccessException
+Example: SQLException → DataAccessException
+
+🔹 @Service role internally: No special behavior like repository, Used for layer separation + AOP (transactions, logging)
+
+=====================================================================================================================================================
+5. What is Dependency Injection and Dependency Inversion?
+=====================================================================================================================================================
+🔹 1. Dependency Injection (DI): Providing dependencies from outside instead of creating them inside
+🔹 Benefits: Loose coupling, Easy testing (mocking), Better maintainability
+🔹 2. Dependency Inversion Principle (DIP): 👉 One of SOLID principles
+	👉 Rule: High-level modules should NOT depend on low-level modules, Both should depend on abstractions (interfaces)
+
+=====================================================================================================================================================
+
+Microservice Related Questions
+1. What is an API Gateway in microservices?
+=====================================================================================================================================================
+👉 A single entry point for all client requests in a microservices architecture
+Clients don’t call services directly, All requests go through the gateway
+🔹 Responsibilities
+	Routing → forwards request to correct service
+	Authentication & Authorization
+	Rate limiting / throttling
+	Load balancing
+	Request/Response transformation
+	Logging & monitoring
+
+=====================================================================================================================================================
+2. How 2 microservices communicates to each other?
+=====================================================================================================================================================
+| Feature        | Synchronous  | Asynchronous     |
+| -------------- | ------------ | ---------------- |
+| Response       | Immediate    | Delayed          |
+| Coupling       | Tight        | Loose            |
+| Failure impact | High         | Low              |
+| Use case       | Simple flows | Scalable systems |
+
+=====================================================================================================================================================
+3. How to track any request in microservice?
+=====================================================================================================================================================
+🔹 Solution: Distributed Tracing
+🔹 How it works
+	Client sends request → Gateway generates Trace ID
+	ID is passed in headers across services
+	Each service logs with same ID
+	You can trace full flow
+
+=====================================================================================================================================================
+5. What happens when a microservice fails in between?
+=====================================================================================================================================================
+🔹 Scenario: Client → Service A → Service B → Service C
+👉 If Service B fails → chain breaks
+
+🔹 What actually happens
+	Request fails / error returned: Timeout / Exception (e.g., 500, 503)
+	Upstream services affected: Service A may fail waiting for B, Client gets failure response
+	Partial execution problem: Some services may have completed work, Leads to inconsistent data
+
+🔹 How to handle failures
+	1. Circuit Breaker: 👉 Stops repeated calls to failing service, Example: Resilience4j
+	2. Retry Mechanism: 👉 Retry failed requests (with limits)
+	3. Fallback: 👉 Provide default response, return "Service unavailable, try later";
+	4. Timeout: 👉 Don’t wait indefinitely
+	5. Bulkhead Pattern: 👉 limits concurrent calls to protect system from overload and isolate failures 🚀
+	6. Eventual Consistency (Saga): 👉 Handle partial failures using compensation
+
+🔹 Real-world Example: 👉 Payment fails after order created: Use Saga pattern → cancel order
+
+=====================================================================================================================================================
+6. Benefit of microservice over monolithic?
+=====================================================================================================================================================
+| Feature         | Monolithic Architecture          | Microservices Architecture      |
+| --------------- | -------------------------------- | ------------------------------- |
+| Structure       | Single large application         | Multiple small services         |
+| Deployment      | Entire app deployed together     | Independent deployment          |
+| Scalability     | Scale whole app                  | Scale specific service          |
+| Fault Isolation | One failure affects whole system | Failure isolated to one service |
+| Technology      | Single tech stack                | Multiple tech stacks allowed    |
+| Codebase        | Large, tightly coupled           | Small, loosely coupled          |
+| Development     | Hard for large teams             | Easy for multiple teams         |
+| Performance     | Faster (no network calls)        | Slight overhead (network calls) |
+| Maintenance     | Difficult as app grows           | Easier (modular services)       |
+| Testing         | Complex (full app testing)       | Easier (service-wise testing)   |
+
+=====================================================================================================================================================
+-How to migrate a monolithic application to microservices?
+=====================================================================================================================================================
+=====================================================================================================================================================
+ -What are key security aspects in Spring?
+=====================================================================================================================================================
+=====================================================================================================================================================
+
+SQL & Database Concepts:
+ -Primary Key vs. Unique Key – Key differences.
+=====================================================================================================================================================
+=====================================================================================================================================================
+- Given an Employee table (id, name, dept, salary), write a SQL query to find the highest salary in each department.
+=====================================================================================================================================================
+=====================================================================================================================================================
+
+1. Java & Core Concepts
+Java 8-21 Features: Deep knowledge of Stream API (map() vs flatMap(), collect(), groupingBy()), Functional Interfaces, and Virtual Threads.
+Performance & Memory: JVM memory management (Heap, Stack, Metaspace), garbage collection types, and how to debug memory leaks.
+Concurrency: Differences between synchronized, volatile, and Atomic classes, ConcurrentHashMap internals, and ExecutorService.
+Coding Challenges: Find first non-repeating character, check linked list cycle, remove duplicates from a list, and reverse a string using recursion. 
+ 
+2. Spring Boot & Backend (Microservices) 
+Microservices Architecture: Explain the Saga pattern for transaction management, Circuit Breakers for failure handling, and Eventual Consistency.
+Spring Boot Internal: How does @SpringBootApplication work? Explain @RequestBody and @Service vs @Repository.
+API Management: API versioning strategies (URI, header), Idempotency in REST APIs, and authentication.
+Message Queues: Kafka partitions, consumer groups, and handling data consistency. 
+ 
+3. Frontend & Database (Full Stack)
+React/Angular: State management, hooks, and communication between components.
+SQL/Database: Advanced queries (e.g., finding the N-th highest salary, using GroupBy), SQL vs NoSQL scenarios. 
+ 
+============================
+What changes comes in date and time api
+=====================================================================================================================================================
+=====================================================================================================================================================
+Predefine functional interface
+=====================================================================================================================================================
+=====================================================================================================================================================
+count the duplicate words in a string
+=====================================================================================================================================================
+=====================================================================================================================================================
+changes comes in HashMap in java 8
+=====================================================================================================================================================
+=====================================================================================================================================================
+in general meaning of threshold and time complexity
+=====================================================================================================================================================
+=====================================================================================================================================================
+shift particular duplicates elements to left side in an array with less complexity  int[] arr = {1,2,3,4,2,1,1,3,1,4,1}; 
+=====================================================================================================================================================
+=====================================================================================================================================================
+custom exception handling in spring boot
+=====================================================================================================================================================
+=====================================================================================================================================================
+Role of response status
+=====================================================================================================================================================
+=====================================================================================================================================================
+how to use two datasource in spring boot application
+=====================================================================================================================================================
+=====================================================================================================================================================
+use of @Profile
+=====================================================================================================================================================
+=====================================================================================================================================================
+how to call procedure in data jpa
+=====================================================================================================================================================
+=====================================================================================================================================================
+stereo annotation types
+=====================================================================================================================================================
+=====================================================================================================================================================
+all design patterns of microservices used in your project
+=====================================================================================================================================================
+=====================================================================================================================================================
+
+Round 2: 
+clone means
+=====================================================================================================================================================
+=====================================================================================================================================================
+shallow vs deep copy
+=====================================================================================================================================================
+=====================================================================================================================================================
+marker interface, can we create our own marker interface
+=====================================================================================================================================================
+=====================================================================================================================================================
+serialization vs externalization
+=====================================================================================================================================================
+=====================================================================================================================================================
+locking concept in multithreading, Lock interface
+=====================================================================================================================================================
+=====================================================================================================================================================
+fair lock and reentrant lock
+=====================================================================================================================================================
+=====================================================================================================================================================
+what is read write lock
+=====================================================================================================================================================
+=====================================================================================================================================================
+concurrency level in ConcurrentHashMap, what will happen if we have more threads compare with no of bucket
+=====================================================================================================================================================
+=====================================================================================================================================================
+@SpringBootApplication internally work
+=====================================================================================================================================================
+=====================================================================================================================================================
+yaml vs properties
+=====================================================================================================================================================
+=====================================================================================================================================================
+@Transactional use case propagation and isolation level
+=====================================================================================================================================================
+=====================================================================================================================================================
+what is serializable
+=====================================================================================================================================================
+=====================================================================================================================================================
+manage fault tolerance
+=====================================================================================================================================================
+=====================================================================================================================================================
+service registry
+=====================================================================================================================================================
+=====================================================================================================================================================
+use of webclient, webflux, mono and flux
+=====================================================================================================================================================
+=====================================================================================================================================================
+role of API Gateway
+=====================================================================================================================================================
+=====================================================================================================================================================
+what is load balancer
+=====================================================================================================================================================
+=====================================================================================================================================================
+have you worked on ci/cd 
+=====================================================================================================================================================
+=====================================================================================================================================================
+junit test cases, Mockito, code coverage
+=====================================================================================================================================================
+=====================================================================================================================================================
+have you worked on design patterns
+=====================================================================================================================================================
+=====================================================================================================================================================
+difference between of factory and abstract factory
+=====================================================================================================================================================
+=====================================================================================================================================================
 
 how locking mechanism work in concurrenthasmap, how it differentiate with hashmap
+=====================================================================================================================================================
+=====================================================================================================================================================
 we have 16 elememnts in concurenthashmap, can 16 thread can update at the same time of 16 bucket elemnts
+=====================================================================================================================================================
+=====================================================================================================================================================
 abstract vs interface, real life example
+=====================================================================================================================================================
+=====================================================================================================================================================
 TreeMap, HashSet, TreeSet
+=====================================================================================================================================================
+=====================================================================================================================================================
 can we create a private constructor in a class
+=====================================================================================================================================================
+=====================================================================================================================================================
 how can we break singleton
+=====================================================================================================================================================
+=====================================================================================================================================================
 what is garbage collection
+=====================================================================================================================================================
+=====================================================================================================================================================
 how can use the finalize method programaticlly
+=====================================================================================================================================================
+=====================================================================================================================================================
 fail-fast vs fail-safe iterator
+=====================================================================================================================================================
+=====================================================================================================================================================
 java 8 features added for comparator
+=====================================================================================================================================================
+=====================================================================================================================================================
 map vs flatmap
+=====================================================================================================================================================
+=====================================================================================================================================================
 arrayList vs linkedlist
+=====================================================================================================================================================
+=====================================================================================================================================================
 sleep vs wait, why wait in object class
+=====================================================================================================================================================
+=====================================================================================================================================================
 what is exception declarion
+=====================================================================================================================================================
+=====================================================================================================================================================
 how to write custom exception
+=====================================================================================================================================================
+=====================================================================================================================================================
 try with resorces
+=====================================================================================================================================================
+=====================================================================================================================================================
 classnotfoundexception vs noclassdeffounderror
+=====================================================================================================================================================
+=====================================================================================================================================================
 
 count of male and female count using java stream 8
 Distadvantage of @Autowired 
+=====================================================================================================================================================
+=====================================================================================================================================================
 inversion of control
+=====================================================================================================================================================
+=====================================================================================================================================================
 Dependency Injection
+=====================================================================================================================================================
+=====================================================================================================================================================
 
 how java memory model works, and why volatile is important
+=====================================================================================================================================================
+=====================================================================================================================================================
 hashmap vs hastable vs concurrenthasmap
+=====================================================================================================================================================
+=====================================================================================================================================================
 concurrenthasmap over synchronizedMap
+=====================================================================================================================================================
+=====================================================================================================================================================
 how gc works, what make g1gc special
+=====================================================================================================================================================
+=====================================================================================================================================================
 Threadpoolexecutor internally works
+=====================================================================================================================================================
+=====================================================================================================================================================
 monolithic vs micrservice architecture
+=====================================================================================================================================================
+=====================================================================================================================================================
 synchronize vs lock api
+=====================================================================================================================================================
+=====================================================================================================================================================
 checked vs unchecked exception
+=====================================================================================================================================================
+=====================================================================================================================================================
 how stream work internally
+=====================================================================================================================================================
+=====================================================================================================================================================
 weakhasmap
+=====================================================================================================================================================
+=====================================================================================================================================================
 class loader hierarchy
+=====================================================================================================================================================
+=====================================================================================================================================================
 compeletablefutre
+=====================================================================================================================================================
+=====================================================================================================================================================
 ExecutorServie and forkjoinpool
+=====================================================================================================================================================
+=====================================================================================================================================================
 
 
 Backend Development:
-
 Java 8 features, including streams and new APIs.
+=====================================================================================================================================================
+=====================================================================================================================================================
 ORM mapping of tables to Java classes.
+=====================================================================================================================================================
+=====================================================================================================================================================
 Differences between @Bean and @Component annotations.
+=====================================================================================================================================================
+=====================================================================================================================================================
 Implementing pagination and caching in Spring Boot applications.
+=====================================================================================================================================================
+=====================================================================================================================================================
 The purpose of @ControllerAdvice in Spring.
+=====================================================================================================================================================
+=====================================================================================================================================================
 Lazy loading in Hibernate and writing complex queries.
+=====================================================================================================================================================
+=====================================================================================================================================================
 Differences between Gradle and Maven, and the purpose of the pom.xml file in Maven.
+=====================================================================================================================================================
+=====================================================================================================================================================
 Continuous integration in Jenkins and writing JUnit test cases.
-Practical coding questions, such as finding the second highest salary and the Nth smallest element using Java 8 streams, and summing even numbers in a list with streams.
-Frontend Development:
+=====================================================================================================================================================
+=====================================================================================================================================================
 
+Frontend Development:
+=====================================================================================================================================================
+Explain Change detection
+=====================================================================================================================================================
+🔹 What is Change Detection: 👉 Mechanism in Angular that updates the UI when data changes
+🔹 How it works: Data change → Angular detects → Updates DOM
+	👉 Angular checks component values and syncs with template
+
+🔹 What triggers it: User events (click, input), HTTP responses, Timers (setTimeout, Promise), Observable emissions
+🔹 Default Strategy (Default): 👉 Checks entire component tree
+	changeDetection: ChangeDetectionStrategy.Default
+	✔️ Automatic, ❌ Can be slower for large apps
+
+🔹 OnPush Strategy
+	👉 Checks only when: Input reference changes, Event triggered, Observable emits
+
+changeDetection: ChangeDetectionStrategy.OnPush
+
+✔️ Better performance, ✔️ Optimized rendering
+
+🔹 Example
+@Component({
+  selector: 'app',
+  template: `{{ data }}`,
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+🔹 Key Concept: 👉 Angular uses zone.js to track async operations and trigger change detection
+
+🔹 Optimization Tips: Use OnPush, Use trackBy in ngFor, Avoid unnecessary bindings
+
+=====================================================================================================================================================
 Data binding in Angular, including the types deployed.
+=====================================================================================================================================================
+| Type             | Direction | Syntax  |
+| ---------------- | --------- | ------- |
+| Interpolation    | TS → HTML | `{{ }}` |
+| Property Binding | TS → HTML | `[ ]`   |
+| Event Binding    | HTML → TS | `( )`   |
+| Two-way Binding  | Both      | `[( )]` |
+
+=====================================================================================================================================================
 The concept of Single Page Applications (SPA).
-Angular decorators, templates, and pipes, including the PipeTransform interface.
+=====================================================================================================================================================
+👉 A web app that loads a single HTML page and dynamically updates content without full page reload
+🔹 Core Idea: 👉 Loads one page (index.html) and updates views dynamically using JavaScript
+🔹 Key Mechanisms in Angular
+1. Client-side Routing: 👉 Angular Router handles navigation without reload
+	{ path: 'dashboard', component: DashboardComponent }
+	✔️ URL changes, ❌ No page refresh
+
+2. <router-outlet>: 👉 Placeholder where components load dynamically: <router-outlet></router-outlet>, ✔️ Only this part updates
+
+3. Components-Based Architecture: 👉 Each screen = component, Angular swaps components instead of reloading page
+4. HttpClient (API Calls): 👉 Fetch data from backend without reload, this.http.get('/api/users')
+5. Data Binding: 👉 Updates UI automatically when data changes
+6. Angular Bootstrapping: 👉 App starts once: bootstrapApplication(AppComponent)
+
+=====================================================================================================================================================
+Angular decorators, templates, and pipes.
+=====================================================================================================================================================
+🔹 1. Decorators in Angular: 👉 Decorators add metadata to classes
+Common Decorators
+@Component → defines UI component
+@Injectable → service for DI
+@Directive → custom behavior
+@Pipe → defines a pipe
+
+🔹 2. Templates: 👉 HTML with Angular syntax (binding, directives)
+✔️ Uses:Interpolation {{}}, Property binding [ ], Event binding ( )
+
+
+🔹 3. Pipes: 👉 Transform data in template
+
+Built-in examples:
+{{ name | uppercase }}
+{{ date | date:'short' }}
+
+🔹 Custom Pipe
+import { Pipe, PipeTransform } from '@angular/core';
+
+@Pipe({ name: 'reverse' })
+export class ReversePipe implements PipeTransform {
+
+  transform(value: string): string {
+    return value.split('').reverse().join('');
+  }
+}
+
+=====================================================================================================================================================
+Angular Directive, custom Directive
+=====================================================================================================================================================
+🔹 What is a Directive: 👉 A class that modifies DOM behavior or appearance in Angular
+
+🔹 Types of Directives
+	1. Component Directive: 👉 Has template (UI), @Component({...})
+	2. Structural Directive: 👉 Changes DOM structure, *ngIf, *ngFor, *ngSwitch : <div *ngIf="isLoggedIn">Welcome</div>
+	3. Attribute Directive: 👉 Changes appearance/behavior: ngClass, ngStyle: <p [ngClass]="'highlight'">Text</p>
+
+🔹 Custom Directive: 👉 Create your own directive, Example: Highlight Directive
+
+@Directive({
+  selector: '[appHighlight]'
+})
+export class HighlightDirective {
+
+  constructor(private el: ElementRef) {}
+
+  @HostListener('mouseenter')
+  onMouseEnter() {
+    this.el.nativeElement.style.backgroundColor = 'yellow';
+  }
+
+  @HostListener('mouseleave')
+  onMouseLeave() {
+    this.el.nativeElement.style.backgroundColor = null;
+  }
+}
+
+=====================================================================================================================================================
 Differences between AOT and JIT compilation.
+=====================================================================================================================================================
+AOT (Ahead Of Time) → compile at build time
+JIT (Just In Time) → compile in browser at runtime
+👉 AOT = compile before run (fast & secure)
+👉 JIT = compile at runtime (flexible for dev) 🚀
+🔹 Advantages
+AOT: Faster rendering, Early error detection, Better performance
+JIT: Faster development, No build step required
+
+=====================================================================================================================================================
 Angular components, modules, and services.
+=====================================================================================================================================================
+🔹 1. Component: 👉 Building block of UI in Angular, Controls a view (HTML + logic)
+✔️ Contains: Template (HTML), Logic (TS), Styles
+
+🔹 2. Module (NgModule): 👉 Groups related components, directives, pipes
+
+@NgModule({
+  declarations: [UserComponent],
+  imports: [BrowserModule],
+  bootstrap: [AppComponent]
+})
+export class AppModule {}
+
+✔️ Responsibilities: Organize app, Define scope, Manage dependencies
+
+🔹 3. Service: 👉 Handles business logic / data / API calls
+✔️ Used via Dependency Injection
+
+=====================================================================================================================================================
 Promises and Observables in Angular, and using ngFor.
+=====================================================================================================================================================
+🔹 1. Promise: 👉 Handles single async value (once)
+
+getData(): Promise<string> {
+  return fetch('/api').then(res => res.text());
+}
+
+✔️ Resolves once, ❌ No cancellation, ❌ No multiple values
+
+🔹 2. Observable: 👉 Handles multiple async values (stream), Used heavily in Angular
+
+import { Observable } from 'rxjs';
+
+getData(): Observable<any> {
+  return this.http.get('/api');
+}
+
+✔️ Multiple values, ✔️ Can cancel (unsubscribe), ✔️ Operators (map, filter, etc.)
+
+🔹 3. Using ngFor: 👉 Used to loop through list in template
+
+users = ['A', 'B', 'C'];
+<li *ngFor="let user of users">
+  {{ user }}
+</li>
+
+<li *ngFor="let user of users; trackBy: trackById">
+  {{ user.name }}
+</li>
+trackById(index: number, user: any) {
+  return user.id;
+}
+👉 trackBy helps Angular identify list items uniquely and update only changed elements instead of re-rendering entire list
+
+🔹 With Observable + async pipe
+users$ = this.http.get<string[]>('/api/users');
+
+<li *ngFor="let user of users$ | async">
+  {{ user }}
+</li>
+
+✔️ No manual subscribe, ✔️ Auto unsubscribe
+
+=====================================================================================================================================================
 Sharing data between components, router links, and HTTP interceptors.
+=====================================================================================================================================================
+🔹 1. Sharing Data Between Components
+👉 Parent → Child (@Input)
+	@Input() name!: string;
+	<app-child [name]="parentName"></app-child>
+
+👉 Child → Parent (@Output)
+	@Output() notify = new EventEmitter<string>();
+	this.notify.emit('Hello');
+	
+	<app-child (notify)="handle($event)"></app-child>
+
+👉 Unrelated Components (Service): 👉 Best practice using shared service
+
+@Injectable({ providedIn: 'root' })
+export class DataService {
+  data = new BehaviorSubject<string>('default');
+}
+
+✔️ Uses RxJS (BehaviorSubject)
+🔹 What is BehaviorSubject: 👉 A special type of Observable from RxJS
+Holds current value, Emits last value immediately to new subscribers
+🔹 Key Features: Requires initial value, Stores latest value, New subscribers get instant data
+
+🔹 2. Router Links: 👉 Used for navigation in Angular
+<a routerLink="/dashboard">Go</a>
+
+👉 With Parameters
+<a [routerLink]="['/user', 1]">User</a>
+
+this.route.snapshot.params['id'];
+
+👉 Programmatic Navigation
+this.router.navigate(['/dashboard']);
+
+🔹 3. HTTP Interceptors: 👉 Intercept all HTTP calls globally
+=====================================================================================================================================================
 Error handling in observables and Angular lifecycle hooks.
-Watch this video to gain deep insights and practical knowledge from Abhishek's approach to these complex topics and coding challenges.
+=====================================================================================================================================================
+🔹 1. Error Handling in Observables
+👉 Observables can emit: next → error → complete
+🔹 Using subscribe
+this.http.get('/api').subscribe({
+  next: data => console.log(data),
+  error: err => console.error(err),
+  complete: () => console.log('done')
+});
+
+🔹 Using catchError (Best practice)
+
+import { catchError, of } from 'rxjs';
+
+this.http.get('/api').pipe(
+  catchError(err => {
+    console.error(err);
+    return of([]); // fallback value
+  })
+).subscribe();
+
+| Hook              | Purpose               |
+| ----------------- | --------------------- |
+| `ngOnInit`        | Initialize component  |
+| `ngOnChanges`     | When input changes    |
+| `ngAfterViewInit` | After view loads      |
+| `ngOnDestroy`     | Cleanup (unsubscribe) |
+
+Constructor
+🔹 In Angular
+ngOnChanges → Called when @Input changes → use for reacting to input updates
+ngOnInit → Called once after component init → use for initialization (API calls, setup)
+ngDoCheck → Called on every change detection → use for custom change detection logic
+ngAfterContentInit → After external content (ng-content) loaded → use to access projected content
+ngAfterContentChecked → After projected content checked → use for content validation/logging
+ngAfterViewInit → After component view initialized → use for DOM access (@ViewChild)
+ngAfterViewChecked → After view checked → use for post-view updates (rarely used)
+ngOnDestroy → Before component destroyed → use for cleanup (unsubscribe, clear timers)
+
+
+🔹 Called ONLY ONCE
+ngOnInit → once after init
+ngAfterContentInit → once after content projection
+ngAfterViewInit → once after view initialization
+
+🔹 Called MULTIPLE TIMES (Repeated)
+ngOnChanges → every time @Input changes
+ngDoCheck → every change detection cycle
+ngAfterContentChecked → after each content check
+ngAfterViewChecked → after each view check
+
+🔹 Called ONCE (At End)
+ngOnDestroy → once before component is destroyed
+=====================================================================================================================================================
+🔹 What is a Guard?
+=====================================================================================================================================================
+👉 A route protection mechanism in Angular Controls whether a route can be activated, loaded, or left
+🔹 Why use Guards?
+	Authentication (login check)
+	Authorization (role-based access)
+	Prevent data loss (unsaved changes)
+🔹 Types of Guards
+	CanActivate: 👉 Allow/deny access to route
+	CanActivateChild: 👉 Protect child routes
+	CanDeactivate: 👉 Prevent leaving a page (unsaved form)
+	CanLoad: 👉 Prevent lazy-loaded module loading
+=====================================================================================================================================================
+
+Q1. Explain difference between kafka Topic and Queue?
+========================================================================================================================
+| Feature           | Kafka Topic             | Queue                 |
+| ----------------- | ----------------------- | --------------------- |
+| Model             | Pub-Sub                 | Point-to-Point        |
+| Consumption       | Multiple consumers      | Single consumer       |
+| Message Retention | Retained (configurable) | Deleted after consume |
+| Replay            | Possible                | Not possible          |
+| Scalability       | High (partitions)       | Limited               |
+| Use Case          | Event streaming, logs   | Task processing       |
+
+========================================================================================================================
+Q2. How to move an monolithic app to microservices ?
+========================================================================================================================
+Strangler Pattern = Gradually replace monolith by routing traffic to new microservices until old system dies.
+A migration pattern to gradually replace a monolithic system
+New features/services are built outside, while old system still runs
+Over time → old system is “strangled” and removed
+
+🔹 How it works
+Put API Gateway / Proxy in front
+Route some requests to new microservice
+Keep remaining traffic to monolith
+Gradually move features → microservices
+Finally decommission monolith
+
+🔹 Example
+Old: E-commerce monolith
+Step 1: Extract User Service
+Step 2: Route /users → new service
+Step 3: Gradually extract Order, Payment
+End: Monolith removed
