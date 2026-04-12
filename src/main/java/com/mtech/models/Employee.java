@@ -57,6 +57,7 @@ public class Employee {
 	public static List<Employee> getEmployees() {
 		List<Employee> employees = Arrays.asList(
 				new Employee("Alice", "HR", 25, 60000L),
+				new Employee("ROB", "HR", 25, 60000L),
 				new Employee("Bob", "IT", 30, 55000L),
 				new Employee("Charlie", "HR", 30, 44000L),
 				new Employee("Dave", "IT", 25, 35000L),

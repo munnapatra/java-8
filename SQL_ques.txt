@@ -523,16 +523,7 @@ Top 50 most frequently asked only
 Since you prefer short, interview-level answers, here are the Top 50 most frequently asked SQL/RDBMS questions (5+ years level):
 
 🔹 Fundamentals
-What is normalization? Explain 1NF–3NF.
-What is denormalization? When would you use it?
 What are ACID properties?
-What is a primary key?
-Primary key vs Unique key?
-What are constraints in SQL?
-What is a foreign key?
-What is indexing?
-Clustered vs Non-clustered index?
-What is a composite index?
 🔹 Queries & Joins
 Types of joins?
 INNER vs LEFT JOIN?
@@ -585,17 +576,6 @@ Difference between SQL and NoSQL
 =================================================================================================================================
 =================================================================================================================================
 
-Types of SQL commands
-=================================================================================================================================
-=================================================================================================================================
-
-DDL
-
-DML
-
-DCL
-
-TCL
 =================================================================================================================================
 =================================================================================================================================
 
@@ -605,53 +585,18 @@ Difference between CHAR vs VARCHAR
 
 What is a schema
 =================================================================================================================================
+
 =================================================================================================================================
-What is a view
-=================================================================================================================================
-=================================================================================================================================
-Difference between view and materialized view
 =================================================================================================================================
 =================================================================================================================================
 What is a temporary table
 =================================================================================================================================
 =================================================================================================================================
-What are SQL constraints?
-=================================================================================================================================
-=================================================================================================================================
-Types of constraints
-=================================================================================================================================
-=================================================================================================================================
-Primary key
 
-Foreign key
-
-Unique key
-
-Not null
-
-Check constraint
-
-Default constraint
-
-Composite key
 
 =================================================================================================================================
 =================================================================================================================================
 
-Types of joins
-=================================================================================================================================
-=================================================================================================================================
-Inner join
-
-Left join
-
-Right join
-
-Full join
-
-Self join
-
-Cross join
 =================================================================================================================================
 =================================================================================================================================
 Difference between join and subquery
@@ -702,31 +647,19 @@ Non-correlated subquery
 =================================================================================================================================
 =================================================================================================================================
 Subquery vs join
-
 EXISTS vs IN
-
 ANY vs ALL
 
 6. Window Functions (Very Important)
-
 What are window functions?
-
 Difference between GROUP BY and window function
-
 ROW_NUMBER
-
 RANK
-
 DENSE_RANK
-
 LEAD
-
 LAG
-
 NTILE
-
 Running totals
-
 Partition by
 
 Example
@@ -734,210 +667,120 @@ Example
 SELECT name, salary,
 ROW_NUMBER() OVER (PARTITION BY dept ORDER BY salary DESC)
 FROM employee;
+
 7. Indexing
-
 What is an index?
-
 Types of indexes
-
 Clustered index
-
 Non-clustered index
-
 Composite index
-
 Unique index
-
 Covering index
-
 Bitmap index
-
 When indexes should not be used
-
 How indexes improve performance
 
 8. Transactions
-
 What is a transaction?
-
 ACID properties
-
 Transaction states
-
 Commit vs rollback
-
 Savepoint
-
 Autocommit
 
 9. Isolation Levels
-
 Read uncommitted
-
 Read committed
-
 Repeatable read
-
 Serializable
-
 Problems
-
 Dirty read
-
 Non-repeatable read
-
 Phantom read
 
 10. Locks & Concurrency
-
 What is locking?
-
 Types of locks
-
 Shared lock
-
 Exclusive lock
-
 Row level locking
-
 Table level locking
-
 Deadlock
-
 Deadlock prevention
 
 11. Performance Optimization (Very Important for 8+)
-
 How to optimize slow queries
-
 Explain execution plan
-
 Index scan vs table scan
-
 Query cost
-
 Partitioning
-
 Denormalization
-
 Sharding
-
 Query caching
-
 Batch inserts
-
 Pagination optimization
 
 12. Normalization
-
 What is normalization?
-
 1NF
-
 2NF
-
 3NF
-
 BCNF
-
 Denormalization
-
 Trade-offs
 
 13. Advanced SQL
-
 Common Table Expressions (CTE)
-
 Recursive queries
-
 Pivot and unpivot
-
 Materialized views
-
 Stored procedures
-
 Triggers
-
 Functions
 
 14. Data Modeling
-
 Entity relationships
-
 Star schema
-
 Snowflake schema
-
 Fact table
-
 Dimension table
 
 15. Data Warehousing
-
 OLTP vs OLAP
-
 ETL process
-
 Slowly changing dimensions
-
 Data lake vs data warehouse
 
 16. SQL Coding Questions (Very Common)
-
 Find second highest salary
-
 Find Nth highest salary
-
 Find duplicate records
-
 Delete duplicate records
-
 Find employees without manager
-
 Find employees with highest salary per department
-
 Running total
-
 Top N per group
-
 Find gaps in sequence
-
 Find consecutive records
 
 17. Real Production Questions (Very Important)
-
 How to handle millions of records
-
 How to design high throughput database
-
 Handling slow queries in production
-
 Index strategy for large tables
-
 Database connection pooling
-
 Handling database failover
-
 Read replica usage
-
 Database sharding
-
 Handling data migration
-
 Backward compatible schema changes
 
 18. SQL vs Java Integration
 
 JDBC working
-
 PreparedStatement vs Statement
-
 Connection pooling
-
 ORM vs native SQL
-
 Hibernate query optimization
-
 N+1 problem
-
 Lazy vs eager loading

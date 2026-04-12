@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.mtech.models.Employee;
@@ -16,18 +15,33 @@ import com.mtech.models.Transaction;
 
 public class ObjectStreamingCoding {
 	public static void main(String[] args) {
-
+		
+		String st1 = "munna"; // constant pool munna
+		st1.concat(" patra"); // constant pool munna patra but not assigned to any variable
+		System.out.println(st1); //munna becuase st1 still pointing
 		// From a list of students, find the top 3 by score.
 		List<Student> top3Student = Student.getStudents().stream()
 				.sorted(Comparator.comparing(Student::getScore).reversed())
 				.limit(3).toList();
 		System.out.println(top3Student);
 
+		// 2nd highest salary
+		 Long orElse = Employee.getEmployees().stream()
+				.map(Employee::getSalary)
+				.sorted(Comparator.reverseOrder())
+				.distinct()
+				.skip(1).findFirst().orElse(null);
+		System.out.println("second high salary "+ orElse);
+		
 		// 2nd highest salary employee
-		Employee secndHighSalary = Employee.getEmployees().stream()
-				.sorted(Comparator.comparing(Employee::getSalary).reversed())
-				.skip(1).findFirst().get();
-		System.out.println(secndHighSalary);
+	 Optional<Employee> flatMap = Employee.getEmployees().stream().map(Employee::getSalary).distinct()
+				.sorted(Comparator.reverseOrder()).skip(1).findFirst()
+				.flatMap(sal -> Employee.getEmployees().stream().filter(e -> e.getSalary().equals(sal)).findFirst());
+		System.out.println("second high salary emp "+ flatMap);
+
+		List<Employee> list2 = Employee.getEmployees().stream()
+				.sorted(Comparator.comparing(Employee::getName).thenComparing(Employee::getAge)).toList();
+		System.out.println("Emp list "+ list2);
 
 		// Group employees by department and then by age.
 		Map<String, Map<Integer, List<String>>> collect = Employee
@@ -47,13 +61,20 @@ public class ObjectStreamingCoding {
 		Optional<Employee> max = Employee.getEmployees().stream()
 				.max(Comparator.comparingLong(Employee::getSalary));
 		System.out.println(max.get());
+		
+		Double average = Employee.getEmployees().stream().mapToDouble(Employee::getSalary).average().orElse(0);
+		System.out.println("average "+average);
+		
+		Map<String,List<Employee>> collect3 = Employee.getEmployees().stream().collect(Collectors.groupingBy(Employee::getDepartment));
+		collect3.entrySet().forEach(e -> {
+			System.out.println(e.getKey()+"="+e.getValue().stream().map(Employee::getName).toList());
+		});
 
 		// From a list of employees, find the highest-paid employee in each department
 		Map<String, Optional<Employee>> highestPaidEmpByDep = Employee
 				.getEmployees().stream()
 				.collect(Collectors.groupingBy(Employee::getDepartment,
-						Collectors.maxBy(
-								Comparator.comparing(Employee::getSalary))));
+						Collectors.maxBy(Comparator.comparing(Employee::getSalary))));
 		System.out.println(highestPaidEmpByDep);
 
 		// Detect cycles in a list of parent-child relationships.
