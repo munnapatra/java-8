@@ -1,0 +1,1246 @@
+Toyata
+========================================================================================================================================
+🔥Core Java
+Q1. Difference between HashMap and ConcurrentHashMap. How does HashMap work internally?
+========================================================================================================================================
+| Feature                     | HashMap                                       | ConcurrentHashMap                                 |
+| --------------------------- | --------------------------------------------- | ------------------------------------------------- |
+| Thread-safe                 | ❌ No                                          | ✅ Yes                                             |
+| Performance (single thread) | Faster                                        | Slightly slower due to synchronization mechanisms |
+| Concurrent reads            | Unsafe if writes occur simultaneously         | Safe                                              |
+| Concurrent writes           | Can corrupt data                              | Safe                                              |
+| Null keys                   | 1 null key allowed                            | ❌ Not allowed                                     |
+| Null values                 | Allowed                                       | ❌ Not allowed                                     |
+| Iterator behavior           | Fail-fast (`ConcurrentModificationException`) | Weakly consistent (no exception)                  |
+| Synchronization             | None                                          | Internal fine-grained locking/CAS                 |
+
+✅ConcurrentHashMap provides useful atomic methods:
+	map.putIfAbsent("A", 1);
+	map.compute("A", (k, v) -> v == null ? 1 : v + 1);
+	map.merge("A", 1, Integer::sum);
+	These operations are thread-safe without additional synchronization.
+
+✅Internal Working
+	💡HashMap
+		1. Hashing 
+			When you do: map.put("John", 100);
+			HashMap first calculates the hash: int hash = key.hashCode();
+			Then Java spreads the bits: hash = h ^ (h >>> 16);
+			This improves distribution and reduces collisions.
+			Example: 
+				key.hashCode() = 1010101010101010
+				h >>> 16       = 0000000010101010
+				XOR result     = better distributed hash
+		
+		2. Bucket Index Calculation
+			Default capacity = 16
+			Bucket index: index = (n - 1) & hash, where n = table size.
+			Example: capacity = 16, hash = 21 then index = (16-1) & 21 = 15 & 21 = 5
+			Element goes into bucket 5.
+			Using & is much faster than %.
+
+		3. Internal Data Structure
+			Node<K,V>[] table
+			Each bucket contains:
+				static class Node<K,V> {
+					final int hash;
+					final K key;
+					V value;
+					Node<K,V> next;
+				}
+
+			Visual:
+				Bucket 0 -> null
+				Bucket 1 -> (A,100)
+							  |
+							  v
+						   (B,200)
+
+				Bucket 2 -> null
+				Bucket 3 -> (C,300)
+
+			Collision Handling
+				Suppose: "A" -> bucket 5, "B" -> bucket 5
+				Both hashes map to same bucket.
+				Java stores: Bucket 5 (A,100) -> (B,200) -> null
+				This is called Separate Chaining.
+
+			Treeification (Java 8 Improvement): 
+				Before Java 8: A -> B -> C -> D -> E -> F -> G -> H
+				Search complexity: O(n)
+				Java 8 converts linked list into Red-Black Tree when: bucket size >= 8 AND table size >= 64
+				Search becomes: O(log n) instead of O(n)
+			Load Factor
+				Default: 0.75
+				Meaning: capacity = 16
+				threshold = 16 × 0.75 = 12
+				After inserting 13th element: resize() occurs.
+				Resizing Capacity doubles:
+						16 -> 32
+						32 -> 64
+						64 -> 128
+
+				During resize every node is rehashed.
+				This is expensive: O(n)
+				That's why for known size: new HashMap<>(1000); is preferred.
+		
+	💡ConcurrentHashMap
+		The goal: Many threads should read/write simultaneously without corrupting data.
+		Java 7 Approach: Used: Segment[]
+				Structure:
+					ConcurrentHashMap
+						  |
+						  +-- Segment 0
+						  +-- Segment 1
+						  +-- Segment 2
+						  +-- Segment 3
+
+					Each segment had its own lock.
+
+				Thread 1: segment0.put()
+				Thread 2: segment2.put()
+				No blocking.
+				
+				Problem: Too many collisions inside a segment.
+
+		Java 8 Approach (Current): Segments removed.
+				Uses: Node<K,V>[] table similar to HashMap.
+				But concurrency achieved using:
+						1. CAS (Compare And Swap)
+						2. Bucket-level synchronization
+						3. Volatile variables
+
+				1.CAS Example
+					Suppose bucket 5 is empty.
+					Two threads try:
+							put(A)
+							put(B)
+
+					Java uses CPU instruction: compareAndSwap()
+					Pseudo:
+						if(bucket == null)
+							insert node
+						Done atomically. No lock required.
+
+				2.Bucket-Level Locking:
+					Suppose bucket already contains: A -> B Thread wants to add C.
+					Java locks only bucket 5: synchronized(firstNode) Not entire map.
+						Bucket 5 locked
+						Bucket 6 free
+						Bucket 7 free
+						Bucket 8 free
+					So Other threads continue working Concurrent Reads.
+					Reads are mostly lock-free. map.get(key); No synchronization needed.
+					This is why reads are extremely fast.
+
+			Resize in ConcurrentHashMap: Multiple threads can participate.
+				Instead of one thread resizing entire map:
+					Thread 1 -> migrate bucket 0-100
+					Thread 2 -> migrate bucket 101-200
+					Thread 3 -> migrate bucket 201-300
+				
+				Called cooperative resizing. Much faster for huge maps.
+
+			Why Null is Not Allowed?
+				HashMap: map.put(null, "A"); allowed.
+				ConcurrentHashMap: map.put(null, "A"); throws NPE.
+				Reason: map.get(key) returns null.
+				Question: null => key absent? OR null => value stored?
+				In concurrent environment ambiguity is dangerous. So nulls are prohibited.
+
+✅When to Use Which?
+	💡Use HashMap when:
+		Only one thread accesses the map.
+		External synchronization is already provided.
+		Maximum performance is required in a single-threaded environment.
+
+	💡Use ConcurrentHashMap when:
+		Multiple threads access and modify the map.
+		High throughput and scalability are important.
+		You need atomic map operations like putIfAbsent() or compute().
+
+========================================================================================================================================
+Q2. What happens when two keys have the same hash code?
+========================================================================================================================================
+💡Scenario: Map<String, Integer> map = new HashMap<>(); map.put("FB", 1); map.put("Ea", 2);
+Interestingly: "FB".hashCode() == "Ea".hashCode()
+Both produce the same hash code (2236).
+
+Step 1: Hash is calculated
+		For both keys: hash = key.hashCode();
+		Result: 
+			FB -> 2236
+			Ea -> 2236
+			
+Step 2: Bucket index is calculated: index = (n - 1) & hash, Suppose both end up in bucket 12.
+
+Step 3: Collision occurs
+		When inserting the second key, HashMap sees: Bucket 12 already contains FB
+		It does not overwrite immediately. Instead it checks:
+			(existingNode.hash == newHash && (existingNode.key == key || existingNode.key.equals(key))
+
+		✅Case 1: Same hash, Different keys: "FB".equals("Ea")  // false
+				HashMap stores both entries: Bucket 12: (FB,1), (Ea,2)
+				This is called a collision. Both keys coexist in the same bucket.
+		
+		✅Case 2: Same hash, Same key: map.put("FB",1); map.put("FB",100);
+				HashMap finds: existingKey.equals(newKey) returns true. So value is updated: (FB,100) No new node is created.
+		
+		✅Retrieval Process
+			When: map.get("Ea");
+			HashMap:
+				1. Computes hash: 2236
+				2. Finds bucket 12: Bucket 12
+				3. Traverses nodes: 
+					(FB,1): Check: FB.equals(Ea) False. Move next.
+					(Ea,2): Check: Ea.equals(Ea) True. Return: 2
+		
+		✅Why equals() is Important
+			Every object gets the same hash.
+			Without a proper equals() implementation: map.get(employee); may fail to find the intended key.
+		
+		✅Rule for HashMap keys:
+			If equals() returns true, hash codes must be equal.
+			If hash codes are equal, equals() may be true or false.
+
+========================================================================================================================================
+Q3. Difference between ArrayList and LinkedList.
+========================================================================================================================================
+| Feature                      | ArrayList      | LinkedList         |
+| ---------------------------- | -------------- | ------------------ |
+| Data Structure               | Dynamic Array  | Doubly Linked List |
+| Random Access (`get(index)`) | O(1)           | O(n)               |
+| Insert at End                | O(1) amortized | O(1)               |
+| Insert at Beginning          | O(n)           | O(1)               |
+| Delete at Beginning          | O(n)           | O(1)               |
+| Insert in Middle             | O(n)           | O(n) (search)      |
+| Memory Usage                 | Less           | More               |
+| Cache Friendly               | Yes            | No                 |
+| Iteration Speed              | Faster         | Slower             |
+
+✅ArrayList Internal Working
+	✔️Adding Elements
+			List<String> list = new ArrayList<>();
+			list.add("A");
+			list.add("B");
+
+		Internally: [A][B][ ][ ][ ], Capacity Growth
+		Default capacity after first insertion: 10
+		When full: newCapacity = oldCapacity + oldCapacity/2
+		Example: 10 -> 15 -> 22 -> 33 -> 49
+		Java copies old elements into a larger array. Cost: O(n) for resize operation.
+		
+	✔️Access by Index: 
+			list.get(5000); Direct memory lookup: elementData[5000], Complexity: O(1) Very fast.
+		
+	✔️Why Insertions Are Slow in ArrayList
+			Suppose: [A][B][C][D], Insert X at index 1: list.add(1, "X");
+			Java shifts elements: 
+						[A][B][C][D]
+							 ↓ ↓ ↓
+						[A][X][B][C][D]
+
+			Complexity: O(n)
+		
+	✔️Memory Consumption
+			Stores only elements: [A][B][C], Memory efficient.
+			
+✅LinkedList Internal Working
+	Nodes: NodeA <-> NodeB <-> NodeC
+	Each node stores: data, next pointer, previous pointer
+	Insert at Beginning: linkedList.addFirst("X");
+	Just update pointers:
+		Before: A <-> B <-> C
+		After: X <-> A <-> B <-> C
+
+	Complexity: O(1), No shifting.
+	
+	✔️Access by Index: linkedList.get(5000);
+		Java must traverse: 
+						Head
+						 ↓
+						Node1
+						 ↓
+						Node2
+						 ↓
+						...
+						 ↓
+						Node5000
+
+		Complexity: O(n), Much slower than ArrayList.
+
+	✔️Memory Consumption
+		LinkedList Each node stores: data, next reference, previous reference, Consumes significantly more memory.
+
+	✔️Why ArrayList Is Usually Faster Even though LinkedList has O(1) insertion at ends:
+		Modern CPUs prefer contiguous memory.
+		ArrayList: [A][B][C][D][E], stored together. CPU cache utilization is excellent.
+	
+		LinkedList:
+			A -> memory1
+			B -> memory2000
+			C -> memory500
+			D -> memory8000
+
+	✔️Memory scattered. More cache misses.
+		Therefore: Iteration is faster in ArrayList. Random access is dramatically faster in ArrayList.
+
+========================================================================================================================================
+Q4. Difference between Comparable and Comparator.
+========================================================================================================================================
+| Feature               | Comparable                            | Comparator                           |
+| --------------------- | ------------------------------------- | ------------------------------------ |
+| Package               | `java.lang`                           | `java.util`                          |
+| Purpose               | Defines natural ordering              | Defines custom ordering              |
+| Method                | `compareTo()`                         | `compare()`                          |
+| Modified Class        | Yes (class must implement Comparable) | No                                   |
+| Number of Sort Orders | One natural order                     | Multiple custom orders               |
+| Used By               | `Collections.sort(list)`              | `Collections.sort(list, comparator)` |
+
+
+✔️compareTo() Contract
+	Negative -> Current object is smaller
+	Zero     -> Equal
+	Positive -> Current object is greater
+
+✔️Why use Integer.compare instead of subtraction?
+	Bad: return this.id - other.id; Possible overflow: Integer.MAX_VALUE - (-1)
+	Good: return Integer.compare(this.id, other.id);
+
+========================================================================================================================================
+Q5. What is the difference between String, StringBuilder, and StringBuffer?
+========================================================================================================================================
+| Feature      | String                 | StringBuilder | StringBuffer              |
+| ------------ | ---------------------- | ------------- | ------------------------- |
+| Mutable      | ❌ No                  | ✅ Yes  	    | ✅ Yes                    |
+| Thread Safe  | ✅ Immutable           | ❌ No   	    | ✅ Yes         	        |
+| Performance  | Slow for modifications | Fastest       | Slower than StringBuilder |
+| Memory Usage | More objects created   | Efficient     | Efficient                 |
+| Package      | `java.lang`            | `java.lang`   | `java.lang`               |
+| Introduced   | Java 1.0               | Java 5        | Java 1.0                  |
+
+1. String (Immutable)
+	✅Internal Structure
+		Since Java 9: private final byte[] value;
+		Earlier versions: private final char[] value;
+		Notice: final The internal data cannot be modified.
+	
+		Example
+			String s1 = "Java";
+			s1.concat("8");
+			System.out.println(s1);
+		
+		Output: Java, Because concat() creates a new String.
+		Correct: s1 = s1.concat("8");
+		Output: Java8
+
+	✅Why String Is Immutable?
+		Benefits:
+			1. String Pool
+			2. Security 
+				Used in: Database URLs, File Paths, Class Loading, Network Connections
+				Cannot be modified after creation.
+			
+			3. Thread Safety: Immutable objects are naturally thread-safe. No synchronization required.
+
+2. StringBuilder (Mutable): Designed for frequent string modifications.
+	✅Internal Structure
+		char[] value;
+		int count;
+		Default capacity: 16
+		Example: StringBuilder sb = new StringBuilder();
+		Internally: [ ][ ][ ][ ]...[16]
+		Capacity Growth When full: newCapacity = oldCapacity * 2 + 2;
+		Example: 16 → 34 → 70 → 142
+		
+3. StringBuffer (Mutable + Thread Safe): Same as StringBuilder but methods are synchronized.
+	
+✅Internal Difference
+	StringBuilder: public StringBuilder append(String str) , No synchronization. Fast.
+	StringBuffer: public synchronized StringBuffer append(String str), Lock acquired. Thread-safe but slower.
+
+✅Performance Example
+	✅String s = "";
+		for(int i=0;i<10000;i++) {
+			s = s + i;
+		}
+
+	Each iteration creates a new String. Time complexity: O(n²) Because thousands of intermediate objects are created.
+
+	✅Using StringBuilder:
+		StringBuilder sb = new StringBuilder();
+		for(int i=0;i<10000;i++) {
+			sb.append(i);
+		}
+
+	Time complexity: O(n) , Much faster.
+	
+✅What Happens During String Concatenation?
+	Java 8
+		String s = a + b + c;
+		Compiler converts to:
+					new StringBuilder()
+					.append(a)
+					.append(b)
+					.append(c)
+					.toString();
+	
+	Java 9+
+		Uses: invokedynamic, StringConcatFactory, for further optimization.
+
+✅Memory Diagram
+	String: Multiple objects created.
+	StringBuilder: Single object reused.
+
+✅When to Use Which?
+	Use String: When value rarely changes. Most common choice.
+	Use StringBuilder: Single-threaded applications. Frequent modifications. Best performance.
+	Use StringBuffer: Multiple threads modify the same object. Need synchronization.
+	
+========================================================================================================================================
+Q. Explain Java Memory Model.
+========================================================================================================================================
+❓Why Do We Need JMM?
+	Consider:
+
+	class Shared {
+		boolean flag = false;
+	}
+
+	Shared s = new Shared();
+
+	// Thread 1
+	s.flag = true;
+
+	// Thread 2
+	while (!s.flag) {
+		// wait
+	}
+	
+	You might expect Thread 2 to exit the loop immediately. But it may never see the updated value because each CPU thread can cache variables locally. JMM defines rules that ensure predictable behavior.
+
+🔄Memory Structure
+	JMM divides memory into:
+		Main Memory: Shared by all threads.
+			Main Memory
+			------------
+			counter = 10
+			flag = true
+			name = "John"
+			Working Memory
+
+			Each thread has its own working memory (CPU cache/registers).
+
+			Thread 1 Cache
+			--------------
+			counter = 10
+
+			Thread 2 Cache
+			--------------
+			counter = 5
+
+			Threads operate on their local copies.
+				Example: int count = 0; Thread 1, count = 100;
+
+				Flow:
+					Main Memory
+						  ↓
+					Thread 1 Cache
+						  ↓
+					Modify
+						  ↓
+					Write Back
+
+			Another thread may still see the old value until synchronization occurs.
+
+✅Three Core Problems
+	✔️1. Visibility Problem
+			boolean running = true;
+			Thread 1: running = false;
+			Thread 2: while(running) { }
+			Thread 2 may continue forever because it reads a cached value.
+	
+	✔️2. Atomicity Problem
+			count++; Looks like one operation.
+			Actually Three operations:
+				1. Read count, 2. Increment, 3. Write count
+			
+			Example
+				Initial: count = 5
+				Thread 1: Read 5
+				Thread 2: Read 5
+				Thread 1: Write 6
+				Thread 2: Write 6
+				Expected: 7
+				Actual: 6
+			This is a race condition.
+	
+	✔️3. Ordering Problem: Compiler and CPU can reorder instructions for performance.
+			Example: 
+				int a = 10;
+				boolean ready = true;
+				May execute as:
+					ready = true;
+					a = 10;
+			
+			Another thread could observe: ready = true, a = 0 Unexpected result.
+
+		✔️Happens-Before Relationship: The most important JMM concept.
+			A happens-before relationship guarantees: Visibility, Ordering
+			If A happens-before B: Changes made by A are visible to B
+			✔️volatile: Used to solve visibility problems.
+				volatile boolean running = true;
+				Thread 1: running = false;
+				Thread 2: while(running) { }
+				Now Thread 2 sees updates immediately.
+			
+				What volatile Guarantees: Visibility
+					Every read comes from main memory.
+					Every write goes to main memory.
+			
+			✔️Ordering: x = 10; flag = true; 
+				If flag is volatile:
+				volatile boolean flag; JMM prevents reordering around volatile operations.
+			
+				What volatile Does NOT Guarantee
+				volatile int count = 0;
+				count++;
+				Still not atomic.
+				Race conditions remain possible.
+				
+			✔️synchronized Provides: Visibility, Atomicity, Ordering
+				Example: synchronized(this) { count++; }
+				Internally: Acquire Lock, Read, Modify, Write, Release Lock
+				
+				When a thread exits a synchronized block: Flush changes to main memory
+				When another thread enters: Read fresh values
+
+✅Happens-Before Rules
+	Rule 1: Program Order: a = 10; b = 20;
+	Within the same thread: a happens-before b
+	
+	Rule 2: Monitor Lock Rule: synchronized(lock) { }
+				Unlock: Thread 1 unlock happens-before Thread 2 lock
+	
+	Rule 3: Volatile Rule: flag = true; volatile write happens-before
+			if(flag) volatile read.
+	
+	Rule 4: Thread Start Rule: Thread t = new Thread(); t.start();
+			Everything before: start() is visible inside the new thread.
+	
+	Rule 5: Thread Join Rule: t.join();
+				After join returns: All actions of t are visible
+		
+		Reordering Example
+			Without synchronization:
+				int x = 0;
+				boolean ready = false;
+				
+				Thread1: x = 42; ready = true;
+				Thread2: if(ready) System.out.println(x);
+				Possible output: 0 because of reordering.
+			
+			Using volatile: 
+				volatile boolean ready;
+				Now: 42 is guaranteed when ready == true.
+		
+		
+✅JMM and CPU Cache
+	Modern CPUs:
+		CPU Cache
+		L1 Cache
+		L2 Cache
+		Registers
+		operate much faster than RAM.
+	
+	JMM abstracts these hardware details and provides a consistent programming model across:
+		Intel CPUs, AMD CPUs, ARM CPUs, Different operating systems
+		
+========================================================================================================================================
+Q. Heap vs Stack memory.
+========================================================================================================================================
+| Feature               | Heap Memory                         | Stack Memory                            |
+| --------------------- | ----------------------------------- | --------------------------------------- |
+| Purpose               | Stores objects and instance data    | Stores method calls and local variables |
+| Shared Across Threads | ✅ Yes                      	      | ❌ No (each thread has its own stack)	|
+| Memory Allocation     | Dynamic                             | Automatic                               |
+| Access Speed          | Slower                              | Faster                                  |
+| Garbage Collection    | Yes                                 | No                                      |
+| Lifetime              | Until object becomes unreachable    | Until method completes                  |
+| OutOfMemory Error     | `OutOfMemoryError: Java heap space` | `StackOverflowError`                    |
+
+✅Stack Memory:
+	Every thread gets its own stack and for each method within that thread will create Stack Frame.
+	It Stored: Local Variables, Primitive Values, Object References
+
+✅Heap Memory:
+	Used for storing objects. Shared objects with all thread
+	
+========================================================================================================================================
+Q. What are immutable objects?
+========================================================================================================================================
+✅It is an object whose state cannot be changed after it is created.
+	String is immutable. concat() creates a new object instead of modifying the existing one.
+
+✅Characteristics of an Immutable Class
+	1. Class should be final: Prevents subclassing and overriding behavior.
+	2. Fields should be private final: After construction, values cannot be reassigned.
+	3. No Setter Methods
+	4. Initialize Fields via Constructor
+	5. Defensive Copies for Mutable Fields: like this.joiningDate = new Date(joiningDate.getTime());
+
+✅Benefits of Immutability
+	1. Thread Safety: Immutable objects are inherently thread-safe. Multiple threads can read it simultaneously. No synchronization required.
+	2. Safe HashMap Keys
+	3. Security: Cannot be altered after creation. Important for security-sensitive APIs.
+	4. Caching and Reuse: String Pool works because Strings are immutable.
+	
+✅Common Immutable Classes: String, Integer, Long, Double, Boolean, BigInteger, BigDecimal, LocalDate, LocalDateTime
+
+========================================================================================================================================
+
+🔥Java 8+
+========================================================================================================================================
+Q. Functional Interface.
+========================================================================================================================================
+✅Interface that contains exactly one abstract method. It can have any number of default, static, or private methods.
+	Functional interfaces are primarily used with Lambda Expressions and the Stream API.
+
+✅Common Built-in Functional Interfaces
+| Interface           | Method              | Description                         |
+| ------------------- | ------------------- | ----------------------------------- |
+| `Predicate<T>`      | `test(T t)`         | Returns boolean                     |
+| `Function<T,R>`     | `apply(T t)`        | Takes input and returns output      |
+| `Consumer<T>`       | `accept(T t)`       | Consumes input, returns nothing     |
+| `Supplier<T>`       | `get()`             | Supplies a value                    |
+| `UnaryOperator<T>`  | `apply(T t)`        | Operates on same type               |
+| `BinaryOperator<T>` | `apply(T t1, T t2)` | Operates on two values of same type |
+
+
+
+========================================================================================================================================
+Q. Lambda Expressions.
+========================================================================================================================================
+✅A Lambda Expression is a concise way to implement a Functional Interface: Syntax: (parameters) -> expression
+
+✅ Built-in Functional Interfaces Example:
+	1. Predicate
+		Predicate<Integer> isEven = n -> n % 2 == 0;
+		System.out.println(isEven.test(4)); // true
+	
+	2. Consumer
+		Consumer<String> print = s -> System.out.println(s);
+		print.accept("Hello Java");
+		
+	3. Function
+		Function<String, Integer> length = s -> s.length();
+		System.out.println(length.apply("Java")); // 4
+		
+	4. Supplier
+		Supplier<String> msg = () -> "Welcome";
+		System.out.println(msg.get());
+
+✅ Advantages
+	Reduces boilerplate code.
+	Makes code more readable.
+	Enables functional programming.
+	Widely used with Streams API and Collections.
+	
+========================================================================================================================================
+Q. Method References.
+========================================================================================================================================
+✅ A Method Reference is a shorthand notation of a lambda expression that directly calls an existing method.
+	Syntax: ClassName::methodName Or objectReference::methodName
+
+✅The four types are:
+	1. Class::staticMethod
+		Function<Integer, Integer> f = MathUtils::square;
+		
+	2. object::instanceMethod
+		Printer p = new Printer();
+		Consumer<String> c = p::print;
+		
+	3. Class::instanceMethod: names.sort(String::compareToIgnoreCase);
+		
+	4. Class::new (Constructor Reference): Student::new;
+
+========================================================================================================================================
+Q: Stream API.
+========================================================================================================================================
+✅ The Stream API is used to process collections of data in a functional and declarative way.
+	It supports operations like filtering, mapping, sorting, grouping, and reducing data.
+	A Stream does not store data; it processes data from sources such as collections, arrays, or I/O channels.
+
+✅ Benefits: Less code, Functional programming style, Easier parallel processing, Improved readability
+
+✅  Stream Pipeline
+	A stream pipeline consists of: 
+		1. Source: collections, Arrays
+		
+		2. Intermediate Operations: These reurn another stream
+			filter(), map(), sorted(), limit(), ditinct(), etc 
+			
+		3. Terminal Operation: These produce a result and close the stream.
+			collect(), count(), findFirst(), anyMatch(), reduce()
+
+✅ Most Important Stream Methods for Interviews:
+	filter(), map(), flatMap(), sorted(), distinct(), limit()
+	collect(), reduce(), count(), findFirst(), anyMatch(), groupingBy(), partitioningBy()
+
+========================================================================================================================================
+Q. Difference between map() and flatMap().
+========================================================================================================================================
+✅map() performs a one-to-one transformation (T -> R), while flatMap() performs a one-to-many transformation (T -> Stream<R>) and flattens the result into a single stream.
+	Example: List<String> sentences = Arrays.asList("Java Spring", "AWS Docker");
+	
+1. map(): Transforms each element individually.
+		List<List<String>> listMap = sentences.stream().map(s -> Arrays.asList(s.split(" "))).collect(Collectors.toList());
+
+2. flatMap(): Used when each element itself contains a collection or stream.
+		List<String> list = sentences.stream().flatMap(s -> Arrays.stream(s.split(" "))).collect(Collectors.toList());
+
+
+========================================================================================================================================
+Q. How does parallelStream() work?
+========================================================================================================================================
+✅ parallelStream() processes stream operations using multiple threads from the Fork/Join Framework to utilize multiple CPU cores.
+
+Internal Working
+	Step 1: Split the Data
+			Suppose you have: List<Integer> numbers = IntStream.rangeClosed(1, 100).boxed().collect(Collectors.toList());
+			Java divides the list into smaller chunks: 1-25, 26-50, 51-75, 76-100
+	
+	Step 2: Fork : The Fork/Join Pool assigns chunks to worker threads.
+			Worker-1 -> 1-25,  Worker-2 -> 26-50, Worker-3 -> 51-75, Worker-4 -> 76-100
+
+	Step 3: Process in Parallel : Each thread performs stream operations independently. 
+				numbers.parallelStream().filter(n -> n % 2 == 0).map(n -> n * 2);
+				
+	Step 4: Join: Results from all threads are combined into a final result: .collect(Collectors.toList());
+	
+
+✅ForkJoinPool: By default, parallel streams use: ForkJoinPool.commonPool()
+	Typically: 
+		Worker thread = Number of CPU Cores - 1
+		For an 8-core machine: 7 worker threads
+
+✅ When Is It Useful?
+	Large datasets, CPU-intensive calculations, Independent operations, No shared mutable state
+
+✅When NOT to Use It?
+	Small Collections: Thread management overhead may make it slower.
+	Database Calls: This can overwhelm the database connection pool.
+	Shared Mutable Objects: Can lead to race conditions and incorrect results.
+
+✅Is parallelStream thread-safe? The stream framework is thread-safe, but your operations must also be thread-safe. Avoid modifying shared mutable state.
+
+list.parallelStream(); and list.stream().parallel(); are functionally equivalent.
+
+========================================================================================================================================
+Q. Optional class usage.
+========================================================================================================================================
+The Optional<T> class is a container object that may or may not contain a value. It was introduced to reduce NullPointerException (NPE) and make null handling more explicit.
+
+Creating Optional Objects
+	1. Optional.of(): Used when value is definitely not null.
+			Optional<String> name = Optional.of("Java");
+			Optional.of(null); Throws: NullPointerException
+			
+	2. Optional.ofNullable(): Accepts null values.
+		Optional<String> name = Optional.ofNullable(null);
+			
+	3. Optional.empty(): Optional<String> name = Optional.empty();
+	
+Common Methods
+	isPresent(): Checks if a value exists.
+	orElse(): Returns a default value if empty.
+	orElseGet(): Value generated lazily.
+	orElseThrow(): Throws exception if value is absent.
+
+Difference: orElse() vs orElseGet()
+	Optional<String> opt = Optional.of("Java");
+		opt.orElse(expensiveMethod());      // expensiveMethod() executes
+		opt.orElseGet(() -> expensiveMethod()); // does not execute
+
+	Use orElseGet() when the fallback computation is expensive.
+
+
+
+Real-World Example
+Repository Layer
+	public Optional<Employee> findById(Long id) {
+		return Optional.ofNullable(employeeMap.get(id));
+	}
+
+Service Layer:
+	Employee emp = repository.findById(id)
+			.orElseThrow(
+				() -> new EmployeeNotFoundException()
+			);
+
+Can Optional be a method parameter? Not recommended. Use Optional primarily as a return type.
+Can Optional contain null? No. Creates an empty Optional, not an Optional containing null.
+Is Optional Serializable? No. Avoid using it as an entity field in JPA/Hibernate.
+
+Interview Summary
+| Method          | Purpose                               |
+| --------------- | ------------------------------------- |
+| `of()`          | Create Optional with non-null value   |
+| `ofNullable()`  | Create Optional that may contain null |
+| `empty()`       | Empty Optional                        |
+| `isPresent()`   | Check if value exists                 |
+| `get()`         | Retrieve value                        |
+| `ifPresent()`   | Execute action if value exists        |
+| `orElse()`      | Return default value                  |
+| `orElseGet()`   | Return lazily generated value         |
+| `orElseThrow()` | Throw exception if absent             |
+| `map()`         | Transform contained value             |
+| `filter()`      | Apply condition                       |
+
+========================================================================================================================================
+Q. Default and static methods in interfaces.
+========================================================================================================================================
+| Feature                           | Default Method | Static Method |
+| --------------------------------- | -------------- | ------------- |
+| Has implementation                | Yes            | Yes           |
+| Inherited by implementing classes | Yes            | No            |
+| Can be overridden                 | Yes            | No            |
+| Called using object               | Yes            | No            |
+| Called using interface name       | No             | Yes           |
+
+1. Default Methods (Java 8): backward compatibility
+	To add new functionality to existing interfaces without breaking old implementations. 
+
+2. Static Methods (Java 8): Interfaces often needed utility/helper methods.
+
+3. Private Methods (Java 9): Problem with Default Methods: Duplicate code exists in multiple default methods
+	Purpose: Code reuse inside interfaces. Avoid duplication among default/static methods. Hide internal helper logic.
+	
+========================================================================================================================================
+
+🔥Coding Example
+========================================================================================================================================
+List<String> names = Arrays.asList("Tom","John","Tom","Alex");
+names.stream().distinct().sorted().forEach(System.out::println);
+
+Q. Explain the output and complexity.
+========================================================================================================================================
+
+Complexity Analysis
+	Let:
+		n = total elements
+		k = distinct elements
+	
+	1. distinct()
+		Time:  O(n)
+		Space: O(k)
+		(HashSet stores distinct values)
+
+	2. sorted()
+		Time:  O(k log k)
+		Space: O(k)
+		
+	3. forEach()
+		Time: O(k)
+		Space: O(1)
+	
+	Overall Complexity
+		Time: O(n) + O(k log k) + O(k) = O(n + k log k)
+		Worst case (all elements unique): 
+			k = n
+			O(n + n log n) = O(n log n)
+		
+		Space Complexity
+			HashSet for distinct -> O(k)
+			Sorting buffer      -> O(k)
+			Total: O(k)
+			
+			Worst case: O(n)
+
+========================================================================================================================================
+🔥Multithreading & Concurrency
+========================================================================================================================================
+Q. Difference between Runnable and Callable.
+========================================================================================================================================
+| Feature                     | Runnable              | Callable               |
+| --------------------------- | --------------------- | ---------------------- |
+| Package                     | `java.lang`           | `java.util.concurrent` |
+| Introduced                  | Java 1.0              | Java 5                 |
+| Method                      | `run()`               | `call()`               |
+| Return Value                | No                    | Yes                    |
+| Can Throw Checked Exception | No                    | Yes                    |
+| Used With                   | `Thread`, Executor    | ExecutorService        |
+| Result Retrieval            | Not possible directly | Via `Future`           |
+
+Runnable: Must handle checked exceptions internally.
+	@FunctionalInterface
+	public interface Runnable {
+		void run();
+	}
+	
+	ExecutorService executor = Executors.newFixedThreadPool(2);
+	Runnable task = () -> System.out.println("Running");
+	executor.execute(task);
+	executor.shutdown();
+	
+Callable: 
+	
+	@FunctionalInterface
+	public interface Callable<V> {
+		V call() throws Exception;
+	}
+	
+	ExecutorService executor = Executors.newSingleThreadExecutor();
+	Callable<Integer> task = () -> {  return 100; };
+	Future<Integer> future = executor.submit(task);
+	System.out.println(future.get());
+	executor.shutdown();
+
+When to Use Which?
+	Use Runnable When: No result is needed, Fire-and-forget tasks, Logging, Background notifications.
+	Use Callable When: Result is required, Database queries, API calls, Computations.
+
+Can Callable be executed using Thread? No.
+Can Runnable Return a Value? Not directly. You can share results via external variables or wrappers, but run() itself returns void.
+
+Interview Summary
+	Runnable -> void run()
+		No return value
+		No checked exceptions
+		Used for simple asynchronous tasks
+		
+	Callable<V> -> V call() throws Exception
+		Returns a value
+		Can throw checked exceptions
+		Used with ExecutorService
+		Result obtained through Future<V>
+		
+========================================================================================================================================
+What is synchronization?
+========================================================================================================================================
+========================================================================================================================================
+Explain deadlock.
+========================================================================================================================================
+========================================================================================================================================
+How do you detect and resolve deadlocks?
+========================================================================================================================================
+========================================================================================================================================
+Difference between synchronized and ReentrantLock.
+========================================================================================================================================
+========================================================================================================================================
+What is volatile?
+========================================================================================================================================
+========================================================================================================================================
+Explain thread pools.
+========================================================================================================================================
+========================================================================================================================================
+What is CompletableFuture?
+========================================================================================================================================
+========================================================================================================================================
+Producer-Consumer problem implementation.
+========================================================================================================================================
+========================================================================================================================================
+Race condition examples.
+========================================================================================================================================
+========================================================================================================================================
+How would you design a thread-safe counter?
+========================================================================================================================================
+AtomicInteger counter = new AtomicInteger(0);
+counter.incrementAndGet();
+========================================================================================================================================
+
+
+🔥Spring Boot
+========================================================================================================================================
+Explain Spring IOC and Dependency Injection.
+========================================================================================================================================
+========================================================================================================================================
+What is Spring Bean lifecycle?
+========================================================================================================================================
+========================================================================================================================================
+Difference between @Component, @Service, @Repository.
+========================================================================================================================================
+========================================================================================================================================
+Difference between @Autowired and constructor injection.
+========================================================================================================================================
+========================================================================================================================================
+What is Spring Boot Auto Configuration?
+========================================================================================================================================
+========================================================================================================================================
+How does @Transactional work?
+========================================================================================================================================
+========================================================================================================================================
+Propagation levels in transactions.
+========================================================================================================================================
+========================================================================================================================================
+What happens if an exception occurs inside a transaction?
+========================================================================================================================================
+========================================================================================================================================
+How do you secure REST APIs?
+========================================================================================================================================
+========================================================================================================================================
+Spring Security JWT implementation.
+========================================================================================================================================
+========================================================================================================================================
+
+🔥Microservices
+Monolith vs Microservices.
+========================================================================================================================================
+========================================================================================================================================
+Service Discovery.
+========================================================================================================================================
+========================================================================================================================================
+API Gateway purpose.
+========================================================================================================================================
+========================================================================================================================================
+Circuit Breaker pattern.
+========================================================================================================================================
+========================================================================================================================================
+Saga pattern.
+========================================================================================================================================
+========================================================================================================================================
+Event-driven architecture.
+========================================================================================================================================
+========================================================================================================================================
+Synchronous vs Asynchronous communication.
+========================================================================================================================================
+========================================================================================================================================
+How do you handle distributed transactions?
+========================================================================================================================================
+========================================================================================================================================
+Idempotency in APIs.
+========================================================================================================================================
+========================================================================================================================================
+How do you prevent duplicate requests?
+========================================================================================================================================
+========================================================================================================================================
+Scenario: A payment service succeeds but order service fails. How will you maintain consistency?
+========================================================================================================================================
+Expected answer:
+	Saga Pattern
+	Compensation transactions
+	Event-driven architecture
+========================================================================================================================================
+
+System Design Questions
+========================================================================================================================================
+Design a Parking Management System
+========================================================================================================================================
+Expected:
+	Classes, APIs, DB schema, Scalability
+
+========================================================================================================================================
+Design a Vehicle Tracking System
+========================================================================================================================================
+Since Toyota is automotive-related, vehicle telemetry design questions are common.
+
+Topics:
+	Millions of vehicles
+	GPS ingestion
+	Real-time tracking
+	Kafka
+	Microservices
+
+========================================================================================================================================
+Design an E-sign Notification System
+========================================================================================================================================
+Similar to your previous question:
+	Event-driven
+	Kafka
+	Retry mechanism
+	Idempotency
+
+========================================================================================================================================
+Database & SQL
+========================================================================================================================================
+Difference between clustered and non-clustered index.
+========================================================================================================================================
+========================================================================================================================================
+Normalization vs Denormalization.
+========================================================================================================================================
+========================================================================================================================================
+Explain ACID properties.
+========================================================================================================================================
+========================================================================================================================================
+Isolation levels.
+========================================================================================================================================
+========================================================================================================================================
+Difference between DELETE, TRUNCATE, DROP.
+========================================================================================================================================
+========================================================================================================================================
+How to optimize a slow query?
+========================================================================================================================================
+========================================================================================================================================
+Explain query execution plan.
+========================================================================================================================================
+========================================================================================================================================
+SQL Query
+========================================================================================================================================
+Find second highest salary:
+
+SELECT MAX(salary)
+FROM employee
+WHERE salary <
+(
+    SELECT MAX(salary)
+    FROM employee
+);
+
+========================================================================================================================================
+🔥REST API Questions
+========================================================================================================================================
+PUT vs POST.
+========================================================================================================================================
+========================================================================================================================================
+PATCH vs PUT.
+========================================================================================================================================
+========================================================================================================================================
+HTTP status codes.
+========================================================================================================================================
+========================================================================================================================================
+Idempotent APIs.
+========================================================================================================================================
+========================================================================================================================================
+Versioning APIs.
+========================================================================================================================================
+========================================================================================================================================
+Pagination strategies.
+========================================================================================================================================
+========================================================================================================================================
+Rate limiting.
+========================================================================================================================================
+========================================================================================================================================
+
+🔥Kafka Questions
+Why Kafka?
+========================================================================================================================================
+========================================================================================================================================
+Partitioning.
+========================================================================================================================================
+========================================================================================================================================
+Consumer Groups.
+========================================================================================================================================
+========================================================================================================================================
+Exactly-once processing.
+========================================================================================================================================
+========================================================================================================================================
+Message ordering.
+========================================================================================================================================
+========================================================================================================================================
+Retry strategy.
+========================================================================================================================================
+========================================================================================================================================
+Dead Letter Queue (DLQ).
+========================================================================================================================================
+========================================================================================================================================
+
+🔥DevOps & Cloud
+========================================================================================================================================
+Docker lifecycle.
+========================================================================================================================================
+========================================================================================================================================
+Kubernetes Pods and Deployments.
+========================================================================================================================================
+========================================================================================================================================
+Rolling updates.
+========================================================================================================================================
+========================================================================================================================================
+Blue-Green deployment.
+========================================================================================================================================
+========================================================================================================================================
+CI/CD pipeline.
+========================================================================================================================================
+========================================================================================================================================
+Health checks.
+========================================================================================================================================
+========================================================================================================================================
+Autoscaling.
+========================================================================================================================================
+========================================================================================================================================
+
+🔥Behavioral Questions
+Tell me about a production issue you solved.
+========================================================================================================================================
+========================================================================================================================================
+Describe a challenging microservice migration.
+========================================================================================================================================
+========================================================================================================================================
+How do you mentor junior developers?
+========================================================================================================================================
+========================================================================================================================================
+Explain a design decision you disagreed with.
+========================================================================================================================================
+========================================================================================================================================
+Describe a performance optimization you implemented.
+========================================================================================================================================
+========================================================================================================================================
+
+🔥Coding Questions Frequently Asked
+========================================================================================================================================
+LRU Cache
+========================================================================================================================================
+========================================================================================================================================
+Rate Limiter
+========================================================================================================================================
+========================================================================================================================================
+Producer Consumer
+========================================================================================================================================
+========================================================================================================================================
+Top K Frequent Elements
+========================================================================================================================================
+========================================================================================================================================
+Merge Intervals
+========================================================================================================================================
+========================================================================================================================================
+Detect Cycle in Linked List
+========================================================================================================================================
+========================================================================================================================================
+Longest Substring Without Repeating Characters
+========================================================================================================================================
+========================================================================================================================================
+Thread-safe Singleton
+========================================================================================================================================
+========================================================================================================================================
+Custom HashMap Implementation
+========================================================================================================================================
+========================================================================================================================================
+LRU Cache Design
+========================================================================================================================================
+Expect: HashMap + Doubly Linked List
+O(1) get
+O(1) put
+========================================================================================================================================
+
+
+
+🔥Toyota-Focused Design Question
+========================================================================================================================================
+"We have a Kids Play Zone Card Recharge Application and want to deploy it to 1,00,000 locations. How will you design it?"
+Be prepared to discuss:
+	Microservices
+	Kafka
+	Redis
+	Regional deployment
+	Offline support
+	Sharding
+	Kubernetes
+	Monitoring
+
+For a Senior Java Developer role, focus most on:
+
+Java 8+ Streams & Concurrency
+Spring Boot & Transactions
+Microservices patterns
+System Design
+SQL optimization
+Kafka/Event-driven architecture
+Production troubleshooting scenarios
+
+These areas usually account for the majority of senior-level interview rounds.
+
+
+Q: Given a chessboard with the bottom left corner as black, write a program that determines whether a given chess coordinate (e.g., b4) corresponds to a black or white square.
+
+Q: Describe a situation where you successfully debugged and resolved a highly complex issue. How did you identify the problem and what solution did you implement?
+
+Q: Discuss your experience mentoring junior developers and assisting them in advancing to more senior engineering roles.
