@@ -1,0 +1,354 @@
+Bug fixes Question:
+=================================================================================================================================
+85. We would like to catch people who are driving at unsafe speeds on the highway.
+	To help us do that, we would like to identify journeys where a driver does either of the following:
+		* Drive 130 km/h or greater in any one 10km segment of tollway.
+		* Drive 120 km/h or greater in any two 10km segments of tollway.
+
+		For example, consider the following log:
+			===================================
+		    |Time      |Car No| Way | Action  |
+			|==========|======|=====|=========|
+			|90750.191 |JOX304| 250E| ENTRY   |
+			|91081.684 |JOX304| 260E| MAINROAD|
+			|91082.101 |THX138| 110E| ENTRY   |
+			|91483.251 |JOX304| 270E| MAINROAD|
+			|91873.920 |THX138| 120E| MAINROAD|
+			|91874.493 |JOX304| 280E| EXIT    |
+			|91982.102 |THX138| 290E| EXIT    |
+			|92301.302 |THX138| 300E| ENTRY   |
+			|92371.302 |THX138| 310E| EXIT    |
+			|1000.000  |TST002| 270W| ENTRY   |
+			|1275.000  |TST002| 260W| EXIT    |
+			===================================
+		In this case, the driver of TST002 drove 10 km in 275 seconds.
+		We can calculate that this driver drove an average speed of ~130.91km/hr over this segment:
+		Calculate is Speed = distance/time
+		so Average speed for TST002 = 10 * 3600/275 = 130.91 km/h
+
+	Note that:
+		* A license plate may have multiple journeys in one file, and if they drive at unsafe speeds in both journeys, both should be counted.
+		* We do not mark speeding if they are not on the highway (i.e. for any driving between an EXIT and ENTRY event).
+		* Speeding is only marked once per journey.
+			For example, if there are 4 segments 120km/h or greater, or multiple segments 130km/h or greater, the journey is only counted once.
+
+1) Read through and understand the code and comments below. Feel free to run the code and tests.
+2) The tests are not passing due to a bug in the code. Make the necessary changes to LogEntry to fix the bug.
+3) Count the trips of vehicles by (entry exit) from log file.
+4) Write a function catchSpeeders in LogFile that returns a collection of license plates that drove at unsafe speeds during a journey in the LogFile. If the same license plate drives at unsafe speeds during two different journeys, the license plate should appear twice (once for each journey they drove at unsafe speeds).
+=================================================================================================================================
+Bug Fix:
+=========
+1) In LogEntry class: In constructor replace String[] tokens = logLine.split("" ""); with below because many test files typically contain multiple 	spaces/tabs between columns so use below code:
+========================
+		String[] tokens = logLine.trim().split("\\s+");
+		if (tokens.length != 4) {
+			throw new IllegalArgumentException("Invalid log line: " + logLine);
+		}
+
+2) In LogFile class: Within constructor change: Becuase line.strip() can give empty value which is not acceptable in LogEntry class.
+========================
+			 while (line != null) {
+			  LogEntry logEntry = new LogEntry(line.strip());
+			  this.logEntries.add(logEntry);
+			  line = reader.readLine();
+			}
+			
+	With:
+			while (line != null) {
+				line = line.strip();
+				if (!line.isEmpty()) {
+					logEntries.add(new LogEntry(line));
+				}
+				line = reader.readLine();
+			}
+3) Count log entries
+========================
+	public int countJourneys() {
+			Set<String> setData = new HashSet<>();
+			int journeyCounter = 0;
+			for (LogEntry log : logEntries) {
+				if ("ENTRY".equals(log.getBoothType())) {
+					setData.add(log.getLicensePlate());
+				} else if ("EXIT".equals(log.getBoothType()) && setData.contains(log.getLicensePlate())) {
+					journeyCounter++;
+				}
+			}
+			return journeyCounter;
+		}
+
+
+4) catchSpeeders() is not implemented correctly
+==================================================
+	public List<String> catchSpeeders() {
+		List<String> tickets = new ArrayList<>();
+		Map<String, Float> lastTimeMap = new HashMap<>();
+		Map<String, Integer> lastLocationMap = new HashMap<>();
+		Map<String, Integer> segments120Map = new HashMap<>();
+		Map<String, Boolean> has130Map = new HashMap<>();
+
+		for (LogEntry log : logEntries) {
+			String plate = log.getLicensePlate();
+
+			if ("ENTRY".equals(log.getBoothType())) {
+				lastTimeMap.put(plate, log.getTimestamp());
+				lastLocationMap.put(plate, log.getLocation());
+				segments120Map.put(plate, 0);
+				has130Map.put(plate, false);
+
+			} else {
+				if (!lastTimeMap.containsKey(plate)) {
+					continue;
+				}
+
+				float prevTime = lastTimeMap.get(plate);
+				int prevLocation = lastLocationMap.get(plate);
+
+				double distance = Math.abs(log.getLocation() - prevLocation);
+				double timeTaken = log.getTimestamp() - prevTime;
+
+				double speed = distance * 3600.0 / timeTaken;
+
+				if (speed >= 130.0) {
+					has130Map.put(plate, true);
+				}
+
+				if (speed >= 120.0) {
+					segments120Map.put(plate, segments120Map.get(plate) + 1);
+				}
+
+				lastTimeMap.put(plate, log.getTimestamp());
+				lastLocationMap.put(plate, log.getLocation());
+
+				if ("EXIT".equals(log.getBoothType())) {
+
+					if (has130Map.get(plate) || segments120Map.get(plate) >= 2) {
+						tickets.add(plate);
+					}
+
+					lastTimeMap.remove(plate);
+					lastLocationMap.remove(plate);
+					segments120Map.remove(plate);
+					has130Map.remove(plate);
+				}
+			}
+		}
+
+		return tickets;
+	}
+	
+=================================================================================================================================
+Q2. I have a gym system design having Member class for gym member and Membership class.
+	Write code improve the Membership class and to run the test successfully only change Membership class
+	Member( id , name, membershipStatus), membershipStatus can be bronze(free), Silver and gold(paid)
+	Correct the getMembershipAverage() in membership class to run the test successfully to return overall average of membership status to paid membership
+	Solution hint: add an OR condition for Gold status along with silver because both are paid status,
+	In he above code add workout class having workoutid , start time , end time , duration (end - starttime)
+	Each member can have multiple workouts
+	Now we need to find
+		1. Add member method to add workouts to each member of gym and run test successfully
+		2. the average work out time duration for each member and test class should run successfully.
+==============================================================================================================================================
+
+Solution for 1 : Add field List<Workout> to Member class and then create below method in Membership class and add all workouts associated with that member based on member ID check:
+				public void addWorkout(int memberId, List<Workout> workoutData) {
+						for (Member member : members) {
+							if (member.getId() == memberId) { // Find member by member ID Add workouts
+								member.getWorkouts().addAll(workoutData);
+							}
+						}
+					}
+
+Solution for 2 : To get average duration of workouts for each member Create below method in Membership class:
+				public Map<Integer, Double> getAverageWorkoutDuration() {
+					Map<Integer, Double> averageMap = new HashMap<>();
+
+					for (Member member : members) {
+						List<Workout> workouts = member.getWorkouts();
+						double totalDuration = 0;
+						for (Workout workout : workouts) {
+							totalDuration += workout.getDuration();
+						}
+
+						double average = 0.0;
+						if (!workouts.isEmpty()) {
+							average = totalDuration / workouts.size(); // Average of all work outs for that member
+						}
+						averageMap.put(member.getId(), average);
+					}
+
+					return averageMap;
+				}
+
+================================================
+public class Member {
+
+	private int id;
+	private String name;
+	private String membershipStatus;
+	private List<Workout> workouts; // Each member can have multiple workouts
+
+	public Member(int id, String name, String membershipStatus) {
+		this.id = id;
+		this.name = name;
+		this.membershipStatus = membershipStatus;
+		if (workouts == null) {
+			workouts = new ArrayList<>();
+		}
+	}
+	// getters for id, membershipStatus and workouts
+
+	@Override
+	public String toString() {
+		return "Member [id=" + id + ", name=" + name + ", membershipStatus=" + membershipStatus + ", workouts="
+				+ workouts + "]";
+	}
+
+}
+
+public class Workout {
+	private int workoutId;
+	private int startTime;
+	private int endTime;
+	private int duration;
+
+	public Workout(int workoutId, int startTime, int endTime) {
+		this.workoutId = workoutId;
+		this.startTime = startTime;
+		this.endTime = endTime;
+
+		// duration = endTime - startTime
+		this.duration = endTime - startTime;
+	}
+	
+	// getters and setters
+}
+
+public class Membership {
+
+	private List<Member> members;
+
+	public Membership() {
+		if (members == null) {
+			members = new ArrayList<Member>();
+		}
+	}
+
+	public void addMembers(List<Member> member) {
+		members.addAll(member); // Add member to gym
+	}
+
+	public double getMembershipAverage() {
+		if (members.isEmpty())
+			return 0.0;
+		long paidCount = members.stream().filter(m -> "SILVER".equalsIgnoreCase(m.getMembershipStatus())
+				|| "GOLD".equalsIgnoreCase(m.getMembershipStatus())).count();
+		return (double) paidCount / members.size();
+	}
+
+	public void addWorkout(int memberId, List<Workout> workoutData) {
+		for (Member member : members) {
+			if (member.getId() == memberId) { // Find member by member ID Add workouts
+				member.getWorkouts().addAll(workoutData);
+			}
+		}
+	}
+
+	public Map<Integer, Double> getAverageWorkoutDuration() {
+		Map<Integer, Double> averageMap = new HashMap<>();
+
+		for (Member member : members) {
+			List<Workout> workouts = member.getWorkouts();
+			double totalDuration = 0;
+			for (Workout workout : workouts) {
+				totalDuration += workout.getDuration();
+			}
+
+			double average = 0.0;
+			if (!workouts.isEmpty()) {
+				average = totalDuration / workouts.size(); // Average of all work outs for that member
+			}
+			averageMap.put(member.getId(), average);
+		}
+
+		return averageMap;
+	}
+}
+
+public class TestApp {
+	public static void main(String[] args) {
+		// Create members
+		List<Member> members = Arrays.asList(
+				new Member(1, "Rahul", "SILVER"),
+				new Member(2, "Amit", "GOLD"),
+				new Member(3, "Rakesh", "BRONZE"));
+
+		Membership gym = new Membership();
+		gym.addMembers(members);
+		gym.addWorkout(1, Arrays.asList( new Workout(101, 10, 40), new Workout(102, 20, 50))); 
+		gym.addWorkout(2, Arrays.asList(new Workout(201, 15, 45) , new Workout(202, 30, 90))); 
+		gym.addWorkout(3, Arrays.asList(new Workout(301, 5, 25)));
+
+		double membershipAverage = gym.getMembershipAverage(); // Membership average
+		System.out.println("Paid Membership Average: " + (Math.round(membershipAverage * 100.0) / 100.0));
+
+		Map<Integer, Double> result = gym.getAverageWorkoutDuration();
+		System.out.println("\nAverage Workout Duration:");
+		for (Map.Entry<Integer, Double> entry : result.entrySet()) {
+			System.out.println("Member ID: " + entry.getKey() + " -> Average Duration: " + entry.getValue());
+		}
+	}
+}
+==============================================================================================================================================
+Q3. We want to add a new function called getBiggestChange to the StockCollection class.
+	This function calculates and returns the largest change in stock price between any two consecutive days in the price records of a stock.
+	To begin with, we present you with two tasks:
+		1)Fix the bug.
+		2) Implement getBiggestChange() method
+==============================================================================================================================================
+1)Fix the bug.
+	🐞 Bug #1: Stock Constructor Ignores Parameters
+			Stock(String symbol, String name) {
+					this.symbol = "AAPL";
+					this.name = "Apple Inc";
+				}
+
+	🐞 Bug #2: PriceRecord Constructor Ignores Parameters
+			PriceRecord(Stock stock, int price, String date) {
+				this.stock = stock;
+				this.price = 120;
+				this.date = "2023-07-01";
+			}
+
+	🐞 Bug #3: Empty Collection Handling in getMinPrice() and getMaxPrice() 
+			int getMaxPrice() {
+				return priceRecords.stream().mapToInt(record -> record.price).max().getAsInt();
+			}
+		
+		Solution:  
+			int getMaxPrice() {
+				if(priceRecords.isEmpty()) return -1;
+				return priceRecords.stream().mapToInt(record -> record.price).max().getAsInt();
+			}
+
+	🐞 Bug #5: getAvgPrice()
+			Solution; if(priceRecords.isEmpty()) return -1.0;
+
+
+2) Implement getBiggestChange() method
+	import java.util.Comparator;
+	
+	int getBiggestChange() {
+	    if(priceRecords.size() < 2) return -1;
+
+	    ArrayList<PriceRecord> sorted = new ArrayList<>(priceRecords);
+	    sorted.sort(Comparator.comparing(record -> record.date));
+
+	    int maxChange = 0;
+	    for(int i = 1; i < sorted.size(); i++) {
+	        int change = Math.abs(sorted.get(i).price - sorted.get(i - 1).price);
+	        maxChange = Math.max(maxChange, change);
+	    }
+	    return maxChange;
+	}
+==============================================================================================================================================
