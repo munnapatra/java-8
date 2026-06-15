@@ -1,5 +1,13 @@
 System Design Questions: 
+You are working on a food delivery application where restaurant menu items and ingredient details are fetched from a central server. As the number of users and restaurants increases, the application starts facing slow responses, outdated ingredient information, and delays during peak hours. How would you identify the problem areas and improve the performance and reliability of the system?  
 
+Design a mobile application where users can upload and share videos of up to 1 minute in length. Each video should remain available for a configurable duration between 5 minutes and 24 hours, after which it must be automatically deleted from the system. 
+ 
+Estimate the storage requirements for this application. 
+
+ one question regarding what will we do if 3rd API that we are using is not reliable, how will u optimize this. 
+
+We have an application where children can draw characters. We then automatically generate animations based on those drawings and store them on our servers. As the number of users grows, the storage and infrastructure costs increase significantly. How would you design a system to reduce storage costs and optimize space usage while still ensuring animations remain accessible and performant?  
  
 
 You are working on a system where multiple services rely on a single centralized database for storing and retrieving data. 
